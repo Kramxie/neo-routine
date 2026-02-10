@@ -1,0 +1,175 @@
+/* Import Inter font - must be first */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-calm-50 text-calm-800 font-sans antialiased;
+  }
+}
+
+/* Component styles */
+@layer components {
+  /* Water drop effect */
+  .water-drop {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .water-drop::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.6), rgba(14, 165, 233, 0.2));
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    transform: rotate(45deg);
+    top: -10px;
+    right: -10px;
+    animation: drop 0.6s ease-out;
+  }
+  
+  /* Ripple container */
+  .ripple-container {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Single ripple circle */
+  .ripple-circle {
+    position: absolute;
+    border: 2px solid rgba(14, 165, 233, 0.4);
+    border-radius: 50%;
+    animation: ripple 2s ease-out infinite;
+  }
+  
+  .ripple-circle:nth-child(2) {
+    animation-delay: 0.5s;
+  }
+  
+  .ripple-circle:nth-child(3) {
+    animation-delay: 1s;
+  }
+  
+  /* Progress ripple visualization */
+  .progress-ripple {
+    @apply relative w-32 h-32 rounded-full flex items-center justify-center;
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  }
+  
+  .progress-ripple::before,
+  .progress-ripple::after {
+    content: '';
+    position: absolute;
+    border: 2px solid rgba(14, 165, 233, 0.3);
+    border-radius: 50%;
+    animation: ripple 3s ease-out infinite;
+  }
+  
+  .progress-ripple::before {
+    width: 100%;
+    height: 100%;
+    animation-delay: 0s;
+  }
+  
+  .progress-ripple::after {
+    width: 100%;
+    height: 100%;
+    animation-delay: 1.5s;
+  }
+  
+  /* Calm gradient backgrounds */
+  .bg-gradient-water {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+  }
+  
+  .bg-gradient-ocean {
+    background: linear-gradient(180deg, #0ea5e9 0%, #0284c7 100%);
+  }
+  
+  /* Soft card style */
+  .card-soft {
+    @apply bg-white rounded-neo p-6 shadow-neo;
+  }
+  
+  /* Button base styles */
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-neo font-medium transition-all duration-200;
+  }
+  
+  .btn-primary {
+    @apply bg-neo-500 text-white hover:bg-neo-600 shadow-neo hover:shadow-neo-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-neo-600 border-2 border-neo-200 hover:border-neo-400 hover:bg-neo-50;
+  }
+  
+  /* Input styles */
+  .input-neo {
+    @apply w-full px-4 py-3 rounded-neo border-2 border-calm-200 bg-white;
+    @apply focus:border-neo-400 focus:ring-2 focus:ring-neo-100 focus:outline-none;
+    @apply transition-all duration-200;
+  }
+}
+
+/* Utility classes */
+@layer utilities {
+  /* Text gradient */
+  .text-gradient-water {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  }
+  
+  /* Smooth transitions */
+  .transition-neo {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Custom keyframe animations */
+@keyframes gentle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes water-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Animated background for hero section */
+.hero-water-bg {
+  background: linear-gradient(-45deg, #f0f9ff, #e0f2fe, #bae6fd, #e0f2fe);
+  background-size: 400% 400%;
+  animation: water-flow 15s ease infinite;
+}
