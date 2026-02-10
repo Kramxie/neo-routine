@@ -68,6 +68,11 @@ const RoutineSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    // Reference to source template (if created from a template)
+    sourceTemplate: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'RoutineTemplate',
+    },
   },
   {
     timestamps: true,

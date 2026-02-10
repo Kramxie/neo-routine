@@ -19,7 +19,30 @@ export default function LoginPage() {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
+
+  // Handle demo login
+  const handleDemoLogin = async () => {
+    setDemoLoading(true);
+    setGeneralError('');
+    
+    try {
+      const response = await fetch('/api/auth/demo', {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        router.push('/dashboard');
+      } else {
+        setGeneralError('Demo login failed. Please try again.');
+      }
+    } catch (error) {
+      setGeneralError('Connection error. Please try again.');
+    } finally {
+      setDemoLoading(false);
+    }
+  };
 
   // Handle input changes
   const handleChange = (e) => {
@@ -139,7 +162,7 @@ export default function LoginPage() {
             variant="primary"
             size="lg"
             className="w-full"
-            disabled={isLoading}
+            disabled={isLoading || demoLoading}
           >
             {isLoading ? (
               <span className="flex items-center justify-center">
@@ -154,6 +177,48 @@ export default function LoginPage() {
             )}
           </Button>
         </form>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-calm-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-calm-500">or</span>
+          </div>
+        </div>
+
+        {/* Demo Login Button */}
+        <Button
+          type="button"
+          variant="secondary"
+          size="lg"
+          className="w-full"
+          onClick={handleDemoLogin}
+          disabled={isLoading || demoLoading}
+        >
+          {demoLoading ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-neo-500" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Loading Demo...
+            </span>
+          ) : (
+            <>
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Try Demo (No Account Needed)
+            </>
+          )}
+        </Button>
+        
+        <p className="text-center text-xs text-calm-500 mt-2">
+          Explore all features with a demo account
+        </p>
 
         {/* Footer */}
         <p className="text-center text-sm text-calm-600 mt-6">

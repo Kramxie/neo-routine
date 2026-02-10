@@ -5,6 +5,26 @@ import Routine from '@/models/Routine';
 import { getCurrentUser } from '@/lib/auth';
 import { getGentleMessage } from '@/lib/reminderEngine';
 
+// Demo data for testing without database
+const DEMO_TODAY_DATA = {
+  date: new Date().toISOString().split('T')[0],
+  checkIns: [],
+  totalTasks: 5,
+  completedCount: 0,
+  completionPercent: 0,
+  weeklyData: [
+    { date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 3, total: 5 },
+    { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 4, total: 5 },
+    { date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 5, total: 5 },
+    { date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 2, total: 5 },
+    { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 4, total: 5 },
+    { date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 5, total: 5 },
+    { date: new Date().toISOString().split('T')[0], completed: 0, total: 5 },
+  ],
+  reminderMessage: 'Welcome to Neo Routine! 🌊 Each small ripple creates waves of change.',
+  isDemo: true,
+};
+
 /**
  * GET /api/checkins/today
  * Get all check-ins for today (or specified date)
@@ -19,6 +39,11 @@ export async function GET(request) {
         { message: 'Unauthorized', data: null },
         { status: 401 }
       );
+    }
+
+    // Demo mode - return sample data
+    if (user.userId === 'demo-user-123') {
+      return NextResponse.json(DEMO_TODAY_DATA);
     }
 
     // Get date from query params or use today

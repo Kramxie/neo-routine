@@ -6,6 +6,43 @@ import { getCurrentUser } from '@/lib/auth';
 import { validateRoutine, sanitizeString } from '@/lib/validators';
 import { canCreateRoutine, canAddTask, getEffectiveTier } from '@/lib/features';
 
+// Demo data for testing without database
+const DEMO_ROUTINES = [
+  {
+    _id: 'demo-routine-1',
+    id: 'demo-routine-1',
+    name: 'Morning Routine',
+    title: 'Morning Routine',
+    description: 'Start your day with intention',
+    tasks: [
+      { _id: 'demo-task-1', id: 'demo-task-1', label: 'Drink water', isActive: true },
+      { _id: 'demo-task-2', id: 'demo-task-2', label: 'Meditate 10 min', isActive: true },
+      { _id: 'demo-task-3', id: 'demo-task-3', label: 'Journal', isActive: true },
+    ],
+    color: 'neo',
+    order: 0,
+    isArchived: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    _id: 'demo-routine-2',
+    id: 'demo-routine-2',
+    name: 'Evening Wind Down',
+    title: 'Evening Wind Down',
+    description: 'Prepare for restful sleep',
+    tasks: [
+      { _id: 'demo-task-4', id: 'demo-task-4', label: 'No screens after 9pm', isActive: true },
+      { _id: 'demo-task-5', id: 'demo-task-5', label: 'Read for 20 min', isActive: true },
+    ],
+    color: 'calm',
+    order: 1,
+    isArchived: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
 /**
  * GET /api/routines
  * Get all routines for the authenticated user
@@ -19,6 +56,20 @@ export async function GET(request) {
         { message: 'Unauthorized', data: null },
         { status: 401 }
       );
+    }
+
+    // Demo mode - return sample data
+    if (user.userId === 'demo-user-123') {
+      return NextResponse.json({
+        routines: DEMO_ROUTINES,
+        limits: {
+          canCreate: true,
+          remaining: 8,
+          max: 10,
+        },
+        tier: 'premium',
+        isDemo: true,
+      });
     }
 
     // Connect to database

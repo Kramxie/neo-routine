@@ -4,6 +4,9 @@ import CheckIn from '@/models/CheckIn';
 import Routine from '@/models/Routine';
 import { getCurrentUser } from '@/lib/auth';
 
+// In-memory store for demo check-ins (resets on server restart)
+const demoCheckIns = new Map();
+
 /**
  * POST /api/checkins
  * Create a new check-in (mark a task as completed for a day)
@@ -48,6 +51,25 @@ export async function POST(request) {
         { message: 'Invalid date format. Use YYYY-MM-DD', data: null },
         { status: 400 }
       );
+    }
+
+    // Demo mode - use in-memory storage
+    if (user.userId === 'demo-user-123') {
+      const key = `${routineId}_${taskId}_${dateISO}`;
+      demoCheckIns.set(key, {
+        id: `demo-checkin-${Date.now()}`,
+        routineId,
+        taskId,
+        dateISO,
+        note: note || null,
+        createdAt: new Date().toISOString(),
+      });
+      
+      return NextResponse.json({
+        message: 'Check-in created',
+        checkIn: demoCheckIns.get(key),
+        isDemo: true,
+      });
     }
 
     // Connect to database
@@ -178,6 +200,17 @@ export async function DELETE(request) {
         { message: 'Routine ID and Task ID are required', data: null },
         { status: 400 }
       );
+    }
+
+    // Demo mode - use in-memory storage
+    if (user.userId === 'demo-user-123') {
+      const key = `${routineId}_${taskId}_${dateISO}`;
+      demoCheckIns.delete(key);
+      
+      return NextResponse.json({
+        message: 'Check-in removed',
+        isDemo: true,
+      });
     }
 
     // Connect to database

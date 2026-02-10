@@ -115,8 +115,8 @@ Expected response:
 - [x] **Phase 2**: Auth (register/login/logout/me) + UI pages + protected dashboard routing
 - [x] **Phase 3**: Routines CRUD + Dashboard interactions + check-ins + ripple UI + micro-messages
 - [x] **Phase 4**: Adaptive reminder logic + Insights/Analytics + Settings + User preferences
-- [ ] **Phase 5**: Subscription model (basic DB fields + gated features)
-- [ ] **Phase 6**: Coach/Influencer white-label basics
+- [x] **Phase 5**: Subscription model (basic DB fields + gated features)
+- [x] **Phase 6**: Coach/Influencer white-label basics
 
 ## 🎨 Design System
 
@@ -155,6 +155,25 @@ Expected response:
 | GET | `/api/insights` | Get analytics & insights |
 | GET | `/api/user/preferences` | Get user preferences |
 | PATCH | `/api/user/preferences` | Update user preferences |
+| GET | `/api/subscription` | Get subscription status |
+| POST | `/api/subscription` | Create/upgrade subscription |
+| DELETE | `/api/subscription` | Cancel subscription |
+| GET | `/api/templates` | Browse public templates |
+| POST | `/api/templates` | Adopt a template |
+| GET | `/api/coach/profile` | Get coach profile |
+| POST | `/api/coach/profile` | Apply to become coach |
+| PATCH | `/api/coach/profile` | Update coach profile |
+| GET | `/api/coach/stats` | Get coach dashboard stats |
+| GET | `/api/coach/templates` | Get coach's templates |
+| POST | `/api/coach/templates` | Create template |
+| GET | `/api/coach/templates/:id` | Get template details |
+| PATCH | `/api/coach/templates/:id` | Update template |
+| DELETE | `/api/coach/templates/:id` | Delete template |
+| GET | `/api/coach/clients` | Get coach's clients |
+| POST | `/api/coach/clients` | Generate invite code |
+| GET | `/api/coach/clients/:id` | Get client details |
+| PATCH | `/api/coach/clients/:id` | Update client status |
+| DELETE | `/api/coach/clients/:id` | Remove client |
 
 ## 📄 License
 

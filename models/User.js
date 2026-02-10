@@ -126,6 +126,45 @@ const UserSchema = new mongoose.Schema(
       // Days since registration
       daysSinceJoined: { type: Number, default: 0 },
     },
+    // Coach-specific fields (only populated for role='coach')
+    coachProfile: {
+      // Display name / brand name
+      brandName: { type: String, maxlength: 100 },
+      // Bio / description
+      bio: { type: String, maxlength: 500 },
+      // Specializations (e.g., "fitness", "productivity", "mindfulness")
+      specializations: [{ type: String }],
+      // Social links
+      socialLinks: {
+        website: { type: String },
+        instagram: { type: String },
+        twitter: { type: String },
+        youtube: { type: String },
+      },
+      // Branding colors
+      brandColor: { type: String, default: '#0ea5e9' },
+      // Profile image URL
+      avatarUrl: { type: String },
+      // Verification status
+      isVerified: { type: Boolean, default: false },
+      // Active since (when became a coach)
+      activeSince: { type: Date },
+    },
+    // Client relationship (for users with a coach)
+    coaching: {
+      // Reference to coach user
+      coachId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      // When client joined this coach
+      joinedAt: { type: Date },
+      // Status of coaching relationship
+      status: {
+        type: String,
+        enum: ['pending', 'active', 'paused', 'ended'],
+        default: 'pending',
+      },
+      // Invite code used to join
+      inviteCode: { type: String },
+    },
   },
   {
     timestamps: true, // Adds createdAt and updatedAt
