@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 
 /**
@@ -41,6 +42,11 @@ export default function SettingsPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
+  // Subscription state
+  const [subscription, setSubscription] = useState(null);
+  const [currentTier, setCurrentTier] = useState('free');
+  const [limits, setLimits] = useState({});
+
   // Preferences state
   const [reminderTime, setReminderTime] = useState('09:00');
   const [timezone, setTimezone] = useState('UTC');
@@ -50,13 +56,14 @@ export default function SettingsPage() {
   const [weeklyDigest, setWeeklyDigest] = useState(true);
   const [celebrations, setCelebrations] = useState(true);
 
-  // Fetch current preferences
+  // Fetch current preferences and subscription
   useEffect(() => {
-    const fetchPreferences = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/user/preferences');
-        if (response.ok) {
-          const data = await response.json();
+        // Fetch preferences
+        const prefsResponse = await fetch('/api/user/preferences');
+        if (prefsResponse.ok) {
+          const data = await prefsResponse.json();
           
           // Set profile
           setName(data.profile?.name || '');
@@ -72,14 +79,23 @@ export default function SettingsPage() {
           setWeeklyDigest(prefs.weeklyDigest ?? true);
           setCelebrations(prefs.celebrations ?? true);
         }
+
+        // Fetch subscription
+        const subResponse = await fetch('/api/subscription');
+        if (subResponse.ok) {
+          const subData = await subResponse.json();
+          setSubscription(subData.subscription);
+          setCurrentTier(subData.currentTier || 'free');
+          setLimits(subData.limits || {});
+        }
       } catch (err) {
-        console.error('Failed to fetch preferences:', err);
+        console.error('Failed to fetch data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPreferences();
+    fetchData();
   }, []);
 
   // Toggle active day
@@ -388,6 +404,73 @@ export default function SettingsPage() {
               />
             </button>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Subscription Section */}
+      <Card variant="elevated">
+        <CardHeader>
+          <CardTitle>Subscription</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Current Plan */}
+          <div className="flex items-center justify-between p-4 rounded-lg bg-neo-50 border border-neo-100">
+            <div>
+              <p className="text-sm text-calm-500">Current Plan</p>
+              <p className="text-xl font-bold text-calm-800 capitalize">
+                {currentTier.replace('_', ' ')}
+              </p>
+              {subscription?.status === 'active' && subscription?.currentPeriodEnd && (
+                <p className="text-xs text-calm-400 mt-1">
+                  Renews {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                </p>
+              )}
+              {subscription?.cancelAtPeriodEnd && (
+                <p className="text-xs text-orange-500 mt-1">
+                  Cancels at end of billing period
+                </p>
+              )}
+            </div>
+            <div className="text-center">
+              <svg className="w-12 h-12 text-neo-500 mx-auto" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C12 2 6 8.5 6 13.5C6 17.09 8.69 20 12 20C15.31 20 18 17.09 18 13.5C18 8.5 12 2 12 2Z" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Usage Limits */}
+          {limits && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 rounded-lg bg-calm-50 border border-calm-100">
+                <p className="text-xs text-calm-500 mb-1">Routines</p>
+                <p className="text-lg font-semibold text-calm-700">
+                  {limits.routines === Infinity ? 'Unlimited' : `Up to ${limits.routines}`}
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-calm-50 border border-calm-100">
+                <p className="text-xs text-calm-500 mb-1">Tasks per Routine</p>
+                <p className="text-lg font-semibold text-calm-700">
+                  {limits.tasksPerRoutine === Infinity ? 'Unlimited' : `Up to ${limits.tasksPerRoutine}`}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Upgrade CTA */}
+          {currentTier !== 'premium_plus' && (
+            <Link
+              href="/dashboard/upgrade"
+              className="block w-full py-3 px-4 text-center rounded-lg bg-neo-500 text-white font-medium hover:bg-neo-600 transition-colors"
+            >
+              {currentTier === 'free' ? 'Upgrade to Premium' : 'Upgrade to Premium+'}
+            </Link>
+          )}
+
+          {currentTier === 'premium_plus' && (
+            <p className="text-center text-calm-500 text-sm">
+              You're on our highest tier—enjoy unlimited access! 🎉
+            </p>
+          )}
         </CardContent>
       </Card>
 

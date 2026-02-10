@@ -36,11 +36,40 @@ const UserSchema = new mongoose.Schema(
       enum: ['user', 'coach', 'admin'],
       default: 'user',
     },
-    // Subscription tier (for future phases)
+    // Subscription tier
     tier: {
       type: String,
-      enum: ['free', 'premium'],
+      enum: ['free', 'premium', 'premium_plus'],
       default: 'free',
+    },
+    // Subscription details
+    subscription: {
+      // Subscription status
+      status: {
+        type: String,
+        enum: ['none', 'active', 'canceled', 'past_due', 'trialing'],
+        default: 'none',
+      },
+      // Plan identifier (monthly, yearly, etc.)
+      plan: {
+        type: String,
+        enum: ['none', 'premium_monthly', 'premium_yearly', 'premium_plus_monthly', 'premium_plus_yearly'],
+        default: 'none',
+      },
+      // Stripe customer ID (for payment integration)
+      stripeCustomerId: { type: String },
+      // Stripe subscription ID
+      stripeSubscriptionId: { type: String },
+      // Current period start
+      currentPeriodStart: { type: Date },
+      // Current period end (when subscription renews or expires)
+      currentPeriodEnd: { type: Date },
+      // Trial end date (if applicable)
+      trialEnd: { type: Date },
+      // Cancellation date (if canceled)
+      canceledAt: { type: Date },
+      // Whether subscription will cancel at period end
+      cancelAtPeriodEnd: { type: Boolean, default: false },
     },
     // Profile customization
     preferences: {

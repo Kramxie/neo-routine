@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Routine from '@/models/Routine';
+import User from '@/models/User';
 import { getCurrentUser } from '@/lib/auth';
 import { validateRoutine, sanitizeString } from '@/lib/validators';
+import { canCreateRoutine, canAddTask, getEffectiveTier } from '@/lib/features';
 
 /**
  * GET /api/routines
@@ -37,33 +39,41 @@ export async function GET(request) {
       .sort({ order: 1, createdAt: -1 })
       .lean();
 
-    return NextResponse.json(
-      {
-        message: 'Routines retrieved successfully',
-        data: {
-          routines: routines.map((routine) => ({
-            id: routine._id,
-            title: routine.title,
-            description: routine.description,
-            tasks: routine.tasks.map((task) => ({
-              id: task._id,
-              label: task.label,
-              isActive: task.isActive,
-            })),
-            color: routine.color,
-            order: routine.order,
-            isArchived: routine.isArchived,
-            createdAt: routine.createdAt,
-            updatedAt: routine.updatedAt,
-          })),
-        },
+    // Get user tier for limits info
+    const dbUser = await User.findById(user.userId).select('tier subscription role');
+    const effectiveTier = getEffectiveTier(dbUser);
+    const routineLimit = canCreateRoutine(effectiveTier, routines.length);
+
+    return NextResponse.json({
+      routines: routines.map((routine) => ({
+        _id: routine._id,
+        id: routine._id,
+        name: routine.title,
+        title: routine.title,
+        description: routine.description,
+        tasks: routine.tasks.map((task) => ({
+          _id: task._id,
+          id: task._id,
+          label: task.label,
+          isActive: task.isActive,
+        })),
+        color: routine.color,
+        order: routine.order,
+        isArchived: routine.isArchived,
+        createdAt: routine.createdAt,
+        updatedAt: routine.updatedAt,
+      })),
+      limits: {
+        canCreate: routineLimit.allowed,
+        remaining: routineLimit.remaining,
+        max: routineLimit.limit,
       },
-      { status: 200 }
-    );
+      tier: effectiveTier,
+    });
   } catch (error) {
     console.error('Get routines error:', error);
     return NextResponse.json(
-      { message: 'Failed to fetch routines', data: { error: error.message } },
+      { error: 'Failed to fetch routines' },
       { status: 500 }
     );
   }
@@ -84,12 +94,43 @@ export async function POST(request) {
       );
     }
 
+    // Connect to database
+    await connectDB();
+
+    // Get user and their current routine count
+    const dbUser = await User.findById(user.userId).select('tier subscription role');
+    const effectiveTier = getEffectiveTier(dbUser);
+    const currentRoutineCount = await Routine.countDocuments({ 
+      userId: user.userId, 
+      isArchived: false 
+    });
+
+    // Check if user can create more routines
+    const routineCheck = canCreateRoutine(effectiveTier, currentRoutineCount);
+    if (!routineCheck.allowed) {
+      return NextResponse.json(
+        {
+          message: `You've reached your routine limit (${routineCheck.limit}). Upgrade to create more!`,
+          error: 'ROUTINE_LIMIT_REACHED',
+          data: {
+            limit: routineCheck.limit,
+            current: currentRoutineCount,
+            upgradeRequired: true,
+          },
+        },
+        { status: 403 }
+      );
+    }
+
     // Parse request body
     const body = await request.json();
 
+    // Accept both 'name' and 'title' for backwards compatibility
+    const title = body.title || body.name;
+
     // Sanitize inputs
     const data = {
-      title: sanitizeString(body.title, 100),
+      title: sanitizeString(title, 100),
       description: sanitizeString(body.description, 500),
       tasks: Array.isArray(body.tasks)
         ? body.tasks.map((task) => ({
@@ -99,6 +140,23 @@ export async function POST(request) {
         : [],
       color: body.color || 'blue',
     };
+
+    // Check task limit
+    const taskCheck = canAddTask(effectiveTier, 0, data.tasks.length);
+    if (!taskCheck.allowed) {
+      return NextResponse.json(
+        {
+          message: `Too many tasks (max ${taskCheck.limit} for your plan). Upgrade for more!`,
+          error: 'TASK_LIMIT_EXCEEDED',
+          data: {
+            limit: taskCheck.limit,
+            requested: data.tasks.length,
+            upgradeRequired: true,
+          },
+        },
+        { status: 403 }
+      );
+    }
 
     // Validate input
     const validation = validateRoutine(data);
@@ -111,9 +169,6 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-
-    // Connect to database
-    await connectDB();
 
     // Get next order number
     const lastRoutine = await Routine.findOne({ userId: user.userId })
@@ -138,7 +193,15 @@ export async function POST(request) {
       {
         message: 'Routine created successfully! Time to start your flow.',
         data: {
-          routine: routine.toSafeObject(),
+          routine: {
+            ...routine.toSafeObject(),
+            name: routine.title, // Include name alias
+          },
+        },
+        limits: {
+          canCreate: canCreateRoutine(effectiveTier, currentRoutineCount + 1).allowed,
+          remaining: routineCheck.remaining - 1,
+          max: routineCheck.limit,
         },
       },
       { status: 201 }

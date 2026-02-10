@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Routine from '@/models/Routine';
+import User from '@/models/User';
 import { getCurrentUser } from '@/lib/auth';
 import { validateRoutine, sanitizeString } from '@/lib/validators';
+import { canAddTask, getEffectiveTier } from '@/lib/features';
 
 /**
  * GET /api/routines/[id]
@@ -40,7 +42,12 @@ export async function GET(request, { params }) {
     return NextResponse.json(
       {
         message: 'Routine retrieved successfully',
-        data: { routine: routine.toSafeObject() },
+        data: { 
+          routine: {
+            ...routine.toSafeObject(),
+            name: routine.title, // Include name alias
+          },
+        },
       },
       { status: 200 }
     );
@@ -76,6 +83,10 @@ export async function PATCH(request, { params }) {
     // Connect to database
     await connectDB();
 
+    // Get user tier info
+    const dbUser = await User.findById(user.userId).select('tier subscription role');
+    const effectiveTier = getEffectiveTier(dbUser);
+
     // Find existing routine
     const routine = await Routine.findOne({
       _id: id,
@@ -92,8 +103,9 @@ export async function PATCH(request, { params }) {
     // Build update object (only include provided fields)
     const updates = {};
 
-    if (body.title !== undefined) {
-      updates.title = sanitizeString(body.title, 100);
+    // Accept both 'name' and 'title'
+    if (body.title !== undefined || body.name !== undefined) {
+      updates.title = sanitizeString(body.title || body.name, 100);
     }
 
     if (body.description !== undefined) {
@@ -101,13 +113,39 @@ export async function PATCH(request, { params }) {
     }
 
     if (body.tasks !== undefined) {
-      updates.tasks = Array.isArray(body.tasks)
+      const newTasks = Array.isArray(body.tasks)
         ? body.tasks.map((task) => ({
             _id: task.id || task._id,
             label: sanitizeString(task.label, 100),
             isActive: task.isActive !== false,
           }))
         : routine.tasks;
+
+      // Check task limit if adding more tasks
+      const currentTaskCount = routine.tasks.length;
+      const newTaskCount = newTasks.length;
+      const tasksToAdd = Math.max(0, newTaskCount - currentTaskCount);
+      
+      if (tasksToAdd > 0) {
+        const taskCheck = canAddTask(effectiveTier, currentTaskCount, tasksToAdd);
+        if (!taskCheck.allowed) {
+          return NextResponse.json(
+            {
+              message: `Task limit reached (max ${taskCheck.limit} for your plan). Upgrade for more!`,
+              error: 'TASK_LIMIT_EXCEEDED',
+              data: {
+                limit: taskCheck.limit,
+                current: currentTaskCount,
+                requested: newTaskCount,
+                upgradeRequired: true,
+              },
+            },
+            { status: 403 }
+          );
+        }
+      }
+
+      updates.tasks = newTasks;
     }
 
     if (body.color !== undefined) {
@@ -147,7 +185,12 @@ export async function PATCH(request, { params }) {
     return NextResponse.json(
       {
         message: 'Routine updated successfully',
-        data: { routine: routine.toSafeObject() },
+        data: { 
+          routine: {
+            ...routine.toSafeObject(),
+            name: routine.title, // Include name alias
+          },
+        },
       },
       { status: 200 }
     );
