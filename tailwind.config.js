@@ -48,6 +48,7 @@ module.exports = {
         'ripple': 'ripple 2s ease-out infinite',
         'drop': 'drop 0.6s ease-out',
         'float': 'float 3s ease-in-out infinite',
+        'wave': 'wave 3s ease-in-out infinite',
       },
       keyframes: {
         ripple: {
@@ -62,6 +63,10 @@ module.exports = {
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
+        },
+        wave: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '50%': { transform: 'translateX(-50%)' },
         },
       },
     },

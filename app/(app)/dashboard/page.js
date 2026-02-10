@@ -1,28 +1,46 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import RippleProgress, { WeeklyRipples } from '@/components/ui/RippleProgress';
+import DropList from '@/components/ui/DropList';
 
 /**
  * Dashboard Page
- * Shows today's routine, progress visualization, and micro-messages
+ * Shows today's routines, progress visualization, and micro-messages
  */
-
-// Calm, encouraging micro-messages
-const microMessages = [
-  "You're doing great. One drop at a time.",
-  "Every small step creates ripples of progress.",
-  "Consistency flows like water. Keep going.",
-  "Your routine is building something beautiful.",
-  "Progress isn't always visible, but it's happening.",
-  "Be gentle with yourself today.",
-  "Small drops fill the ocean.",
-  "You showed up. That's what matters.",
-];
 
 export default function DashboardPage() {
   const [greeting, setGreeting] = useState('');
-  const [microMessage, setMicroMessage] = useState('');
+  const [routines, setRoutines] = useState([]);
+  const [todayData, setTodayData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [checkLoading, setCheckLoading] = useState(false);
+
+  // Fetch routines and today's check-in data
+  const fetchData = useCallback(async () => {
+    try {
+      const [routinesRes, todayRes] = await Promise.all([
+        fetch('/api/routines'),
+        fetch('/api/checkins/today'),
+      ]);
+
+      if (routinesRes.ok) {
+        const routinesData = await routinesRes.json();
+        setRoutines(routinesData.routines || []);
+      }
+
+      if (todayRes.ok) {
+        const data = await todayRes.json();
+        setTodayData(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     // Set greeting based on time of day
@@ -35,9 +53,80 @@ export default function DashboardPage() {
       setGreeting('Good evening');
     }
 
-    // Random micro-message
-    setMicroMessage(microMessages[Math.floor(Math.random() * microMessages.length)]);
-  }, []);
+    fetchData();
+  }, [fetchData]);
+
+  // Handle task check/uncheck
+  const handleToggleTask = async (routineId, taskId, shouldCheck) => {
+    setCheckLoading(true);
+
+    try {
+      if (shouldCheck) {
+        // Create check-in
+        const response = await fetch('/api/checkins', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ routineId, taskId }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create check-in');
+        }
+      } else {
+        // Remove check-in
+        const response = await fetch('/api/checkins', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ routineId, taskId }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to remove check-in');
+        }
+      }
+
+      // Refresh today's data
+      const todayRes = await fetch('/api/checkins/today');
+      if (todayRes.ok) {
+        const data = await todayRes.json();
+        setTodayData(data);
+      }
+    } catch (error) {
+      console.error('Check-in error:', error);
+    } finally {
+      setCheckLoading(false);
+    }
+  };
+
+  // Get checked task IDs for a routine
+  const getCheckedTaskIds = (routineId) => {
+    if (!todayData?.checkedTasks) return [];
+    return todayData.checkedTasks
+      .filter((ct) => ct.routineId === routineId)
+      .map((ct) => ct.taskId);
+  };
+
+  // Stats from today's data
+  const todayPercent = todayData?.todayPercent || 0;
+  const weeklyPercent = todayData?.weeklyPercent || 0;
+  const totalDrops = todayData?.totalDropsToday || 0;
+  const microMessage = todayData?.message || "Every drop creates ripples of progress.";
+  const weeklyData = todayData?.weeklyData || [];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neo-100 flex items-center justify-center animate-pulse">
+            <svg className="w-8 h-8 text-neo-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z" />
+            </svg>
+          </div>
+          <p className="text-calm-500">Loading your flow...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -56,8 +145,10 @@ export default function DashboardPage() {
           </div>
           <CardContent className="relative">
             <p className="text-sm text-calm-500 mb-1">Today&apos;s Progress</p>
-            <p className="text-3xl font-bold text-neo-600">0%</p>
-            <p className="text-xs text-calm-500 mt-2">No routines yet</p>
+            <p className="text-3xl font-bold text-neo-600">{todayPercent}%</p>
+            <p className="text-xs text-calm-500 mt-2">
+              {routines.length === 0 ? 'No routines yet' : `${totalDrops} drops collected`}
+            </p>
           </CardContent>
         </Card>
 
@@ -68,91 +159,113 @@ export default function DashboardPage() {
           </div>
           <CardContent className="relative">
             <p className="text-sm text-calm-500 mb-1">Weekly Flow</p>
-            <p className="text-3xl font-bold text-neo-600">--</p>
-            <p className="text-xs text-calm-500 mt-2">Start tracking to see</p>
+            <p className="text-3xl font-bold text-neo-600">{weeklyPercent}%</p>
+            <p className="text-xs text-calm-500 mt-2">
+              {routines.length === 0 ? 'Start tracking to see' : 'Average this week'}
+            </p>
           </CardContent>
         </Card>
 
-        {/* Total Drops */}
+        {/* Active Routines */}
         <Card variant="elevated" className="relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8">
             <div className="w-full h-full rounded-full bg-neo-100 opacity-50" />
           </div>
           <CardContent className="relative">
-            <p className="text-sm text-calm-500 mb-1">Total Drops</p>
-            <p className="text-3xl font-bold text-neo-600">0</p>
-            <p className="text-xs text-calm-500 mt-2">Drops completed</p>
+            <p className="text-sm text-calm-500 mb-1">Active Routines</p>
+            <p className="text-3xl font-bold text-neo-600">{routines.length}</p>
+            <p className="text-xs text-calm-500 mt-2">
+              {routines.length === 0 ? 'Create your first' : 'Flowing smoothly'}
+            </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* Today's Routine */}
-        <div className="lg:col-span-2">
-          <Card variant="elevated">
-            <CardHeader>
-              <CardTitle>Today&apos;s Routine</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Empty state */}
-              <div className="text-center py-12">
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-neo-50 flex items-center justify-center">
-                  <svg className="w-10 h-10 text-neo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
+        {/* Today's Routines */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-calm-800">Today&apos;s Routines</h2>
+            <Link
+              href="/dashboard/routines/new"
+              className="inline-flex items-center gap-1 text-sm text-neo-600 hover:text-neo-700 font-medium"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add Routine
+            </Link>
+          </div>
+
+          {routines.length === 0 ? (
+            <Card variant="elevated">
+              <CardContent>
+                {/* Empty state */}
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-neo-50 flex items-center justify-center">
+                    <svg className="w-10 h-10 text-neo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-calm-700 mb-2">
+                    No routines yet
+                  </h3>
+                  <p className="text-calm-500 mb-6 max-w-sm mx-auto">
+                    Create your first routine to start tracking your daily drops. 
+                    We&apos;ll help you build habits without pressure.
+                  </p>
+                  <Link
+                    href="/dashboard/routines/new"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neo-500 text-white hover:bg-neo-600 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Create First Routine
+                  </Link>
                 </div>
-                <h3 className="text-lg font-medium text-calm-700 mb-2">
-                  No routines yet
-                </h3>
-                <p className="text-calm-500 mb-6 max-w-sm mx-auto">
-                  Create your first routine to start tracking your daily drops. 
-                  We&apos;ll help you build habits without pressure.
-                </p>
-                <p className="text-sm text-calm-400">
-                  Coming in Phase 3: Create and manage routines
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            routines.map((routine) => (
+              <DropList
+                key={routine._id}
+                routine={routine}
+                checkedTaskIds={getCheckedTaskIds(routine._id)}
+                onToggleTask={handleToggleTask}
+                disabled={checkLoading}
+              />
+            ))
+          )}
         </div>
 
         {/* Progress Visualization */}
-        <div>
+        <div className="space-y-4">
           <Card variant="elevated">
             <CardHeader>
               <CardTitle>Your Flow</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex justify-center py-4">
-                {/* Ripple Progress Visualization */}
-                <div className="progress-ripple w-32 h-32">
-                  <div className="text-center z-10 relative">
-                    <div className="text-2xl font-bold text-neo-600">0%</div>
-                    <p className="text-xs text-calm-500 mt-1">This Week</p>
-                  </div>
-                </div>
+                <RippleProgress
+                  percent={todayPercent}
+                  size="lg"
+                  label="Today"
+                  showRipples={todayPercent > 0}
+                />
               </div>
               
               {/* Weekly breakdown */}
-              <div className="mt-6 space-y-3">
+              <div className="mt-8 space-y-3">
                 <p className="text-sm font-medium text-calm-700">This Week</p>
-                <div className="flex justify-between gap-1">
-                  {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
-                    <div key={index} className="flex-1 text-center">
-                      <p className="text-xs text-calm-500 mb-1">{day}</p>
-                      <div className="w-full aspect-square rounded-full bg-calm-100 flex items-center justify-center">
-                        <span className="text-xs text-calm-400">-</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <WeeklyRipples data={weeklyData} />
               </div>
             </CardContent>
           </Card>
 
           {/* Micro-message card */}
-          <Card variant="gradient" className="mt-4">
+          <Card variant="gradient">
             <CardContent>
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 rounded-full bg-white/50 flex items-center justify-center flex-shrink-0">
@@ -163,6 +276,33 @@ export default function DashboardPage() {
                 <p className="text-sm text-calm-700 italic">
                   &ldquo;{microMessage}&rdquo;
                 </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick links */}
+          <Card variant="default">
+            <CardContent>
+              <p className="text-sm font-medium text-calm-700 mb-3">Quick Actions</p>
+              <div className="space-y-2">
+                <Link
+                  href="/dashboard/routines"
+                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-calm-50 transition-colors text-calm-600"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  <span className="text-sm">Manage Routines</span>
+                </Link>
+                <Link
+                  href="/dashboard/insights"
+                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-calm-50 transition-colors text-calm-600"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <span className="text-sm">View Insights</span>
+                </Link>
               </div>
             </CardContent>
           </Card>
