@@ -42,7 +42,7 @@ const UserSchema = new mongoose.Schema(
       enum: ['free', 'premium'],
       default: 'free',
     },
-    // Profile customization (for future phases)
+    // Profile customization
     preferences: {
       reminderTime: {
         type: String,
@@ -52,6 +52,50 @@ const UserSchema = new mongoose.Schema(
         type: String,
         default: 'UTC',
       },
+      // Reminder frequency preference
+      reminderFrequency: {
+        type: String,
+        enum: ['off', 'gentle', 'normal', 'frequent'],
+        default: 'normal',
+      },
+      // Preferred days (bitmask: Sun=1, Mon=2, Tue=4, Wed=8, Thu=16, Fri=32, Sat=64)
+      activeDays: {
+        type: Number,
+        default: 127, // All days
+      },
+      // Theme preference
+      theme: {
+        type: String,
+        enum: ['light', 'dark', 'auto'],
+        default: 'light',
+      },
+      // Weekly summary emails
+      weeklyDigest: {
+        type: Boolean,
+        default: true,
+      },
+      // Celebration animations
+      celebrations: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    // Analytics tracking (for adaptive reminders)
+    analytics: {
+      // Longest active streak
+      longestStreak: { type: Number, default: 0 },
+      // Current streak
+      currentStreak: { type: Number, default: 0 },
+      // Last activity date
+      lastActiveDate: { type: String },
+      // Total check-ins ever
+      totalCheckIns: { type: Number, default: 0 },
+      // Best day of week (0-6)
+      bestDayOfWeek: { type: Number },
+      // Preferred time of day (morning/afternoon/evening)
+      preferredTimeOfDay: { type: String },
+      // Days since registration
+      daysSinceJoined: { type: Number, default: 0 },
     },
   },
   {

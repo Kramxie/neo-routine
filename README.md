@@ -112,9 +112,9 @@ Expected response:
 ## 📋 Development Phases
 
 - [x] **Phase 1**: Next.js scaffolding + Tailwind + DB connection + health endpoint + base layout + Landing
-- [ ] **Phase 2**: Auth (register/login/logout/me) + UI pages + protected dashboard routing
-- [ ] **Phase 3**: Routines CRUD + Dashboard interactions + check-ins + ripple UI + micro-messages
-- [ ] **Phase 4**: Adaptive reminder logic improvements
+- [x] **Phase 2**: Auth (register/login/logout/me) + UI pages + protected dashboard routing
+- [x] **Phase 3**: Routines CRUD + Dashboard interactions + check-ins + ripple UI + micro-messages
+- [x] **Phase 4**: Adaptive reminder logic + Insights/Analytics + Settings + User preferences
 - [ ] **Phase 5**: Subscription model (basic DB fields + gated features)
 - [ ] **Phase 6**: Coach/Influencer white-label basics
 
@@ -150,7 +150,11 @@ Expected response:
 | PATCH | `/api/routines/:id` | Update routine |
 | DELETE | `/api/routines/:id` | Archive routine |
 | POST | `/api/checkins` | Create check-in |
-| GET | `/api/checkins/today` | Get today's check-ins |
+| DELETE | `/api/checkins` | Remove check-in |
+| GET | `/api/checkins/today` | Get today's check-ins + stats |
+| GET | `/api/insights` | Get analytics & insights |
+| GET | `/api/user/preferences` | Get user preferences |
+| PATCH | `/api/user/preferences` | Update user preferences |
 
 ## 📄 License
 
