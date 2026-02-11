@@ -31,6 +31,19 @@ const UserSchema = new mongoose.Schema(
       minlength: [6, 'Password must be at least 6 characters'],
       select: false, // Don't include password in queries by default
     },
+    // Email verification
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationCode: {
+      type: String,
+      select: false, // Don't include in queries by default
+    },
+    emailVerificationExpires: {
+      type: Date,
+      select: false,
+    },
     role: {
       type: String,
       enum: ['user', 'coach', 'admin'],
@@ -200,6 +213,23 @@ UserSchema.methods.comparePassword = async function (enteredPassword) {
 };
 
 /**
+ * Generate 6-digit email verification code
+ * @returns {string} - 6-digit verification code
+ */
+UserSchema.methods.generateEmailVerificationCode = function () {
+  // Generate random 6-digit code
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  // Store the code (we'll compare directly)
+  this.emailVerificationCode = code;
+  
+  // Code expires in 10 minutes
+  this.emailVerificationExpires = Date.now() + 10 * 60 * 1000;
+  
+  return code;
+};
+
+/**
  * Return user object without sensitive fields
  * @returns {Object} - Safe user object for API responses
  */
@@ -210,6 +240,7 @@ UserSchema.methods.toSafeObject = function () {
     email: this.email,
     role: this.role,
     tier: this.tier,
+    isEmailVerified: this.isEmailVerified,
     preferences: this.preferences,
     createdAt: this.createdAt,
   };

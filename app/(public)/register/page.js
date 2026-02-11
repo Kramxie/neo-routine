@@ -63,9 +63,8 @@ export default function RegisterPage() {
         return;
       }
 
-      // Success - redirect to dashboard
-      router.push('/dashboard');
-      router.refresh();
+      // Success - redirect to verify-email page with email
+      router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
     } catch (error) {
       console.error('Registration error:', error);
       setGeneralError('Something went wrong. Please try again.');

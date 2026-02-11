@@ -1,17 +1,50 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Button from '@/components/ui/Button';
 
 /**
  * Navbar Component
  * Main navigation with responsive mobile menu
  * Features the Neo Routine water drop logo
+ * Auth-aware: shows different links based on login state
  */
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
+
+  // Don't render navbar on app routes (dashboard, etc.) - they have their own sidebar
+  const isAppRoute = pathname?.startsWith('/dashboard') || pathname?.startsWith('/coach');
+  
+  // Check if user is logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const result = await response.json();
+          setUser(result.data?.user || null);
+        }
+      } catch (error) {
+        // Not logged in
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkAuth();
+  }, [pathname]);
+
+  // Don't show on app routes
+  if (isAppRoute) {
+    return null;
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-calm-100">
@@ -50,15 +83,27 @@ export default function Navbar() {
             >
               Pricing
             </Link>
-            <Link
-              href="/login"
-              className="text-calm-600 hover:text-neo-500 transition-colors font-medium"
-            >
-              Login
-            </Link>
-            <Button href="/register" variant="primary" size="sm">
-              Get Started
-            </Button>
+            
+            {/* Auth-aware buttons */}
+            {isLoading ? (
+              <div className="w-20 h-8 bg-calm-100 rounded animate-pulse" />
+            ) : user ? (
+              <Button href="/dashboard" variant="primary" size="sm">
+                Dashboard
+              </Button>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-calm-600 hover:text-neo-500 transition-colors font-medium"
+                >
+                  Login
+                </Link>
+                <Button href="/register" variant="primary" size="sm">
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -98,16 +143,28 @@ export default function Navbar() {
             >
               Pricing
             </Link>
-            <Link
-              href="/login"
-              className="block text-calm-600 hover:text-neo-500 transition-colors font-medium py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Login
-            </Link>
-            <Button href="/register" variant="primary" size="md" className="w-full">
-              Get Started
-            </Button>
+            
+            {/* Auth-aware mobile buttons */}
+            {!isLoading && (
+              user ? (
+                <Button href="/dashboard" variant="primary" size="md" className="w-full">
+                  Go to Dashboard
+                </Button>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="block text-calm-600 hover:text-neo-500 transition-colors font-medium py-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Button href="/register" variant="primary" size="md" className="w-full">
+                    Get Started
+                  </Button>
+                </>
+              )
+            )}
           </div>
         </div>
       )}

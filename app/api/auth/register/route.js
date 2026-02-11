@@ -3,6 +3,7 @@ import connectDB from '@/lib/db';
 import User from '@/models/User';
 import { generateToken, setTokenCookie } from '@/lib/auth';
 import { validateRegister, sanitizeString } from '@/lib/validators';
+import { sendVerificationEmail } from '@/lib/email';
 
 /**
  * POST /api/auth/register
@@ -54,20 +55,22 @@ export async function POST(request) {
       passwordHash: data.password, // Will be hashed by pre-save middleware
     });
 
+    // Generate 6-digit email verification code
+    const verificationCode = user.generateEmailVerificationCode();
+    
     await user.save();
 
-    // Generate JWT token
-    const token = generateToken(user);
+    // Send verification email with code
+    await sendVerificationEmail(user.email, user.name, verificationCode);
 
-    // Set cookie
-    await setTokenCookie(token);
-
-    // Return success response
+    // Don't auto-login - redirect to verification page instead
+    // Return success response with email for verification page
     return NextResponse.json(
       {
-        message: 'Account created successfully. Welcome to Neo Routine!',
+        message: 'Account created! Please enter the verification code sent to your email.',
         data: {
-          user: user.toSafeObject(),
+          email: user.email,
+          requiresVerification: true,
         },
       },
       { status: 201 }

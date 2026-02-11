@@ -17,6 +17,49 @@ export default function DashboardPage() {
   const [todayData, setTodayData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [checkLoading, setCheckLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [showVerifyBanner, setShowVerifyBanner] = useState(false);
+  const [resendStatus, setResendStatus] = useState('idle');
+
+  // Fetch user info to check verification
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const result = await response.json();
+          setUser(result.data?.user);
+          // Show banner if email not verified (and not demo user)
+          if (result.data?.user && !result.data.user.isEmailVerified && result.data.user.email !== 'demo@neoroutine.app') {
+            setShowVerifyBanner(true);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // Resend verification email
+  const handleResendVerification = async () => {
+    if (!user?.email) return;
+    setResendStatus('loading');
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email }),
+      });
+      if (response.ok) {
+        setResendStatus('success');
+      } else {
+        setResendStatus('error');
+      }
+    } catch {
+      setResendStatus('error');
+    }
+  };
 
   // Fetch routines and today's check-in data
   const fetchData = useCallback(async () => {
@@ -130,6 +173,45 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Email Verification Banner */}
+      {showVerifyBanner && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-amber-800 font-medium">Verify your email</p>
+              <p className="text-amber-600 text-sm">Check your inbox for a verification link to unlock all features.</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2 ml-13 sm:ml-0">
+            {resendStatus === 'success' ? (
+              <span className="text-green-600 text-sm font-medium">Email sent!</span>
+            ) : (
+              <button
+                onClick={handleResendVerification}
+                disabled={resendStatus === 'loading'}
+                className="text-amber-700 hover:text-amber-900 text-sm font-medium underline disabled:opacity-50"
+              >
+                {resendStatus === 'loading' ? 'Sending...' : 'Resend email'}
+              </button>
+            )}
+            <button
+              onClick={() => setShowVerifyBanner(false)}
+              className="text-amber-400 hover:text-amber-600 p-1"
+              aria-label="Dismiss"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div>
         <h1 className="text-2xl lg:text-3xl font-bold text-calm-800">{greeting}</h1>

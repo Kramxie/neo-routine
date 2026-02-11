@@ -1,12 +1,24 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 /**
  * Footer Component
  * Minimal footer with essential links and branding
+ * Hidden on app routes (dashboard, coach) which have their own layout
  */
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const pathname = usePathname();
+
+  // Don't render footer on app routes - they have their own sidebar layout
+  const isAppRoute = pathname?.startsWith('/dashboard') || pathname?.startsWith('/coach');
+  
+  if (isAppRoute) {
+    return null;
+  }
 
   return (
     <footer className="bg-calm-800 text-calm-300">
