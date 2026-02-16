@@ -182,3 +182,17 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 Built with 💧 by the Neo Routine team
+
+## Quick dev commands
+
+- Validate required environment variables:
+
+```bash
+npm run check-env
+```
+
+- Run unit tests (Node built-in test runner):
+
+```bash
+npm test
+```

@@ -42,6 +42,21 @@ export default function RegisterPage() {
     setErrors({});
     setGeneralError('');
 
+    // Client-side validation to avoid unnecessary requests
+    const clientErrors = {};
+    const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+    if (!formData.name.trim()) clientErrors.name = 'Name is required';
+    if (!formData.email.trim()) clientErrors.email = 'Email is required';
+    else if (!emailRegex.test(formData.email)) clientErrors.email = 'Please enter a valid email address';
+    if (!formData.password) clientErrors.password = 'Password is required';
+    else if (formData.password.length < 6) clientErrors.password = 'Password must be at least 6 characters';
+
+    if (Object.keys(clientErrors).length > 0) {
+      setErrors(clientErrors);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',

@@ -149,8 +149,10 @@ export async function PATCH(request, { params }) {
     }
 
     if (body.color !== undefined) {
-      const validColors = ['blue', 'green', 'purple', 'orange', 'pink'];
-      updates.color = validColors.includes(body.color) ? body.color : routine.color;
+      const colorVal = String(body.color || '').trim();
+      const allowedNames = ['blue', 'green', 'purple', 'orange', 'pink', 'neo', 'calm'];
+      const hexRegex = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/;
+      updates.color = hexRegex.test(colorVal) || allowedNames.includes(colorVal) ? colorVal : routine.color;
     }
 
     if (body.order !== undefined) {

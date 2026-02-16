@@ -60,8 +60,18 @@ const RoutineSchema = new mongoose.Schema(
     // Color theme for the routine card
     color: {
       type: String,
-      enum: ['blue', 'green', 'purple', 'orange', 'pink'],
       default: 'blue',
+      maxlength: [30, 'Color value is too long'],
+      validate: {
+        validator: function (val) {
+          if (!val) return true;
+          // Allow a small set of named tokens OR hex color codes
+          const allowedNames = ['blue', 'green', 'purple', 'orange', 'pink', 'neo', 'calm'];
+          const hexRegex = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/;
+          return allowedNames.includes(val) || hexRegex.test(val);
+        },
+        message: (props) => `${props.value} is not a valid color`,
+      },
     },
     // Order for displaying routines
     order: {

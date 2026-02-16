@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import RippleProgress from '@/components/ui/RippleProgress';
+import { toHex } from '@/lib/colorUtils';
 
 /**
  * Insights Page
@@ -217,7 +218,7 @@ export default function InsightsPage() {
                         <div className="flex items-center gap-2">
                           <div
                             className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: routine.color || '#0ea5e9' }}
+                            style={{ backgroundColor: toHex(routine.color) || '#0ea5e9' }}
                           />
                           <span className="text-sm font-medium text-calm-700">
                             {routine.name}
@@ -228,13 +229,13 @@ export default function InsightsPage() {
                         </span>
                       </div>
                       <div className="h-2 bg-calm-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${routine.completionRate}%`,
-                            backgroundColor: routine.color || '#0ea5e9',
-                          }}
-                        />
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${routine.completionRate}%`,
+                              backgroundColor: toHex(routine.color) || '#0ea5e9',
+                            }}
+                          />
                       </div>
                       <p className="text-xs text-calm-500">
                         {routine.completed} of {routine.totalPossible} tasks completed

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toHex } from '@/lib/colorUtils';
 
 /**
  * DropList Component
@@ -51,13 +52,13 @@ export default function DropList({
       {/* Routine Header */}
       <div
         className="px-4 py-3 border-b border-calm-100 flex items-center justify-between"
-        style={{ backgroundColor: routine.color ? `${routine.color}10` : undefined }}
+        style={{ backgroundColor: routine.color ? `${toHex(routine.color)}10` : undefined }}
       >
         <div className="flex items-center gap-3">
           {/* Color indicator dot */}
           <div
             className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: routine.color || '#0ea5e9' }}
+            style={{ backgroundColor: toHex(routine.color) || '#0ea5e9' }}
           />
           <h3 className="font-medium text-calm-800">{routine.name}</h3>
         </div>

@@ -189,7 +189,8 @@ export async function POST(request) {
             isActive: task.isActive !== false,
           }))
         : [],
-      color: body.color || 'blue',
+      // Accept hex color codes (e.g. #f97316) or named tokens (blue, neo, calm)
+      color: sanitizeString(body.color || 'blue', 30),
     };
 
     // Check task limit

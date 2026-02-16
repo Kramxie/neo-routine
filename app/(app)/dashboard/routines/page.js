@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Card, { CardContent } from '@/components/ui/Card';
+import { toHex } from '@/lib/colorUtils';
 
 /**
  * Routines Management Page
@@ -118,18 +119,18 @@ export default function RoutinesPage() {
               {/* Color bar */}
               <div
                 className="h-2"
-                style={{ backgroundColor: routine.color || '#0ea5e9' }}
+                style={{ backgroundColor: toHex(routine.color) || '#0ea5e9' }}
               />
               <CardContent className="pt-4">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: `${routine.color || '#0ea5e9'}20` }}
+                      style={{ backgroundColor: `${toHex(routine.color) || '#0ea5e9'}20` }}
                     >
                       <svg
                         className="w-5 h-5"
-                        style={{ color: routine.color || '#0ea5e9' }}
+                        style={{ color: toHex(routine.color) || '#0ea5e9' }}
                         fill="currentColor"
                         viewBox="0 0 24 24"
                       >
@@ -175,7 +176,7 @@ export default function RoutinesPage() {
                     <div key={task._id || index} className="flex items-center gap-2 text-sm">
                       <div
                         className="w-4 h-4 rounded-full border-2 flex-shrink-0"
-                        style={{ borderColor: routine.color || '#0ea5e9' }}
+                        style={{ borderColor: toHex(routine.color) || '#0ea5e9' }}
                       />
                       <span className="text-calm-600 truncate">{task.label}</span>
                     </div>

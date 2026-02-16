@@ -58,6 +58,8 @@ const Input = forwardRef(function Input(
           placeholder={placeholder}
           disabled={disabled}
           required={required}
+          aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={error ? `${inputId}-error` : undefined}
           className={`
             w-full px-4 py-3 rounded-neo border-2 bg-white
             transition-all duration-200
@@ -76,9 +78,8 @@ const Input = forwardRef(function Input(
           {...props}
         />
       </div>
-
-      {error && (
-        <p className="mt-1 text-sm text-red-500 flex items-center">
+        {error && (
+          <p id={`${inputId}-error`} className="mt-1 text-sm text-red-500 flex items-center" role="alert">
           <svg
             className="w-4 h-4 mr-1"
             fill="currentColor"
