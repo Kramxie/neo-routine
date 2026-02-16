@@ -27,18 +27,22 @@ export default function DropList({
   const handleToggle = async (task) => {
     if (disabled) return;
 
+    const taskId = String(task._id || task.id);
+
     // Trigger ripple animation
-    setAnimatingTask(task._id || task.id);
+    setAnimatingTask(taskId);
     setTimeout(() => setAnimatingTask(null), 600);
 
-    // Call parent handler
+    // Call parent handler with string ids
     if (onToggleTask) {
-      onToggleTask(routine._id, task._id || task.id, !checkedTaskIds.includes(task._id || task.id));
+      const isCurrentlyChecked = checkedTaskIds.map(String).includes(taskId);
+      onToggleTask(String(routine._id || routine.id), taskId, !isCurrentlyChecked);
     }
   };
 
+  const normalizedChecked = (Array.isArray(checkedTaskIds) ? checkedTaskIds : []).map(String);
   const completedCount = activeTasks.filter((t) =>
-    checkedTaskIds.includes(t._id || t.id)
+    normalizedChecked.includes(String(t._id || t.id))
   ).length;
 
   const progressPercent = activeTasks.length > 0
@@ -80,14 +84,14 @@ export default function DropList({
       {/* Task List */}
       <ul className="divide-y divide-calm-50">
         {activeTasks.map((task) => {
-          const taskId = task._id || task.id;
-          const isChecked = checkedTaskIds.includes(taskId);
+          const taskId = String(task._id || task.id);
+          const isChecked = normalizedChecked.includes(taskId);
           const isAnimating = animatingTask === taskId;
 
           return (
             <li key={taskId}>
               <button
-                onClick={() => handleToggle(task)}
+                  onClick={() => handleToggle(task)}
                 disabled={disabled}
                 className={`
                   w-full px-4 py-3 flex items-center gap-3

@@ -38,13 +38,21 @@ export default function EditRoutinePage() {
         const response = await fetch(`/api/routines/${routineId}`);
         if (response.ok) {
           const data = await response.json();
-          const routine = data.routine;
-          setName(routine.name);
+          // Support both shapes: { routine: {...} } and { data: { routine: {...} } }
+          const routine = data.routine || data.data?.routine;
+
+          if (!routine) {
+            setError('Routine data malformed');
+            return;
+          }
+
+          // Use name alias or title
+          setName(routine.name || routine.title || '');
           setColor(routine.color || colorOptions[0].value);
           setTasks(
-            routine.tasks.map((t) => ({
-              id: t._id || Date.now() + Math.random(),
-              label: t.label,
+            (routine.tasks || []).map((t, i) => ({
+              id: t._id || Date.now() + i,
+              label: t.label || '',
               isActive: t.isActive !== false,
               _id: t._id,
             }))

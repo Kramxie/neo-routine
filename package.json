@@ -1,7 +1,6 @@
 {
   "name": "neo-routine",
   "version": "1.0.0",
-  "type": "module",
   "description": "Redesigning habits. One drop at a time.",
   "private": true,
   "scripts": {

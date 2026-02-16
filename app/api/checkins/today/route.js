@@ -79,20 +79,22 @@ export async function GET(request) {
       0
     );
 
-    // Create a map of checked tasks
-    const checkedTaskIds = new Set(
-      checkIns.map((c) => `${c.routineId}_${c.taskId}`)
-    );
+    // Create a set of unique routine_task combos for today's checks (prevents double-counting)
+    const todayUnique = new Set(checkIns.map((c) => `${String(c.routineId)}_${String(c.taskId)}`));
 
-    // Calculate completion percentage
-    const completedCount = checkIns.length;
+    // Calculate completion percentage using unique checked tasks
+    const completedCount = todayUnique.size;
     const completionPercent = totalTasks > 0
       ? Math.round((completedCount / totalTasks) * 100)
       : 0;
 
-    // Get weekly stats (last 7 days)
-    const weekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - 6);
+    // Get weekly stats (last 7 days) based on the requested dateISO (prevents server local timezone shifts)
+    const endDate = new Date(dateISO + 'T00:00:00');
+    // Find Monday of the week containing endDate (ISO week start)
+    const day = endDate.getDay(); // 0 (Sun) - 6 (Sat)
+    const diffToMonday = (day + 6) % 7; // 0 for Mon, 6 for Sun
+    const weekStart = new Date(endDate);
+    weekStart.setDate(endDate.getDate() - diffToMonday);
     const weekStartISO = weekStart.toISOString().split('T')[0];
 
     const weeklyCheckIns = await CheckIn.find({
@@ -100,36 +102,54 @@ export async function GET(request) {
       dateISO: { $gte: weekStartISO, $lte: dateISO },
     }).lean();
 
-    // Group check-ins by date
+    // Group check-ins by date and dedupe per routine_task to avoid double-counting
     const checkInsByDate = {};
     weeklyCheckIns.forEach((c) => {
-      checkInsByDate[c.dateISO] = (checkInsByDate[c.dateISO] || 0) + 1;
+      const key = `${c.dateISO}:${String(c.routineId)}_${String(c.taskId)}`;
+      // ensure we count unique routine-task per date
+      if (!checkInsByDate[c.dateISO]) checkInsByDate[c.dateISO] = new Set();
+      checkInsByDate[c.dateISO].add(`${String(c.routineId)}_${String(c.taskId)}`);
     });
 
-    // Build weekly data
+    // Build weekly data from Monday -> Sunday
     const weeklyData = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(weekStart);
+      date.setDate(weekStart.getDate() + i);
       const iso = date.toISOString().split('T')[0];
-      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' })[0];
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const daySet = checkInsByDate[iso] || new Set();
+      const count = daySet.size || 0;
+      const percent = totalTasks > 0 ? Math.round((count / totalTasks) * 100) : 0;
       weeklyData.push({
         date: iso,
         day: dayName,
-        count: checkInsByDate[iso] || 0,
-        percent: totalTasks > 0 ? Math.round(((checkInsByDate[iso] || 0) / totalTasks) * 100) : 0,
+        count,
+        percent: Math.max(0, Math.min(100, percent)),
+        isToday: iso === dateISO,
       });
     }
 
-    // Calculate weekly completion rate
-    const weeklyTotal = weeklyCheckIns.length;
+    // Calculate weekly completion rate using unique routine-task per day
+    let weeklyTotalUnique = 0;
+    Object.values(checkInsByDate).forEach((s) => {
+      weeklyTotalUnique += (s && s.size) || 0;
+    });
     const weeklyPossible = totalTasks * 7;
     const weeklyPercent = weeklyPossible > 0
-      ? Math.round((weeklyTotal / weeklyPossible) * 100)
+      ? Math.round((weeklyTotalUnique / weeklyPossible) * 100)
       : 0;
 
     // Get gentle micro-message based on progress
     const gentleMessage = getGentleMessage(completionPercent, weeklyPercent);
+
+    // Debug output (temporary)
+    try {
+      console.table({ dateISO, completedCount, totalTasks, completionPercent, weeklyTotalUnique, weeklyPossible, weeklyPercent });
+      console.table(weeklyData.map((d) => ({ date: d.date, count: d.count, percent: d.percent })));
+    } catch (e) {
+      // ignore
+    }
 
     return NextResponse.json(
       {
@@ -137,23 +157,23 @@ export async function GET(request) {
         data: {
           date: dateISO,
           checkIns: checkIns.map((c) => ({
-            id: c._id,
-            routineId: c.routineId,
-            taskId: c.taskId,
+            id: String(c._id),
+            routineId: String(c.routineId),
+            taskId: String(c.taskId),
             note: c.note,
             createdAt: c.createdAt,
           })),
-          checkedTaskIds: Array.from(checkedTaskIds),
+          checkedTaskIds: Array.from(todayUnique).map(String),
           stats: {
             today: {
               completed: completedCount,
               total: totalTasks,
-              percent: completionPercent,
+              percent: Math.max(0, Math.min(100, completionPercent)),
             },
             weekly: {
-              completed: weeklyTotal,
+              completed: weeklyTotalUnique,
               possible: weeklyPossible,
-              percent: weeklyPercent,
+              percent: Math.max(0, Math.min(100, weeklyPercent)),
               data: weeklyData,
             },
           },

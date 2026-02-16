@@ -21,6 +21,12 @@ export default function DashboardPage() {
   const [showVerifyBanner, setShowVerifyBanner] = useState(false);
   const [resendStatus, setResendStatus] = useState('idle');
 
+  // Helper to get user's local date in YYYY-MM-DD
+  const getLocalDateISO = () => {
+    const n = new Date();
+    return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+  };
+
   // Fetch user info to check verification
   useEffect(() => {
     const fetchUser = async () => {
@@ -66,7 +72,8 @@ export default function DashboardPage() {
     try {
       const [routinesRes, todayRes] = await Promise.all([
         fetch('/api/routines'),
-        fetch('/api/checkins/today'),
+        // Request today's data using user's local date to avoid timezone rollovers
+        fetch(`/api/checkins/today?date=${getLocalDateISO()}`),
       ]);
 
       if (routinesRes.ok) {
@@ -76,7 +83,8 @@ export default function DashboardPage() {
 
       if (todayRes.ok) {
         const data = await todayRes.json();
-        setTodayData(data);
+        // Normalize shape: prefer `data.data` when API wraps payload
+        setTodayData(data.data || data);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -104,12 +112,15 @@ export default function DashboardPage() {
     setCheckLoading(true);
 
     try {
+      // Use user's local date to avoid UTC rollover issues
+      const now = new Date();
+      const localDateISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
       if (shouldCheck) {
         // Create check-in
         const response = await fetch('/api/checkins', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ routineId, taskId }),
+          body: JSON.stringify({ routineId, taskId, dateISO: localDateISO }),
         });
 
         if (!response.ok) {
@@ -120,7 +131,7 @@ export default function DashboardPage() {
         const response = await fetch('/api/checkins', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ routineId, taskId }),
+          body: JSON.stringify({ routineId, taskId, dateISO: localDateISO }),
         });
 
         if (!response.ok) {
@@ -128,11 +139,11 @@ export default function DashboardPage() {
         }
       }
 
-      // Refresh today's data
-      const todayRes = await fetch('/api/checkins/today');
+      // Refresh today's data (normalize API wrapper shape)
+      const todayRes = await fetch(`/api/checkins/today?date=${localDateISO}`);
       if (todayRes.ok) {
         const data = await todayRes.json();
-        setTodayData(data);
+        setTodayData(data.data || data);
       }
     } catch (error) {
       console.error('Check-in error:', error);
@@ -143,18 +154,67 @@ export default function DashboardPage() {
 
   // Get checked task IDs for a routine
   const getCheckedTaskIds = (routineId) => {
-    if (!todayData?.checkedTasks) return [];
-    return todayData.checkedTasks
-      .filter((ct) => ct.routineId === routineId)
-      .map((ct) => ct.taskId);
+    if (!todayData) return [];
+
+    // API may return an array of strings like "<routineId>_<taskId>" as `checkedTaskIds`
+    if (Array.isArray(todayData.checkedTaskIds)) {
+      const rid = String(routineId);
+      return todayData.checkedTaskIds
+        .filter((s) => typeof s === 'string' && s.startsWith(`${rid}_`))
+        .map((s) => String(s.split('_')[1]));
+    }
+
+    // Or API may return `checkIns` array of objects
+    if (Array.isArray(todayData.checkIns)) {
+      return todayData.checkIns
+        .filter((c) => String(c.routineId) === String(routineId))
+        .map((c) => String(c.taskId));
+    }
+
+    return [];
   };
 
-  // Stats from today's data
-  const todayPercent = todayData?.todayPercent || 0;
-  const weeklyPercent = todayData?.weeklyPercent || 0;
-  const totalDrops = todayData?.totalDropsToday || 0;
-  const microMessage = todayData?.message || "Every drop creates ripples of progress.";
-  const weeklyData = todayData?.weeklyData || [];
+  // Stats from today's data (defensive and normalized)
+  const _rawTodayPercent = todayData?.stats?.today?.percent ?? todayData?.completionPercent ?? 0;
+  const todayPercent = Math.max(0, Math.min(100, Number(_rawTodayPercent) || 0));
+
+  const _rawWeeklyPercent = todayData?.stats?.weekly?.percent ?? todayData?.weeklyPercent ?? 0;
+  const weeklyPercent = Math.max(0, Math.min(100, Number(_rawWeeklyPercent) || 0));
+
+  // Compute total drops (use stats when present, otherwise derive unique check-ins)
+  let totalDrops = 0;
+  if (todayData?.stats?.today?.completed != null) {
+    totalDrops = Number(todayData.stats.today.completed) || 0;
+  } else if (Array.isArray(todayData?.checkIns)) {
+    const unique = new Set(
+      todayData.checkIns.map((c) => `${String(c.routineId)}_${String(c.taskId)}`)
+    );
+    totalDrops = unique.size;
+  } else {
+    totalDrops = Number(todayData?.completedCount) || 0;
+  }
+
+  const microMessage = todayData?.microMessage || todayData?.message || 'Every drop creates ripples of progress.';
+  const weeklyData = todayData?.stats?.weekly?.data || todayData?.weeklyData || [];
+
+  // Debug: log computed numbers when todayData changes
+  useEffect(() => {
+    if (!todayData) return;
+    try {
+      const completedToday = Number(todayData?.stats?.today?.completed ?? 0);
+      const totalToday = Number(todayData?.stats?.today?.total ?? 0);
+      const todayPct = Number(todayPercent);
+      const completedThisWeek = Number(todayData?.stats?.weekly?.completed ?? 0);
+      const totalThisWeek = Number(todayData?.stats?.weekly?.possible ?? 0);
+      const weeklyPct = Number(weeklyPercent);
+      const perDay = (todayData?.stats?.weekly?.data || weeklyData).map((d) => ({ date: d.date, count: d.count ?? 0, percent: d.percent ?? 0 }));
+
+      console.table({ completedToday, totalToday, todayPct, completedThisWeek, totalThisWeek, weeklyPct });
+      console.table(perDay);
+    } catch (e) {
+      console.error('Debug log failed', e);
+    }
+  }, [todayData]);
 
   if (loading) {
     return (
