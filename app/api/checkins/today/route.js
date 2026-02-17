@@ -1,29 +1,49 @@
-import { NextResponse } from 'next/server';
-import connectDB from '@/lib/db';
-import CheckIn from '@/models/CheckIn';
-import Routine from '@/models/Routine';
-import { getCurrentUser } from '@/lib/auth';
-import { getGentleMessage } from '@/lib/reminderEngine';
+import { NextResponse } from "next/server";
+import connectDB from "@/lib/db";
+import CheckIn from "@/models/CheckIn";
+import Routine from "@/models/Routine";
+import { getCurrentUser } from "@/lib/auth";
+import { getGentleMessage } from "@/lib/reminderEngine";
 
 // Demo data for testing without database
 const DEMO_TODAY_DATA = {
-  date: new Date().toISOString().split('T')[0],
+  date: new Date().toISOString().split("T")[0],
   checkIns: [],
   totalTasks: 5,
   completedCount: 0,
   completionPercent: 0,
   weeklyData: [
-    { date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 3, total: 5 },
-    { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 4, total: 5 },
-    { date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 5, total: 5 },
-    { date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 2, total: 5 },
-    { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 4, total: 5 },
-    { date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: 5, total: 5 },
-    { date: new Date().toISOString().split('T')[0], completed: 0, total: 5 },
+    { date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], completed: 3, total: 5 },
+    { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], completed: 4, total: 5 },
+    { date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], completed: 5, total: 5 },
+    { date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], completed: 2, total: 5 },
+    { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], completed: 4, total: 5 },
+    { date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], completed: 5, total: 5 },
+    { date: new Date().toISOString().split("T")[0], completed: 0, total: 5 },
   ],
-  reminderMessage: 'Welcome to Neo Routine! 🌊 Each small ripple creates waves of change.',
+  reminderMessage: "Welcome to Neo Routine! 🌊 Each small ripple creates waves of change.",
   isDemo: true,
 };
+
+/**
+ * UTC helpers (prevents Monday->Tuesday shift)
+ */
+function parseISODateToUTC(dateISO) {
+  const [y, m, d] = dateISO.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)); // UTC midnight
+}
+
+function formatUTCToISODate(d) {
+  return d.toISOString().slice(0, 10);
+}
+
+function getMondayISO(dateISO) {
+  const dt = parseISODateToUTC(dateISO);
+  const day = dt.getUTCDay(); // 0=Sun..6=Sat
+  const diffToMonday = (day + 6) % 7; // 0 for Mon, 6 for Sun
+  dt.setUTCDate(dt.getUTCDate() - diffToMonday);
+  return formatUTCToISODate(dt);
+}
 
 /**
  * GET /api/checkins/today
@@ -35,25 +55,22 @@ export async function GET(request) {
     // Get current user
     const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json(
-        { message: 'Unauthorized', data: null },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized", data: null }, { status: 401 });
     }
 
     // Demo mode - return sample data
-    if (user.userId === 'demo-user-123') {
+    if (user.userId === "demo-user-123") {
       return NextResponse.json(DEMO_TODAY_DATA);
     }
 
     // Get date from query params or use today
     const { searchParams } = new URL(request.url);
-    const dateISO = searchParams.get('date') || new Date().toISOString().split('T')[0];
+    const dateISO = searchParams.get("date") || new Date().toISOString().split("T")[0];
 
     // Validate date format
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO)) {
       return NextResponse.json(
-        { message: 'Invalid date format. Use YYYY-MM-DD', data: null },
+        { message: "Invalid date format. Use YYYY-MM-DD", data: null },
         { status: 400 }
       );
     }
@@ -73,90 +90,96 @@ export async function GET(request) {
       isArchived: false,
     }).lean();
 
-    // Calculate total active tasks
-    const totalTasks = routines.reduce(
-      (sum, routine) => sum + routine.tasks.filter((t) => t.isActive).length,
-      0
+    // Build a set of currently-valid active routine_task keys.
+    // Prevent "ghost" check-ins from deleted/inactive tasks affecting progress.
+    const activeTaskKeys = new Set();
+    routines.forEach((routine) => {
+      const rid = String(routine._id);
+      (routine.tasks || [])
+        .filter((t) => t && t.isActive !== false)
+        .forEach((t) => {
+          activeTaskKeys.add(`${rid}_${String(t._id)}`);
+        });
+    });
+
+    const totalTasks = activeTaskKeys.size;
+
+    // Filter out check-ins that no longer correspond to active tasks
+    const validTodayCheckIns = checkIns.filter((c) =>
+      activeTaskKeys.has(`${String(c.routineId)}_${String(c.taskId)}`)
     );
 
-    // Create a set of unique routine_task combos for today's checks (prevents double-counting)
-    const todayUnique = new Set(checkIns.map((c) => `${String(c.routineId)}_${String(c.taskId)}`));
+    // Unique routine_task combos for today's checks
+    const todayUnique = new Set(
+      validTodayCheckIns.map((c) => `${String(c.routineId)}_${String(c.taskId)}`)
+    );
 
-    // Calculate completion percentage using unique checked tasks
     const completedCount = todayUnique.size;
-    const completionPercent = totalTasks > 0
-      ? Math.round((completedCount / totalTasks) * 100)
-      : 0;
+    const completionPercent =
+      totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
 
-    // Get weekly stats (last 7 days) based on the requested dateISO (prevents server local timezone shifts)
-    const endDate = new Date(dateISO + 'T00:00:00');
-    // Find Monday of the week containing endDate (ISO week start)
-    const day = endDate.getDay(); // 0 (Sun) - 6 (Sat)
-    const diffToMonday = (day + 6) % 7; // 0 for Mon, 6 for Sun
-    const weekStart = new Date(endDate);
-    weekStart.setDate(endDate.getDate() - diffToMonday);
-    const weekStartISO = weekStart.toISOString().split('T')[0];
+    /**
+     * Weekly: compute ISO week (Mon-Sun) using UTC-safe math
+     */
+    const weekStartISO = getMondayISO(dateISO);
+    const weekStartUTC = parseISODateToUTC(weekStartISO);
 
     const weeklyCheckIns = await CheckIn.find({
       userId: user.userId,
       dateISO: { $gte: weekStartISO, $lte: dateISO },
     }).lean();
 
-    // Group check-ins by date and dedupe per routine_task to avoid double-counting
+    // Filter ghost check-ins
+    const validWeeklyCheckIns = weeklyCheckIns.filter((c) =>
+      activeTaskKeys.has(`${String(c.routineId)}_${String(c.taskId)}`)
+    );
+
+    // Group by date, dedupe per routine_task
     const checkInsByDate = {};
-    weeklyCheckIns.forEach((c) => {
-      const key = `${c.dateISO}:${String(c.routineId)}_${String(c.taskId)}`;
-      // ensure we count unique routine-task per date
+    validWeeklyCheckIns.forEach((c) => {
       if (!checkInsByDate[c.dateISO]) checkInsByDate[c.dateISO] = new Set();
       checkInsByDate[c.dateISO].add(`${String(c.routineId)}_${String(c.taskId)}`);
     });
 
-    // Build weekly data from Monday -> Sunday
+    // Build weekly data Monday -> Sunday (UTC), no timezone drift
+    const weekdayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const weeklyData = [];
     for (let i = 0; i < 7; i++) {
-      const date = new Date(weekStart);
-      date.setDate(weekStart.getDate() + i);
-      const iso = date.toISOString().split('T')[0];
-      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const d = new Date(weekStartUTC);
+      d.setUTCDate(weekStartUTC.getUTCDate() + i);
+      const iso = formatUTCToISODate(d);
+
       const daySet = checkInsByDate[iso] || new Set();
       const count = daySet.size || 0;
       const percent = totalTasks > 0 ? Math.round((count / totalTasks) * 100) : 0;
+
       weeklyData.push({
         date: iso,
-        day: dayName,
+        day: weekdayLabels[i],
         count,
         percent: Math.max(0, Math.min(100, percent)),
         isToday: iso === dateISO,
       });
     }
 
-    // Calculate weekly completion rate using unique routine-task per day
+    // Weekly percent: total unique completions across week / (totalTasks * 7)
     let weeklyTotalUnique = 0;
     Object.values(checkInsByDate).forEach((s) => {
       weeklyTotalUnique += (s && s.size) || 0;
     });
+
     const weeklyPossible = totalTasks * 7;
-    const weeklyPercent = weeklyPossible > 0
-      ? Math.round((weeklyTotalUnique / weeklyPossible) * 100)
-      : 0;
+    const weeklyPercent =
+      weeklyPossible > 0 ? Math.round((weeklyTotalUnique / weeklyPossible) * 100) : 0;
 
-    // Get gentle micro-message based on progress
     const gentleMessage = getGentleMessage(completionPercent, weeklyPercent);
-
-    // Debug output (temporary)
-    try {
-      console.table({ dateISO, completedCount, totalTasks, completionPercent, weeklyTotalUnique, weeklyPossible, weeklyPercent });
-      console.table(weeklyData.map((d) => ({ date: d.date, count: d.count, percent: d.percent })));
-    } catch (e) {
-      // ignore
-    }
 
     return NextResponse.json(
       {
-        message: 'Check-ins retrieved successfully',
+        message: "Check-ins retrieved successfully",
         data: {
           date: dateISO,
-          checkIns: checkIns.map((c) => ({
+          checkIns: validTodayCheckIns.map((c) => ({
             id: String(c._id),
             routineId: String(c.routineId),
             taskId: String(c.taskId),
@@ -183,9 +206,9 @@ export async function GET(request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Get today check-ins error:', error);
+    console.error("Get today check-ins error:", error);
     return NextResponse.json(
-      { message: 'Failed to fetch check-ins', data: { error: error.message } },
+      { message: "Failed to fetch check-ins", data: { error: error.message } },
       { status: 500 }
     );
   }
