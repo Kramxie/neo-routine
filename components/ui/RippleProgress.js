@@ -140,10 +140,7 @@ export function RippleDot({ completed = false, size = 'md' }) {
         ${sizes[size]}
         rounded-full flex items-center justify-center
         transition-all duration-300
-        ${completed
-          ? 'bg-neo-500 shadow-neo'
-          : 'bg-calm-200'
-        }
+        ${completed ? 'bg-neo-500 shadow-neo' : 'bg-calm-200'}
       `}
     >
       {completed && (
@@ -169,30 +166,60 @@ export function RippleDot({ completed = false, size = 'md' }) {
  * Weekly progress visual (7 dots)
  */
 export function WeeklyRipples({ data = [], className = '' }) {
-  // Default days if no data provided
-  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  // We intentionally don't trust array order coming from the API.
+  // Some environments can shift dates (timezone) or return unsorted arrays.
+  // We'll normalize to Mon -> Sun by sorting + padding.
+  const daySlots = [
+    { label: 'M', key: 'Mon' },
+    { label: 'T', key: 'Tue' },
+    { label: 'W', key: 'Wed' },
+    { label: 'T', key: 'Thu' },
+    { label: 'F', key: 'Fri' },
+    { label: 'S', key: 'Sat' },
+    { label: 'S', key: 'Sun' },
+  ];
+
+  const list = Array.isArray(data) ? data : [];
+
+  // Prefer explicit `day` from API. If missing, fall back to sorting by `date`.
+  const byDay = new Map();
+  list.forEach((d) => {
+    const k = d?.day;
+    if (k) byDay.set(k, d);
+  });
+
+  let normalized = daySlots.map((slot) => byDay.get(slot.key));
+
+  // If API didn't provide day labels, normalize by date order.
+  if (normalized.every((x) => !x) && list.length) {
+    const sorted = [...list].sort((a, b) =>
+      String(a?.date || '').localeCompare(String(b?.date || ''))
+    );
+    normalized = daySlots.map((_, i) => sorted[i]);
+  }
 
   return (
     <div className={`flex justify-between gap-1 ${className}`}>
-      {days.map((day, index) => {
-        const dayData = data[index];
+      {daySlots.map((slot, index) => {
+        const dayData = normalized[index];
         const percent = dayData?.percent || 0;
         const isToday = dayData?.isToday;
 
         return (
           <div key={index} className="flex-1 text-center">
-            <p className="text-xs text-calm-500 mb-1">{day}</p>
+            <p className="text-xs text-calm-500 mb-1">{slot.label}</p>
             <div
               className={`
                 w-full aspect-square rounded-full flex items-center justify-center
                 transition-all duration-300
-                ${percent === 0
-                  ? 'bg-calm-100'
-                  : percent < 50
-                  ? 'bg-neo-200'
-                  : percent < 100
-                  ? 'bg-neo-400'
-                  : 'bg-neo-500'
+                ${
+                  percent === 0
+                    ? 'bg-calm-100'
+                    : percent < 50
+                    ? 'bg-neo-200'
+                    : percent < 100
+                    ? 'bg-neo-400'
+                    : 'bg-neo-500'
                 }
                 ${isToday ? 'ring-2 ring-neo-400 ring-offset-2' : ''}
               `}
