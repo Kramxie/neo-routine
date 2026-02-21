@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Button from '@/components/ui/Button';
@@ -52,17 +53,16 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
-            {/* Water drop icon */}
-            <div className="relative">
-              <svg
-                className="w-8 h-8 text-neo-500 group-hover:text-neo-600 transition-colors"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2ZM12 19C9.791 19 8 17.209 8 15C8 13.5 9 11.5 12 8C15 11.5 16 13.5 16 15C16 17.209 14.209 19 12 19Z" />
-              </svg>
-              {/* Ripple effect on hover */}
-              <div className="absolute inset-0 rounded-full bg-neo-300 opacity-0 group-hover:opacity-30 group-hover:animate-ripple" />
+            {/* Logo image */}
+            <div className="relative w-10 h-10 rounded-full overflow-hidden">
+              <Image
+                src="/neoLogo.jfif"
+                alt="NeoRoutine Logo"
+                width={40}
+                height={40}
+                className="object-cover"
+                priority
+              />
             </div>
             <span className="text-xl font-semibold text-calm-800">
               Neo<span className="text-neo-500">Routine</span>

@@ -14,6 +14,8 @@ export default function AppLayout({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   // Fetch current user on mount
   useEffect(() => {
@@ -66,11 +68,51 @@ export default function AppLayout({ children }) {
       ),
     },
     {
+      name: 'Calendar',
+      href: '/dashboard/calendar',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      ),
+    },
+    {
       name: 'Insights',
       href: '/dashboard/insights',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Goals',
+      href: '/dashboard/goals',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Achievements',
+      href: '/dashboard/achievements',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+        </svg>
+      ),
+    },
+  ];
+
+  // Bottom navigation items
+  const bottomNavItems = [
+    {
+      name: 'Profile',
+      href: '/dashboard/profile',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       ),
     },
@@ -88,7 +130,7 @@ export default function AppLayout({ children }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-calm-50 flex items-center justify-center">
+          <div className="min-h-screen bg-calm-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neo-100 flex items-center justify-center animate-pulse">
             <svg className="w-8 h-8 text-neo-500" viewBox="0 0 24 24" fill="currentColor">
@@ -102,7 +144,7 @@ export default function AppLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-calm-50">
+    <div className="min-h-screen bg-calm-50 dark:bg-slate-900">
       {/* Mobile sidebar backdrop */}
       {isSidebarOpen && (
         <div
@@ -115,13 +157,14 @@ export default function AppLayout({ children }) {
       <aside
         className={`
           fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-calm-100
+          dark:bg-slate-800 dark:border-slate-700
           transform transition-transform duration-200 ease-in-out
-          lg:translate-x-0
+          lg:translate-x-0 flex flex-col
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center px-6 border-b border-calm-100">
+        <div className="h-16 flex items-center px-6 border-b border-calm-100 dark:border-slate-700">
           <Link href="/dashboard" className="flex items-center space-x-2">
             <svg className="w-8 h-8 text-neo-500" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z" />
@@ -133,12 +176,12 @@ export default function AppLayout({ children }) {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-1">
+        <nav className="p-4 space-y-1 flex-1">
           {navItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className="flex items-center space-x-3 px-4 py-3 rounded-neo text-calm-600 hover:bg-neo-50 hover:text-neo-600 transition-colors"
+              className="flex items-center space-x-3 px-4 py-3 rounded-neo text-calm-600 hover:bg-neo-50 hover:text-neo-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-neo-300 transition-colors"
             >
               {item.icon}
               <span className="font-medium">{item.name}</span>
@@ -146,8 +189,22 @@ export default function AppLayout({ children }) {
           ))}
         </nav>
 
+        {/* Bottom nav items */}
+        <div className="p-4 border-t border-calm-100 dark:border-slate-700 space-y-1">
+          {bottomNavItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className="flex items-center space-x-3 px-4 py-3 rounded-neo text-calm-600 hover:bg-neo-50 hover:text-neo-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-neo-300 transition-colors"
+            >
+              {item.icon}
+              <span className="font-medium">{item.name}</span>
+            </Link>
+          ))}
+        </div>
+
         {/* User section at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-calm-100">
+        <div className="p-4 border-t border-calm-100 dark:border-slate-700">
           <div className="flex items-center space-x-3 mb-3">
             <div className="w-10 h-10 rounded-full bg-neo-100 flex items-center justify-center">
               <span className="text-neo-600 font-semibold">
@@ -178,7 +235,7 @@ export default function AppLayout({ children }) {
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <header className="h-16 bg-white border-b border-calm-100 flex items-center justify-between px-4 lg:px-8">
+        <header className="h-16 bg-white border-b border-calm-100 dark:bg-slate-800 dark:border-slate-700 flex items-center justify-between px-4 lg:px-8">
           {/* Mobile menu button */}
           <button
             onClick={() => setIsSidebarOpen(true)}
@@ -196,9 +253,52 @@ export default function AppLayout({ children }) {
             </p>
           </div>
 
-          {/* Right side - future: notifications, quick actions */}
+          {/* Right side - notifications and date */}
           <div className="flex items-center space-x-4">
-            <span className="text-sm text-calm-500">
+            {/* Notification Bell */}
+            <div className="relative">
+              <button
+                onClick={function() { setShowNotifications(!showNotifications); }}
+                className="p-2 rounded-lg text-calm-500 hover:bg-calm-100 hover:text-calm-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white transition-colors relative"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {/* Notification badge */}
+                <span className="absolute top-1 right-1 w-2 h-2 bg-neo-500 rounded-full"></span>
+              </button>
+
+              {/* Notification dropdown */}
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-calm-200 dark:border-slate-700 z-50">
+                  <div className="p-4 border-b border-calm-100 dark:border-slate-700">
+                    <h3 className="font-semibold text-calm-800 dark:text-white">Notifications</h3>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-8 text-center text-calm-500 dark:text-slate-400">
+                        <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        <p className="text-sm">No notifications yet</p>
+                        <p className="text-xs mt-1">We&apos;ll notify you when something happens</p>
+                      </div>
+                    ) : (
+                      notifications.map(function(notif, idx) {
+                        return (
+                          <div key={idx} className="p-4 border-b border-calm-50 dark:border-slate-700 hover:bg-calm-50 dark:hover:bg-slate-700">
+                            <p className="text-sm text-calm-800 dark:text-white">{notif.message}</p>
+                            <p className="text-xs text-calm-500 dark:text-slate-400 mt-1">{notif.time}</p>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <span className="text-sm text-calm-500 dark:text-slate-400">
               {new Date().toLocaleDateString('en-US', {
                 weekday: 'long',
                 month: 'short',
