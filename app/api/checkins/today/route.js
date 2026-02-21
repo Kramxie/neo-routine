@@ -21,7 +21,7 @@ const DEMO_TODAY_DATA = {
     { date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], completed: 5, total: 5 },
     { date: new Date().toISOString().split("T")[0], completed: 0, total: 5 },
   ],
-  reminderMessage: "Welcome to Neo Routine! 🌊 Each small ripple creates waves of change.",
+  reminderMessage: "Welcome to Neo Routine! Each small ripple creates waves of change.",
   isDemo: true,
 };
 
