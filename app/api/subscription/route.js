@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
+import stripe from '@/lib/stripe';
 import { 
   plans, 
   freeTierFeatures, 
@@ -12,7 +13,7 @@ import {
 
 /**
  * GET /api/subscription
- * Get current user's subscription status and available plans
+ * Get current user's subscription status and available plans with real Stripe prices
  */
 export async function GET() {
   try {
@@ -37,6 +38,40 @@ export async function GET() {
     const effectiveTier = getEffectiveTier(user);
     const isActive = isSubscriptionActive(user.subscription);
 
+    // Fetch real prices from Stripe
+    const priceIds = {
+      premium_monthly: process.env.STRIPE_PRICE_PREMIUM_MONTHLY,
+      premium_yearly: process.env.STRIPE_PRICE_PREMIUM_YEARLY,
+      premium_plus_monthly: process.env.STRIPE_PRICE_PREMIUM_PLUS_MONTHLY,
+      premium_plus_yearly: process.env.STRIPE_PRICE_PREMIUM_PLUS_YEARLY,
+    };
+
+    // Build plans object with real Stripe prices
+    const pricingByTier = {
+      premium: { monthly: null, yearly: null },
+      premium_plus: { monthly: null, yearly: null },
+    };
+
+    for (const [planId, priceId] of Object.entries(priceIds)) {
+      if (priceId) {
+        try {
+          const price = await stripe.prices.retrieve(priceId);
+          const amount = price.unit_amount / 100;
+          const tier = planId.startsWith('premium_plus') ? 'premium_plus' : 'premium';
+          const interval = planId.endsWith('yearly') ? 'yearly' : 'monthly';
+          pricingByTier[tier][interval] = amount;
+        } catch (err) {
+          console.error(`Failed to fetch price ${planId}:`, err.message);
+        }
+      }
+    }
+
+    // Fallback to hardcoded prices if Stripe fails
+    if (!pricingByTier.premium.monthly) pricingByTier.premium.monthly = plans.premium_monthly?.price || 4.99;
+    if (!pricingByTier.premium.yearly) pricingByTier.premium.yearly = plans.premium_yearly?.price || 39.99;
+    if (!pricingByTier.premium_plus.monthly) pricingByTier.premium_plus.monthly = plans.premium_plus_monthly?.price || 9.99;
+    if (!pricingByTier.premium_plus.yearly) pricingByTier.premium_plus.yearly = plans.premium_plus_yearly?.price || 79.99;
+
     return NextResponse.json({
       currentTier: effectiveTier,
       subscription: {
@@ -47,7 +82,7 @@ export async function GET() {
         isActive,
       },
       limits: tierLimits[effectiveTier],
-      plans: Object.values(plans),
+      plans: pricingByTier,
       freeTierFeatures,
     });
   } catch (error) {
