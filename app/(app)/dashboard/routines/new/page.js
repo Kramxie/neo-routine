@@ -111,7 +111,7 @@ export default function NewRoutinePage() {
         <CardHeader>
           <CardTitle>Create New Routine</CardTitle>
           <p className="text-sm text-calm-500 mt-1">
-            Build your routine one drop at a time. Start simple—you can always add more later.
+            Build your routine one drop at a time. Start simple - you can always add more later.
           </p>
         </CardHeader>
         <CardContent>
@@ -226,7 +226,7 @@ export default function NewRoutinePage() {
                   />
                   <span className="font-medium text-calm-800">{name}</span>
                   <span className="text-calm-500 text-sm">
-                    • {tasks.filter((t) => t.label.trim()).length} drops
+                    - {tasks.filter((t) => t.label.trim()).length} drops
                   </span>
                 </div>
               </div>

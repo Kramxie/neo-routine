@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 // Plan feature lists
@@ -69,6 +69,7 @@ function CheckIcon({ className }) {
 
 export default function UpgradePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentTier, setCurrentTier] = useState('free');
   const [subscription, setSubscription] = useState(null);
   const [plans, setPlans] = useState({});
@@ -79,8 +80,12 @@ export default function UpgradePage() {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
+    // Check if user was redirected back from Stripe (canceled)
+    if (searchParams.get('canceled') === 'true') {
+      setError('Checkout was canceled. You can try again when ready.');
+    }
     fetchSubscriptionStatus();
-  }, []);
+  }, [searchParams]);
 
   const fetchSubscriptionStatus = async () => {
     try {
@@ -99,63 +104,88 @@ export default function UpgradePage() {
     }
   };
 
-  const handleUpgrade = async (plan) => {
-    if (plan === currentTier) return;
+  const handleUpgrade = async (tier) => {
+    if (tier === currentTier || tier === 'free') return;
 
     setUpgrading(true);
     setError('');
     setSuccess('');
 
+    // Construct the planId based on tier and billing cycle
+    const planId = `${tier}_${billingCycle === 'yearly' ? 'yearly' : 'monthly'}`;
+
     try {
-      const res = await fetch('/api/subscription', {
+      const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, billingCycle }),
+        body: JSON.stringify({ planId }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to upgrade');
+        throw new Error(data.error || 'Failed to create checkout session');
       }
 
-      setSuccess(`Successfully upgraded to ${plan.replace('_', ' ')}! 🎉`);
-      setCurrentTier(plan);
-      setSubscription(data.subscription);
-
-      // Redirect after short delay
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 2000);
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
     } catch (err) {
       setError(err.message);
-    } finally {
       setUpgrading(false);
     }
+    // Note: Don't set upgrading to false here since we're redirecting
   };
 
   const handleCancel = async () => {
-    if (!confirm('Are you sure you want to cancel your subscription?')) return;
-
+    // Open Stripe Customer Portal for subscription management
     setUpgrading(true);
     setError('');
 
     try {
-      const res = await fetch('/api/subscription', {
-        method: 'DELETE',
+      const res = await fetch('/api/subscription/portal', {
+        method: 'POST',
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to cancel');
+        throw new Error(data.error || 'Failed to open subscription management');
       }
 
-      setSuccess('Subscription will cancel at the end of your billing period.');
-      setSubscription(data.subscription);
+      // Redirect to Stripe Customer Portal
+      if (data.url) {
+        window.location.href = data.url;
+      }
     } catch (err) {
       setError(err.message);
-    } finally {
+      setUpgrading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    setUpgrading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/subscription/portal', {
+        method: 'POST',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to open subscription management');
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      setError(err.message);
       setUpgrading(false);
     }
   };
@@ -163,7 +193,7 @@ export default function UpgradePage() {
   const getPrice = (plan) => {
     if (plan === 'free') return 'Free';
     const planData = plans[plan];
-    if (!planData) return '—';
+    if (!planData) return '-';
     const price = billingCycle === 'yearly' ? planData.yearly : planData.monthly;
     const period = billingCycle === 'yearly' ? '/year' : '/month';
     return `$${price}${period}`;
@@ -427,20 +457,22 @@ export default function UpgradePage() {
           })}
         </div>
 
-        {/* Cancel Subscription */}
+        {/* Manage Subscription */}
         {subscription?.status === 'active' && currentTier !== 'free' && (
           <div className="mt-10 text-center">
-            <p className="text-calm-500 text-sm mb-2">
-              Need to cancel? Your access will continue until the end of your billing period.
+            <p className="text-calm-500 text-sm mb-3">
+              Manage your subscription, update payment method, or cancel anytime.
             </p>
             <button
-              onClick={handleCancel}
-              disabled={upgrading || subscription?.cancelAtPeriodEnd}
-              className="text-red-500 hover:text-red-600 text-sm underline disabled:opacity-50"
+              onClick={handleManageSubscription}
+              disabled={upgrading}
+              className="inline-flex items-center gap-2 px-6 py-2 bg-calm-100 text-calm-700 rounded-lg hover:bg-calm-200 transition-colors disabled:opacity-50"
             >
-              {subscription?.cancelAtPeriodEnd
-                ? 'Subscription cancellation pending'
-                : 'Cancel subscription'}
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Manage Subscription
             </button>
           </div>
         )}

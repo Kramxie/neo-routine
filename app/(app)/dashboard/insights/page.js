@@ -24,7 +24,7 @@ export default function InsightsPage() {
 
   const fetchInsights = async () => {
     try {
-      const response = await fetch(`/api/insights?days=${days}`);
+      const response = await fetch(`/api/insights/user?range=${days}`);
       if (response.ok) {
         const result = await response.json();
         setData(result);
@@ -59,7 +59,7 @@ export default function InsightsPage() {
     );
   }
 
-  const { summary, weekly, insights, dailyData, routineStats, patterns } = data;
+  const { summary, weekly, insights, dailyData, routineStats, goalsProgress, patterns } = data;
 
   return (
     <div className="space-y-8">
@@ -107,7 +107,7 @@ export default function InsightsPage() {
                 <span className={`text-xs font-medium ${
                   summary.trendDirection === 'up' ? 'text-green-600' : 'text-red-500'
                 }`}>
-                  {summary.trendDirection === 'up' ? '↑' : '↓'} {Math.abs(summary.trend)}%
+                  {summary.trendDirection === 'up' ? '+' : '-'} {Math.abs(summary.trend)}%
                 </span>
               )}
               <span className="text-xs text-calm-500">vs last {days}d</span>
@@ -246,6 +246,83 @@ export default function InsightsPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Goals Progress */}
+          <Card variant="elevated" className="mt-4">
+            <CardHeader>
+              <CardTitle>Goals Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!goalsProgress || goalsProgress.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-neo-100 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-neo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <p className="text-calm-500">No goals yet</p>
+                  <a href="/dashboard/goals" className="text-neo-500 hover:text-neo-600 text-sm font-medium">
+                    Set your first goal →
+                  </a>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Summary */}
+                  <div className="flex items-center justify-between p-3 bg-neo-50 dark:bg-neo-900/20 rounded-lg">
+                    <div className="text-center flex-1">
+                      <p className="text-2xl font-bold text-neo-600">{summary.activeGoals}</p>
+                      <p className="text-xs text-calm-500">Active</p>
+                    </div>
+                    <div className="w-px h-8 bg-calm-200 dark:bg-slate-600" />
+                    <div className="text-center flex-1">
+                      <p className="text-2xl font-bold text-green-500">{summary.completedGoals}</p>
+                      <p className="text-xs text-calm-500">Completed</p>
+                    </div>
+                    <div className="w-px h-8 bg-calm-200 dark:bg-slate-600" />
+                    <div className="text-center flex-1">
+                      <p className="text-2xl font-bold text-calm-600">{summary.avgGoalProgress}%</p>
+                      <p className="text-xs text-calm-500">Avg Progress</p>
+                    </div>
+                  </div>
+
+                  {/* Individual Goals */}
+                  {goalsProgress.slice(0, 4).map((goal) => (
+                    <div key={goal.id} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-calm-700 dark:text-calm-300 truncate max-w-[200px]">
+                          {goal.title}
+                        </span>
+                        <span className={`text-sm font-bold ${goal.progress >= 100 ? 'text-green-500' : 'text-neo-500'}`}>
+                          {goal.progress}%
+                        </span>
+                      </div>
+                      <div className="h-2 bg-calm-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            goal.progress >= 100 ? 'bg-green-500' : 'bg-neo-500'
+                          }`}
+                          style={{ width: `${goal.progress}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-calm-500">
+                        {goal.currentValue} / {goal.targetValue}
+                        {goal.status === 'completed' && ' ✓'}
+                      </p>
+                    </div>
+                  ))}
+
+                  {goalsProgress.length > 4 && (
+                    <a 
+                      href="/dashboard/goals" 
+                      className="block text-center text-neo-500 hover:text-neo-600 text-sm font-medium pt-2"
+                    >
+                      View all {goalsProgress.length} goals →
+                    </a>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar */}
@@ -306,7 +383,7 @@ export default function InsightsPage() {
               <CardContent>
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-white/50 flex items-center justify-center">
-                    <span className="text-2xl">📅</span>
+                    <svg className="w-6 h-6 text-neo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-calm-700">

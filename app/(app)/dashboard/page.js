@@ -1,25 +1,38 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import RippleProgress, { WeeklyRipples } from '@/components/ui/RippleProgress';
 import DropList from '@/components/ui/DropList';
+import Confetti, { useCelebration } from '@/components/ui/Confetti';
+import { WeekStreak } from '@/components/ui/StreakCalendar';
+import { BadgeProgress, BadgeUnlockAnimation } from '@/components/ui/BadgeDisplay';
 
 /**
- * Dashboard Page
- * Shows today's routines, progress visualization, and micro-messages
+ * Enhanced Dashboard Page
+ * Features:
+ * - Personalized greeting with motivational quote
+ * - Streak tracking with celebrations
+ * - One-click check-in for routines
+ * - Confetti celebrations for milestones
+ * - Streak-at-risk alerts
  */
 
 export default function DashboardPage() {
-  const [greeting, setGreeting] = useState('');
   const [routines, setRoutines] = useState([]);
   const [todayData, setTodayData] = useState(null);
+  const [dashboardStats, setDashboardStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [checkLoading, setCheckLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [showVerifyBanner, setShowVerifyBanner] = useState(false);
   const [resendStatus, setResendStatus] = useState('idle');
+  const [newBadge, setNewBadge] = useState(null);
+
+  // Celebration hook for confetti
+  const { celebration, celebrate, clearCelebration } = useCelebration();
 
   // Helper to get user's local date in YYYY-MM-DD
   const getLocalDateISO = () => {
@@ -27,16 +40,24 @@ export default function DashboardPage() {
     return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
   };
 
-  // Fetch user info to check verification
+  const router = useRouter();
+
+  // Fetch user info to check verification and onboarding
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await fetch('/api/auth/me');
         if (response.ok) {
           const result = await response.json();
-          setUser(result.data?.user);
+          const userData = result.data?.user;
+          setUser(userData);
+          // Redirect to onboarding if not completed (skip for demo user)
+          if (userData && !userData.onboardingCompleted && userData.email !== 'demo@neoroutine.app') {
+            router.replace('/dashboard/onboarding');
+            return;
+          }
           // Show banner if email not verified (and not demo user)
-          if (result.data?.user && !result.data.user.isEmailVerified && result.data.user.email !== 'demo@neoroutine.app') {
+          if (userData && !userData.isEmailVerified && userData.email !== 'demo@neoroutine.app') {
             setShowVerifyBanner(true);
           }
         }
@@ -45,7 +66,7 @@ export default function DashboardPage() {
       }
     };
     fetchUser();
-  }, []);
+  }, [router]);
 
   // Resend verification email
   const handleResendVerification = async () => {
@@ -66,6 +87,35 @@ export default function DashboardPage() {
       setResendStatus('error');
     }
   };
+
+  // Fetch dashboard stats (includes greeting, quote, streaks)
+  const fetchDashboardStats = useCallback(async () => {
+    try {
+      const response = await fetch('/api/dashboard/stats');
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setDashboardStats(result.data);
+          
+          // Trigger celebrations if any milestones reached
+          if (result.data.celebrations?.length > 0) {
+            const first = result.data.celebrations[0];
+            setTimeout(() => {
+              celebrate({
+                type: first.type || 'achievement',
+                message: first.message,
+                subMessage: first.subMessage,
+                icon: first.message?.includes('🔥') ? '🔥' : '✨',
+                pieces: first.type === 'milestone' ? 150 : 100,
+              });
+            }, 1000);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch dashboard stats:', error);
+    }
+  }, [celebrate]);
 
   // Fetch routines and today's check-in data
   const fetchData = useCallback(async () => {
@@ -94,18 +144,9 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    // Set greeting based on time of day
-    const hour = new Date().getHours();
-    if (hour < 12) {
-      setGreeting('Good morning');
-    } else if (hour < 17) {
-      setGreeting('Good afternoon');
-    } else {
-      setGreeting('Good evening');
-    }
-
     fetchData();
-  }, [fetchData]);
+    fetchDashboardStats();
+  }, [fetchData, fetchDashboardStats]);
 
   // Handle task check/uncheck
   const handleToggleTask = async (routineId, taskId, shouldCheck) => {
@@ -126,6 +167,13 @@ export default function DashboardPage() {
         if (!response.ok) {
           throw new Error('Failed to create check-in');
         }
+
+        // Check for new badges in response
+        const result = await response.json();
+        if (result.badges?.length > 0) {
+          setNewBadge(result.badges[0]);
+          celebrate({ type: 'achievement', message: 'Badge Unlocked!', icon: '🏅', pieces: 80 });
+        }
       } else {
         // Remove check-in
         const response = await fetch('/api/checkins', {
@@ -145,6 +193,9 @@ export default function DashboardPage() {
         const data = await todayRes.json();
         setTodayData(data.data || data);
       }
+
+      // Refresh dashboard stats
+      await fetchDashboardStats();
     } catch (error) {
       console.error('Check-in error:', error);
     } finally {
@@ -174,27 +225,48 @@ export default function DashboardPage() {
     return [];
   };
 
-  // Stats from today's data (defensive and normalized)
-  const _rawTodayPercent = todayData?.stats?.today?.percent ?? todayData?.completionPercent ?? 0;
+  // Stats from dashboardStats and todayData (defensive and normalized)
+  const stats = dashboardStats?.stats || {};
+  const _rawTodayPercent = stats.todayPercent ?? todayData?.stats?.today?.percent ?? todayData?.completionPercent ?? 0;
   const todayPercent = Math.max(0, Math.min(100, Number(_rawTodayPercent) || 0));
 
   const _rawWeeklyPercent = todayData?.stats?.weekly?.percent ?? todayData?.weeklyPercent ?? 0;
   const weeklyPercent = Math.max(0, Math.min(100, Number(_rawWeeklyPercent) || 0));
 
+  // Enhanced stats from dashboard API
+  const currentStreak = stats.currentStreak || 0;
+  const longestStreak = stats.longestStreak || 0;
+  const totalCheckIns = stats.totalCheckIns || 0;
+  const tasksRemaining = stats.tasksRemaining || 0;
+  const completedTasks = stats.completedTasks || 0;
+  const totalTasks = stats.totalTasks || routines.reduce((sum, r) => sum + (r.tasks?.length || 0), 0);
+  const streakAtRisk = dashboardStats?.streakAtRisk || false;
+
   // Compute total drops (use stats when present, otherwise derive unique check-ins)
-  let totalDrops = 0;
-  if (todayData?.stats?.today?.completed != null) {
+  let totalDrops = completedTasks;
+  if (!totalDrops && todayData?.stats?.today?.completed != null) {
     totalDrops = Number(todayData.stats.today.completed) || 0;
-  } else if (Array.isArray(todayData?.checkIns)) {
+  } else if (!totalDrops && Array.isArray(todayData?.checkIns)) {
     const unique = new Set(
       todayData.checkIns.map((c) => `${String(c.routineId)}_${String(c.taskId)}`)
     );
     totalDrops = unique.size;
-  } else {
-    totalDrops = Number(todayData?.completedCount) || 0;
   }
 
-  const microMessage = todayData?.microMessage || todayData?.message || 'Every drop creates ripples of progress.';
+  // Quote from dashboard stats
+  const quote = dashboardStats?.quote || { text: 'Every drop creates ripples of progress.', author: 'Neo Routine' };
+  
+  // Greeting from dashboard stats or compute locally
+  const greeting = dashboardStats?.greeting || getDefaultGreeting();
+  function getDefaultGreeting() {
+    const hour = new Date().getHours();
+    const name = user?.name?.split(' ')[0] || 'there';
+    if (hour < 12) return `Good morning, ${name}! ☀️`;
+    if (hour < 17) return `Good afternoon, ${name}! 👋`;
+    if (hour < 21) return `Good evening, ${name}! 🌙`;
+    return `Still going, ${name}? 🦉`;
+  }
+  
   const weeklyData = todayData?.stats?.weekly?.data || todayData?.weeklyData || [];
 
   // Debug: log computed numbers when todayData changes
@@ -232,7 +304,28 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Confetti Celebration */}
+      {celebration && (
+        <Confetti
+          show={true}
+          type={celebration.type}
+          message={celebration.message}
+          subMessage={celebration.subMessage}
+          icon={celebration.icon}
+          pieces={celebration.pieces}
+          onComplete={clearCelebration}
+        />
+      )}
+
+      {/* Badge Unlock Animation */}
+      {newBadge && (
+        <BadgeUnlockAnimation
+          badge={newBadge}
+          onComplete={() => setNewBadge(null)}
+        />
+      )}
+
       {/* Email Verification Banner */}
       {showVerifyBanner && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -272,61 +365,88 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div>
+      {/* Streak At Risk Alert */}
+      {streakAtRisk && (
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-4 animate-pulse">
+          <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+            <span className="text-2xl">🔥</span>
+          </div>
+          <div className="flex-1">
+            <p className="text-orange-800 font-bold">Your {currentStreak}-day streak is at risk!</p>
+            <p className="text-orange-600 text-sm">Don&apos;t break the chain - complete at least one task today.</p>
+          </div>
+          <a
+            href="#routines"
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors whitespace-nowrap"
+          >
+            Check In Now
+          </a>
+        </div>
+      )}
+
+      {/* Main Header with Quote */}
+      <div className="bg-gradient-to-r from-neo-50 to-calm-50 rounded-2xl p-6">
         <h1 className="text-2xl lg:text-3xl font-bold text-calm-800">{greeting}</h1>
-        <p className="text-calm-600 mt-1">{microMessage}</p>
+        <div className="mt-3 flex items-start gap-3">
+          <span className="text-2xl">💧</span>
+          <div>
+            <p className="text-calm-600 italic">&ldquo;{quote.text}&rdquo;</p>
+            {quote.author && (
+              <p className="text-calm-400 text-sm mt-1">— {quote.author}</p>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Quick Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Streak Card */}
+        <Card variant="elevated" className="relative overflow-hidden">
+          <CardContent className="text-center py-4">
+            <div className="text-2xl mb-1">{currentStreak > 0 ? '🔥' : '💧'}</div>
+            <p className="text-3xl font-bold text-neo-600">{currentStreak}</p>
+            <p className="text-sm text-calm-500">Day Streak</p>
+            {longestStreak > currentStreak && (
+              <p className="text-xs text-calm-400 mt-1">Best: {longestStreak}</p>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Today's Progress */}
         <Card variant="elevated" className="relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8">
-            <div className="w-full h-full rounded-full bg-neo-100 opacity-50" />
-          </div>
-          <CardContent className="relative">
-            <p className="text-sm text-calm-500 mb-1">Today&apos;s Progress</p>
+          <CardContent className="text-center py-4">
+            <div className="text-2xl mb-1">{todayPercent === 100 ? '✨' : '📊'}</div>
             <p className="text-3xl font-bold text-neo-600">{todayPercent}%</p>
-            <p className="text-xs text-calm-500 mt-2">
-              {routines.length === 0 ? 'No routines yet' : `${totalDrops} drops collected`}
-            </p>
+            <p className="text-sm text-calm-500">Today</p>
+            <p className="text-xs text-calm-400 mt-1">{completedTasks}/{totalTasks} tasks</p>
           </CardContent>
         </Card>
 
-        {/* Weekly Flow */}
+        {/* Tasks Remaining */}
         <Card variant="elevated" className="relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8">
-            <div className="w-full h-full rounded-full bg-neo-100 opacity-50" />
-          </div>
-          <CardContent className="relative">
-            <p className="text-sm text-calm-500 mb-1">Weekly Flow</p>
-            <p className="text-3xl font-bold text-neo-600">{weeklyPercent}%</p>
-            <p className="text-xs text-calm-500 mt-2">
-              {routines.length === 0 ? 'Start tracking to see' : 'Average this week'}
-            </p>
+          <CardContent className="text-center py-4">
+            <div className="text-2xl mb-1">{tasksRemaining === 0 ? '✅' : '📝'}</div>
+            <p className="text-3xl font-bold text-neo-600">{tasksRemaining}</p>
+            <p className="text-sm text-calm-500">Tasks Left</p>
+            <p className="text-xs text-calm-400 mt-1">{tasksRemaining === 0 ? 'All done!' : 'Keep going!'}</p>
           </CardContent>
         </Card>
 
-        {/* Active Routines */}
+        {/* Total Check-ins */}
         <Card variant="elevated" className="relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8">
-            <div className="w-full h-full rounded-full bg-neo-100 opacity-50" />
-          </div>
-          <CardContent className="relative">
-            <p className="text-sm text-calm-500 mb-1">Active Routines</p>
-            <p className="text-3xl font-bold text-neo-600">{routines.length}</p>
-            <p className="text-xs text-calm-500 mt-2">
-              {routines.length === 0 ? 'Create your first' : 'Flowing smoothly'}
-            </p>
+          <CardContent className="text-center py-4">
+            <div className="text-2xl mb-1">🌊</div>
+            <p className="text-3xl font-bold text-neo-600">{totalCheckIns}</p>
+            <p className="text-sm text-calm-500">Total Drops</p>
+            <p className="text-xs text-calm-400 mt-1">All time</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Today's Routines */}
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Today&apos;s Routines */}
+        <div id="routines" className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-calm-800">Today&apos;s Routines</h2>
             <Link
@@ -384,9 +504,38 @@ export default function DashboardPage() {
 
         {/* Progress Visualization */}
         <div className="space-y-4">
+          {/* Weekly Streak Visualization */}
           <Card variant="elevated">
             <CardHeader>
-              <CardTitle>Your Flow</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <span className="text-xl">🔥</span>
+                Your Streak
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <WeekStreak
+                data={weeklyData.map(d => ({
+                  date: new Date(Date.now() - ((6 - weeklyData.indexOf(d)) * 24 * 60 * 60 * 1000)),
+                  completed: d.percent >= 80
+                }))}
+                currentStreak={currentStreak}
+              />
+              
+              <div className="mt-4 text-center">
+                <p className="text-2xl font-bold text-neo-600">{currentStreak} days</p>
+                <p className="text-sm text-calm-500">
+                  {currentStreak > 0 
+                    ? `Keep it going! ${7 - (currentStreak % 7)} more for a week milestone` 
+                    : 'Complete a task to start your streak!'}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Today's Flow */}
+          <Card variant="elevated">
+            <CardHeader>
+              <CardTitle>Today&apos;s Flow</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex justify-center py-4">
@@ -399,26 +548,32 @@ export default function DashboardPage() {
               </div>
               
               {/* Weekly breakdown */}
-              <div className="mt-8 space-y-3">
+              <div className="mt-6 space-y-3">
                 <p className="text-sm font-medium text-calm-700">This Week</p>
                 <WeeklyRipples data={weeklyData} />
               </div>
             </CardContent>
           </Card>
 
-          {/* Micro-message card */}
-          <Card variant="gradient">
+          {/* Badge Progress */}
+          <Card variant="elevated">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span className="text-xl">🏆</span>
+                Next Achievements
+              </CardTitle>
+            </CardHeader>
             <CardContent>
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 rounded-full bg-white/50 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-neo-600" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z" />
-                  </svg>
-                </div>
-                <p className="text-sm text-calm-700 italic">
-                  &ldquo;{microMessage}&rdquo;
-                </p>
-              </div>
+              <BadgeProgress
+                currentStreak={currentStreak}
+                totalCheckIns={totalCheckIns}
+              />
+              <Link
+                href="/dashboard/achievements"
+                className="mt-4 block text-center text-sm text-neo-600 hover:text-neo-700 font-medium"
+              >
+                View All Badges →
+              </Link>
             </CardContent>
           </Card>
 
@@ -444,6 +599,13 @@ export default function DashboardPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                   <span className="text-sm">View Insights</span>
+                </Link>
+                <Link
+                  href="/dashboard/achievements"
+                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-calm-50 transition-colors text-calm-600"
+                >
+                  <span className="w-5 h-5 text-center">🏅</span>
+                  <span className="text-sm">Achievements</span>
                 </Link>
               </div>
             </CardContent>

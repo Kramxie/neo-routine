@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 
@@ -32,6 +32,186 @@ const daysOfWeek = [
   { bit: 64, label: 'Sat', full: 'Saturday' },
 ];
 
+/** Apply theme class to <html> immediately — no page reload needed */
+function applyThemeToDom(theme) {
+  if (typeof document === 'undefined') return;
+  if (theme === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else if (theme === 'auto') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.classList.toggle('dark', prefersDark);
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+}
+
+/** Reusable toggle switch */
+function Toggle({ checked, onChange }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative w-12 h-7 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-neo-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${
+        checked ? 'bg-neo-500' : 'bg-calm-300 dark:bg-slate-600'
+      }`}
+    >
+      <span
+        className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+          checked ? 'translate-x-5' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  );
+}
+
+/** Convert VAPID base64 key to Uint8Array */
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+}
+
+/** Push Notification toggle + permission UI */
+function PushNotificationSection() {
+  const [permission, setPermission] = useState('default');
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState('');
+  const swReg = useRef(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('Notification' in window) || !('serviceWorker' in navigator)) return;
+    setPermission(Notification.permission);
+    navigator.serviceWorker.ready.then((reg) => {
+      swReg.current = reg;
+      reg.pushManager.getSubscription().then((sub) => setIsSubscribed(!!sub));
+    });
+  }, []);
+
+  async function ensureSw() {
+    if (swReg.current) return swReg.current;
+    const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    await navigator.serviceWorker.ready;
+    swReg.current = reg;
+    return reg;
+  }
+
+  async function subscribe() {
+    if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
+      setStatusMsg('Push notifications not configured (missing VAPID key).');
+      return;
+    }
+    setIsLoading(true);
+    setStatusMsg('');
+    try {
+      const perm = await Notification.requestPermission();
+      setPermission(perm);
+      if (perm !== 'granted') {
+        setStatusMsg('Notification permission denied. Enable it in your browser settings.');
+        return;
+      }
+      const reg = await ensureSw();
+      const pushSub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY),
+      });
+      const res = await fetch('/api/notifications/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pushSub.toJSON()),
+      });
+      if (!res.ok) throw new Error('Failed to save subscription');
+      setIsSubscribed(true);
+      setStatusMsg('Push notifications enabled! Reminders will arrive at your scheduled time.');
+    } catch (err) {
+      setStatusMsg('Failed to enable: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function unsubscribe() {
+    setIsLoading(true);
+    setStatusMsg('');
+    try {
+      const reg = await ensureSw();
+      const pushSub = await reg.pushManager.getSubscription();
+      if (pushSub) {
+        await fetch('/api/notifications/subscribe', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ endpoint: pushSub.endpoint }),
+        });
+        await pushSub.unsubscribe();
+      }
+      setIsSubscribed(false);
+      setStatusMsg('Push notifications disabled.');
+    } catch (err) {
+      setStatusMsg('Failed to disable notifications.');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  if (typeof window !== 'undefined' && (!('Notification' in window) || !('serviceWorker' in navigator))) {
+    return (
+      <p className="text-sm text-calm-400 dark:text-slate-500">
+        Push notifications are not supported in your browser.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="font-medium text-calm-700 dark:text-slate-200">Browser Push Notifications</p>
+          <p className="text-sm text-calm-500 dark:text-slate-400 mt-0.5">
+            {isSubscribed
+              ? 'Reminders will arrive even when the tab is closed'
+              : 'Get notified even when the app tab is closed'}
+          </p>
+        </div>
+        <Toggle checked={isSubscribed} onChange={(val) => (val ? subscribe() : unsubscribe())} />
+      </div>
+
+      {permission === 'denied' && (
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+          <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-xs text-red-700 dark:text-red-300">
+            Notifications are blocked. Allow them in your browser settings.
+          </p>
+        </div>
+      )}
+
+      {isLoading && (
+        <p className="text-sm text-calm-400 dark:text-slate-500 flex items-center gap-2">
+          <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          Processing...
+        </p>
+      )}
+
+      {statusMsg && (
+        <p className={`text-sm px-3 py-2 rounded-lg ${
+          statusMsg.toLowerCase().includes('fail') || statusMsg.toLowerCase().includes('denied') || statusMsg.toLowerCase().includes('block')
+            ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+            : 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+        }`}>
+          {statusMsg}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,6 +226,7 @@ export default function SettingsPage() {
   const [subscription, setSubscription] = useState(null);
   const [currentTier, setCurrentTier] = useState('free');
   const [limits, setLimits] = useState({});
+  const [managingSubscription, setManagingSubscription] = useState(false);
 
   // Preferences state
   const [reminderTime, setReminderTime] = useState('09:00');
@@ -103,6 +284,38 @@ export default function SettingsPage() {
     setActiveDays((prev) => prev ^ bit);
   };
 
+  // Change theme and apply to DOM instantly
+  const handleThemeChange = (value) => {
+    setTheme(value);
+    applyThemeToDom(value);
+    if (typeof localStorage !== 'undefined') localStorage.setItem('neo-theme', value);
+  };
+
+  // Open Stripe Customer Portal to manage subscription
+  const handleManageSubscription = async () => {
+    setManagingSubscription(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/subscription/portal', {
+        method: 'POST',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to open subscription management');
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      setError(err.message);
+      setManagingSubscription(false);
+    }
+  };
+
   // Check if day is active
   const isDayActive = (bit) => (activeDays & bit) !== 0;
 
@@ -153,7 +366,7 @@ export default function SettingsPage() {
               <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z" />
             </svg>
           </div>
-          <p className="text-calm-500">Loading settings...</p>
+          <p className="text-calm-500 dark:text-slate-400">Loading settings...</p>
         </div>
       </div>
     );
@@ -162,18 +375,18 @@ export default function SettingsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-calm-800">Settings</h1>
-        <p className="text-calm-500 mt-1">Customize your Neo Routine experience</p>
+        <h1 className="text-2xl font-bold text-calm-800 dark:text-slate-100">Settings</h1>
+        <p className="text-calm-500 dark:text-slate-400 mt-1">Customize your Neo Routine experience</p>
       </div>
 
       {/* Success/Error Messages */}
       {saved && (
-        <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm">
-          ✓ Settings saved successfully
+        <div className="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 text-sm">
+          Settings saved successfully
         </div>
       )}
       {error && (
-        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
+        <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-300 text-sm">
           {error}
         </div>
       )}
@@ -317,61 +530,73 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle>Appearance</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           {/* Theme */}
           <div>
-            <label className="block text-sm font-medium text-calm-700 mb-2">
+            <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-3">
               Theme
             </label>
-            <div className="flex gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {[
-                { value: 'light', label: 'Light', icon: '☀️' },
-                { value: 'dark', label: 'Dark', icon: '🌙' },
-                { value: 'auto', label: 'Auto', icon: '💻' },
+                {
+                  value: 'light',
+                  label: 'Light',
+                  preview: 'bg-white border border-calm-200',
+                  icon: (
+                    <svg className="w-5 h-5 mx-auto text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  ),
+                },
+                {
+                  value: 'dark',
+                  label: 'Dark',
+                  preview: 'bg-slate-800 border border-slate-600',
+                  icon: (
+                    <svg className="w-5 h-5 mx-auto text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                  ),
+                },
+                {
+                  value: 'auto',
+                  label: 'Auto',
+                  preview: 'bg-gradient-to-r from-white to-slate-700 border border-calm-200',
+                  icon: (
+                    <svg className="w-5 h-5 mx-auto text-calm-400 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  ),
+                },
               ].map((option) => (
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => setTheme(option.value)}
-                  className={`
-                    flex-1 p-3 rounded-lg border text-center transition-all
-                    ${theme === option.value
-                      ? 'border-neo-500 bg-neo-50 ring-2 ring-neo-200'
-                      : 'border-calm-200 hover:border-calm-300'
-                    }
-                  `}
+                  onClick={() => handleThemeChange(option.value)}
+                  className={`p-3 rounded-xl border text-center transition-all ${
+                    theme === option.value
+                      ? 'border-neo-500 bg-neo-50 dark:bg-neo-900/30 ring-2 ring-neo-200 dark:ring-neo-800'
+                      : 'border-calm-200 dark:border-slate-600 hover:border-calm-300 dark:hover:border-slate-500'
+                  }`}
                 >
-                  <span className="text-xl">{option.icon}</span>
-                  <p className="text-sm font-medium text-calm-700 mt-1">{option.label}</p>
+                  <div className={`w-full h-7 rounded-md mb-2 ${option.preview}`} />
+                  {option.icon}
+                  <p className="text-xs font-medium text-calm-700 dark:text-slate-200 mt-1.5">{option.label}</p>
                 </button>
               ))}
             </div>
-            <p className="text-xs text-calm-400 mt-2">
-              Dark mode coming soon!
+            <p className="text-xs text-calm-400 dark:text-slate-500 mt-2">
+              Changes apply instantly. Auto follows your system preference.
             </p>
           </div>
 
           {/* Celebrations Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-calm-700">Celebration Animations</p>
-              <p className="text-sm text-calm-500">Show animations when completing tasks</p>
+              <p className="font-medium text-calm-700 dark:text-slate-200">Celebration Animations</p>
+              <p className="text-sm text-calm-500 dark:text-slate-400">Show animations when completing tasks</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setCelebrations(!celebrations)}
-              className={`
-                relative w-12 h-7 rounded-full transition-colors
-                ${celebrations ? 'bg-neo-500' : 'bg-calm-300'}
-              `}
-            >
-              <span
-                className={`
-                  absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform
-                  ${celebrations ? 'translate-x-5' : 'translate-x-0'}
-                `}
-              />
-            </button>
+            <Toggle checked={celebrations} onChange={setCelebrations} />
           </div>
         </CardContent>
       </Card>
@@ -381,29 +606,20 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle>Notifications</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           {/* Weekly Digest Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-calm-700">Weekly Summary</p>
-              <p className="text-sm text-calm-500">Receive a weekly progress summary email</p>
+              <p className="font-medium text-calm-700 dark:text-slate-200">Weekly Summary Email</p>
+              <p className="text-sm text-calm-500 dark:text-slate-400">Receive a weekly progress summary</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setWeeklyDigest(!weeklyDigest)}
-              className={`
-                relative w-12 h-7 rounded-full transition-colors
-                ${weeklyDigest ? 'bg-neo-500' : 'bg-calm-300'}
-              `}
-            >
-              <span
-                className={`
-                  absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform
-                  ${weeklyDigest ? 'translate-x-5' : 'translate-x-0'}
-                `}
-              />
-            </button>
+            <Toggle checked={weeklyDigest} onChange={setWeeklyDigest} />
           </div>
+
+          <hr className="border-calm-100 dark:border-slate-700" />
+
+          {/* Push Notifications */}
+          <PushNotificationSection />
         </CardContent>
       </Card>
 
@@ -457,19 +673,51 @@ export default function SettingsPage() {
           )}
 
           {/* Upgrade CTA */}
-          {currentTier !== 'premium_plus' && (
+          {currentTier === 'free' && (
             <Link
               href="/dashboard/upgrade"
               className="block w-full py-3 px-4 text-center rounded-lg bg-neo-500 text-white font-medium hover:bg-neo-600 transition-colors"
             >
-              {currentTier === 'free' ? 'Upgrade to Premium' : 'Upgrade to Premium+'}
+              Upgrade to Premium
             </Link>
           )}
 
+          {/* Manage Subscription Button (for paid users) */}
+          {currentTier !== 'free' && subscription?.status === 'active' && (
+            <div className="flex gap-3">
+              {currentTier !== 'premium_plus' && (
+                <Link
+                  href="/dashboard/upgrade"
+                  className="flex-1 py-3 px-4 text-center rounded-lg border border-neo-200 text-neo-600 font-medium hover:bg-neo-50 transition-colors"
+                >
+                  Upgrade to Premium+
+                </Link>
+              )}
+              <button
+                onClick={handleManageSubscription}
+                disabled={managingSubscription}
+                className="flex-1 py-3 px-4 rounded-lg bg-calm-100 text-calm-700 font-medium hover:bg-calm-200 transition-colors disabled:opacity-50"
+              >
+                {managingSubscription ? 'Loading...' : 'Manage Subscription'}
+              </button>
+            </div>
+          )}
+
           {currentTier === 'premium_plus' && (
-            <p className="text-center text-calm-500 text-sm">
-              You're on our highest tier—enjoy unlimited access! 🎉
-            </p>
+            <div className="space-y-3">
+              <p className="text-center text-calm-500 text-sm">
+                You are on our highest tier - enjoy unlimited access!
+              </p>
+              {subscription?.status === 'active' && (
+                <button
+                  onClick={handleManageSubscription}
+                  disabled={managingSubscription}
+                  className="w-full py-3 px-4 rounded-lg bg-calm-100 text-calm-700 font-medium hover:bg-calm-200 transition-colors disabled:opacity-50"
+                >
+                  {managingSubscription ? 'Loading...' : 'Manage Subscription'}
+                </button>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>
