@@ -14,6 +14,16 @@
   body {
     @apply bg-calm-50 text-calm-800 font-sans antialiased;
   }
+
+  /* Dark mode base */
+  html.dark body {
+    background-color: #0f172a;
+    color: #e2e8f0;
+  }
+
+  html.dark * {
+    border-color: inherit;
+  }
 }
 
 /* Component styles */
@@ -173,3 +183,92 @@
   background-size: 400% 400%;
   animation: water-flow 15s ease infinite;
 }
+
+/* ===========================================
+   DARK MODE OVERRIDES
+   =========================================== */
+
+/* Soft card in dark */
+html.dark .card-soft {
+  background-color: #1e293b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Gradient backgrounds in dark */
+html.dark .bg-gradient-water {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #0c1a2e 100%);
+}
+
+/* Buttons in dark */
+html.dark .btn-secondary {
+  background-color: #1e293b;
+  color: #38bdf8;
+  border-color: #334155;
+}
+
+html.dark .btn-secondary:hover {
+  background-color: #334155;
+  border-color: #38bdf8;
+}
+
+/* Input fields in dark */
+html.dark .input-neo {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+html.dark .input-neo::placeholder {
+  color: #64748b;
+}
+
+/* Hero water bg in dark */
+html.dark .hero-water-bg {
+  background: linear-gradient(-45deg, #0f172a, #1e293b, #0c1a2e, #1e293b);
+}
+
+/* Toast animation */
+@keyframes toast-slide-up {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.toast-animate {
+  animation: toast-slide-up 0.3s ease-out;
+}
+
+/* Idle Timeout Modal Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.3s ease-out;
+}
+
