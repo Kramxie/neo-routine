@@ -1,10 +1,5 @@
 'use client';
 
-/**
- * RippleProgress Component
- * Visualizes progress as expanding ripples in water
- * Calm, pressure-free alternative to streak counters
- */
 
 export default function RippleProgress({
   percent = 0,
@@ -14,7 +9,6 @@ export default function RippleProgress({
   showRipples = true,
   className = '',
 }) {
-  // Size configurations
   const sizes = {
     sm: {
       container: 'w-20 h-20',
@@ -40,10 +34,8 @@ export default function RippleProgress({
 
   const sizeConfig = sizes[size] || sizes.md;
 
-  // Calculate water level (how full the circle is)
   const waterLevel = Math.min(100, Math.max(0, percent));
 
-  // Determine color intensity based on progress
   const getProgressColor = () => {
     if (waterLevel === 0) return 'text-calm-400';
     if (waterLevel < 25) return 'text-neo-400';
@@ -124,9 +116,6 @@ export default function RippleProgress({
   );
 }
 
-/**
- * Mini ripple indicator for inline use
- */
 export function RippleDot({ completed = false, size = 'md' }) {
   const sizes = {
     sm: 'w-4 h-4',
@@ -162,13 +151,7 @@ export function RippleDot({ completed = false, size = 'md' }) {
   );
 }
 
-/**
- * Weekly progress visual (7 dots)
- */
 export function WeeklyRipples({ data = [], className = '' }) {
-  // We intentionally don't trust array order coming from the API.
-  // Some environments can shift dates (timezone) or return unsorted arrays.
-  // We'll normalize to Mon -> Sun by sorting + padding.
   const daySlots = [
     { label: 'M', key: 'Mon' },
     { label: 'T', key: 'Tue' },

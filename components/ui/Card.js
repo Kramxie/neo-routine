@@ -15,10 +15,10 @@ export default function Card({
 }) {
   // Variant styles
   const variants = {
-    default: 'bg-white border border-calm-100',
-    elevated: 'bg-white shadow-neo',
-    outlined: 'bg-transparent border-2 border-calm-200',
-    gradient: 'bg-gradient-water border border-neo-100',
+    default: 'bg-white border border-calm-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100',
+    elevated: 'bg-white shadow-neo dark:bg-slate-800 dark:shadow-none dark:border dark:border-slate-700 dark:text-slate-100',
+    outlined: 'bg-transparent border-2 border-calm-200 dark:border-slate-600 dark:text-slate-100',
+    gradient: 'bg-gradient-water border border-neo-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100',
     dark: 'bg-calm-800 text-white border border-calm-700',
   };
 
@@ -64,7 +64,7 @@ export default function Card({
  */
 export function CardHeader({ children, className = '' }) {
   return (
-    <div className={`mb-4 pb-4 border-b border-calm-100 ${className}`}>
+    <div className={`mb-4 pb-4 border-b border-calm-100 dark:border-slate-700 ${className}`}>
       {children}
     </div>
   );
@@ -75,7 +75,7 @@ export function CardHeader({ children, className = '' }) {
  */
 export function CardTitle({ children, className = '' }) {
   return (
-    <h3 className={`text-lg font-semibold text-calm-800 ${className}`}>
+    <h3 className={`text-lg font-semibold text-calm-800 dark:text-slate-100 ${className}`}>
       {children}
     </h3>
   );
@@ -86,7 +86,7 @@ export function CardTitle({ children, className = '' }) {
  */
 export function CardDescription({ children, className = '' }) {
   return (
-    <p className={`text-sm text-calm-600 mt-1 ${className}`}>
+    <p className={`text-sm text-calm-600 dark:text-slate-400 mt-1 ${className}`}>
       {children}
     </p>
   );

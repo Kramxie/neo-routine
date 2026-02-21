@@ -171,7 +171,7 @@ export default function DropList({
       {completedCount === activeTasks.length && activeTasks.length > 0 && (
         <div className="px-4 py-3 bg-neo-50 border-t border-neo-100 text-center">
           <p className="text-neo-600 text-sm font-medium">
-            ✨ All drops collected for {routine.name}!
+            All drops collected for {routine.name}!
           </p>
         </div>
       )}
