@@ -44,6 +44,20 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    // Password reset
+    passwordResetToken: {
+      type: String,
+      select: false, // Don't include in queries by default
+    },
+    passwordResetExpires: {
+      type: Date,
+      select: false,
+    },
+    // Onboarding
+    onboardingCompleted: {
+      type: Boolean,
+      default: false,
+    },
     role: {
       type: String,
       enum: ['user', 'coach', 'admin'],
@@ -122,6 +136,17 @@ const UserSchema = new mongoose.Schema(
         default: true,
       },
     },
+    // Web Push notification subscriptions
+    pushSubscriptions: [
+      {
+        endpoint: { type: String, required: true },
+        keys: {
+          auth: { type: String, required: true },
+          p256dh: { type: String, required: true },
+        },
+        subscribedAt: { type: Date, default: Date.now },
+      },
+    ],
     // Analytics tracking (for adaptive reminders)
     analytics: {
       // Longest active streak
@@ -241,6 +266,7 @@ UserSchema.methods.toSafeObject = function () {
     role: this.role,
     tier: this.tier,
     isEmailVerified: this.isEmailVerified,
+    onboardingCompleted: this.onboardingCompleted,
     preferences: this.preferences,
     createdAt: this.createdAt,
   };
