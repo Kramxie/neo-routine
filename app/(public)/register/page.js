@@ -3,48 +3,42 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-
-/**
- * Register Page
- * Handles new user registration
- */
+import { useToast } from '@/components/ui/Toast';
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-  });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [generalError, setGeneralError] = useState('');
+  var router = useRouter();
+  var toast = useToast();
+  var [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  var [errors, setErrors] = useState({});
+  var [isLoading, setIsLoading] = useState(false);
 
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user types
+  var handleChange = function (e) {
+    var name = e.target.name;
+    var value = e.target.value;
+    setFormData(function (prev) {
+      var next = Object.assign({}, prev);
+      next[name] = value;
+      return next;
+    });
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
-    if (generalError) {
-      setGeneralError('');
+      setErrors(function (prev) {
+        var next = Object.assign({}, prev);
+        next[name] = '';
+        return next;
+      });
     }
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  var handleSubmit = async function (e) {
     e.preventDefault();
     setIsLoading(true);
     setErrors({});
-    setGeneralError('');
 
-    // Client-side validation to avoid unnecessary requests
-    const clientErrors = {};
-    const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+    var clientErrors = {};
+    var emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
     if (!formData.name.trim()) clientErrors.name = 'Name is required';
     if (!formData.email.trim()) clientErrors.email = 'Email is required';
     else if (!emailRegex.test(formData.email)) clientErrors.email = 'Please enter a valid email address';
@@ -53,36 +47,37 @@ export default function RegisterPage() {
 
     if (Object.keys(clientErrors).length > 0) {
       setErrors(clientErrors);
+      toast.error('Please fix the errors below');
       setIsLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('/api/auth/register', {
+      var response = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
-      const result = await response.json();
+      var result = await response.json();
 
       if (!response.ok) {
-        // Handle validation errors
-        if (result.data?.errors) {
+        if (result.data && result.data.errors) {
           setErrors(result.data.errors);
+          toast.error('Please fix the errors below');
         } else {
-          setGeneralError(result.message || 'Registration failed');
+          toast.error(result.message || 'Registration failed');
         }
         return;
       }
 
-      // Success - redirect to verify-email page with email
-      router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
-    } catch (error) {
-      console.error('Registration error:', error);
-      setGeneralError('Something went wrong. Please try again.');
+      toast.success('Account created! Please verify your email.');
+      setTimeout(function () {
+        router.push('/verify-email?email=' + encodeURIComponent(formData.email));
+      }, 500);
+    } catch (err) {
+      console.error('Registration error:', err);
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -91,27 +86,23 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-water py-12 px-4">
       <div className="card-soft max-w-md w-full">
-        {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neo-100 flex items-center justify-center">
-              <svg className="w-8 h-8 text-neo-500" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z" />
-              </svg>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full overflow-hidden shadow-neo">
+              <Image
+                src="/neoLogo.jfif"
+                alt="NeoRoutine Logo"
+                width={64}
+                height={64}
+                className="object-cover"
+                priority
+              />
             </div>
           </Link>
           <h1 className="text-2xl font-bold text-calm-800">Start your flow</h1>
           <p className="text-calm-600 mt-2">Create your Neo Routine account</p>
         </div>
 
-        {/* General Error */}
-        {generalError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-neo text-red-600 text-sm">
-            {generalError}
-          </div>
-        )}
-
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Name"
@@ -149,7 +140,7 @@ export default function RegisterPage() {
             label="Password"
             name="password"
             type="password"
-            placeholder="••••••••"
+            placeholder="Enter your password"
             value={formData.password}
             onChange={handleChange}
             error={errors.password}
@@ -186,7 +177,6 @@ export default function RegisterPage() {
           </Button>
         </form>
 
-        {/* Footer */}
         <p className="text-center text-sm text-calm-600 mt-6">
           Already have an account?{' '}
           <Link href="/login" className="text-neo-500 hover:text-neo-600 font-medium">

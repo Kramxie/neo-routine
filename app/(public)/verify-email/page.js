@@ -283,7 +283,7 @@ function VerifyEmailContent() {
               {/* Back to register link */}
               <div className="mt-6 pt-6 border-t border-calm-100 text-center">
                 <Link href="/register" className="text-sm text-calm-500 hover:text-calm-700">
-                  ← Back to registration
+                  &larr; Back to registration
                 </Link>
               </div>
             </>

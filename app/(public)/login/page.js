@@ -3,98 +3,91 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-
-/**
- * Login Page
- * Handles user authentication
- */
+import { useToast } from '@/components/ui/Toast';
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState(false);
-  const [generalError, setGeneralError] = useState('');
+  var router = useRouter();
+  var toast = useToast();
+  var [formData, setFormData] = useState({ email: '', password: '' });
+  var [errors, setErrors] = useState({});
+  var [isLoading, setIsLoading] = useState(false);
+  var [demoLoading, setDemoLoading] = useState(false);
 
-  // Handle demo login
-  const handleDemoLogin = async () => {
+  var handleDemoLogin = async function () {
     setDemoLoading(true);
-    setGeneralError('');
-    
     try {
-      const response = await fetch('/api/auth/demo', {
-        method: 'POST',
-      });
-      
+      var response = await fetch('/api/auth/demo', { method: 'POST' });
       if (response.ok) {
-        router.push('/dashboard');
+        toast.success('Welcome to NeoRoutine!');
+        setTimeout(function () {
+          router.push('/dashboard');
+        }, 500);
       } else {
-        setGeneralError('Demo login failed. Please try again.');
+        toast.error('Demo login failed. Please try again.');
       }
-    } catch (error) {
-      setGeneralError('Connection error. Please try again.');
+    } catch (err) {
+      toast.error('Connection error. Please try again.');
     } finally {
       setDemoLoading(false);
     }
   };
 
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user types
+  var handleChange = function (e) {
+    var name = e.target.name;
+    var value = e.target.value;
+    setFormData(function (prev) {
+      var next = Object.assign({}, prev);
+      next[name] = value;
+      return next;
+    });
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
-    if (generalError) {
-      setGeneralError('');
+      setErrors(function (prev) {
+        var next = Object.assign({}, prev);
+        next[name] = '';
+        return next;
+      });
     }
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  var handleSubmit = async function (e) {
     e.preventDefault();
     setIsLoading(true);
     setErrors({});
-    setGeneralError('');
 
     try {
-      const response = await fetch('/api/auth/login', {
+      var response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
-      const result = await response.json();
+      var result = await response.json();
 
       if (!response.ok) {
-        // Handle validation errors
-        if (result.data?.errors) {
+        if (result.data && result.data.errors) {
           if (result.data.errors.general) {
-            setGeneralError(result.data.errors.general);
+            toast.error(result.data.errors.general);
           } else {
             setErrors(result.data.errors);
+            toast.error('Please check your credentials');
           }
         } else {
-          setGeneralError(result.message || 'Login failed');
+          toast.error(result.message || 'Login failed');
         }
         return;
       }
 
-      // Success - redirect to dashboard
-      router.push('/dashboard');
-      router.refresh();
-    } catch (error) {
-      console.error('Login error:', error);
-      setGeneralError('Something went wrong. Please try again.');
+      toast.success('Welcome back!');
+      setTimeout(function () {
+        router.push('/dashboard');
+        router.refresh();
+      }, 500);
+    } catch (err) {
+      console.error('Login error:', err);
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -103,27 +96,23 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-water py-12 px-4">
       <div className="card-soft max-w-md w-full">
-        {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neo-100 flex items-center justify-center">
-              <svg className="w-8 h-8 text-neo-500" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z" />
-              </svg>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full overflow-hidden shadow-neo">
+              <Image
+                src="/neoLogo.jfif"
+                alt="NeoRoutine Logo"
+                width={64}
+                height={64}
+                className="object-cover"
+                priority
+              />
             </div>
           </Link>
           <h1 className="text-2xl font-bold text-calm-800">Welcome back</h1>
           <p className="text-calm-600 mt-2">Sign in to continue your routine</p>
         </div>
 
-        {/* General Error */}
-        {generalError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-neo text-red-600 text-sm">
-            {generalError}
-          </div>
-        )}
-
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Email"
@@ -145,7 +134,7 @@ export default function LoginPage() {
             label="Password"
             name="password"
             type="password"
-            placeholder="••••••••"
+            placeholder="Enter your password"
             value={formData.password}
             onChange={handleChange}
             error={errors.password}
@@ -156,6 +145,12 @@ export default function LoginPage() {
               </svg>
             }
           />
+
+          <div className="flex justify-end">
+            <Link href="/forgot-password" className="text-sm text-neo-500 hover:text-neo-600 font-medium">
+              Forgot password?
+            </Link>
+          </div>
 
           <Button
             type="submit"
@@ -178,7 +173,6 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        {/* Divider */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-calm-300"></div>
@@ -188,7 +182,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Demo Login Button */}
         <Button
           type="button"
           variant="secondary"
@@ -215,14 +208,13 @@ export default function LoginPage() {
             </>
           )}
         </Button>
-        
+
         <p className="text-center text-xs text-calm-500 mt-2">
           Explore all features with a demo account
         </p>
 
-        {/* Footer */}
         <p className="text-center text-sm text-calm-600 mt-6">
-          Don&apos;t have an account?{' '}
+          {"Don't have an account? "}
           <Link href="/register" className="text-neo-500 hover:text-neo-600 font-medium">
             Sign up
           </Link>

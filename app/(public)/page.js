@@ -1,4 +1,5 @@
 import Button from '@/components/ui/Button';
+import Image from 'next/image';
 
 /**
  * Landing Page
@@ -39,7 +40,7 @@ export default function LandingPage() {
               {/* Subtitle */}
               <p className="text-lg sm:text-xl text-calm-600 mb-8 max-w-xl mx-auto lg:mx-0">
                 Transform overwhelming goals into daily drops. Watch your progress ripple 
-                forward—without streak anxiety or guilt.
+                forward - without streak anxiety or guilt.
               </p>
 
               {/* CTA buttons */}
@@ -54,7 +55,7 @@ export default function LandingPage() {
 
               {/* Trust indicator */}
               <p className="mt-8 text-sm text-calm-500">
-                Free to start • No credit card required • Cancel anytime
+                Free to start | No credit card required | Cancel anytime
               </p>
             </div>
 
@@ -72,10 +73,10 @@ export default function LandingPage() {
 
                 {/* Floating micro-message cards */}
                 <div className="absolute -top-4 -left-4 sm:-left-8 bg-white rounded-neo px-4 py-3 shadow-neo animate-float">
-                  <p className="text-sm text-calm-700">🌊 3 drops completed today</p>
+                  <p className="text-sm text-calm-700">3 drops completed today</p>
                 </div>
                 <div className="absolute -bottom-4 -right-4 sm:-right-8 bg-white rounded-neo px-4 py-3 shadow-neo animate-float" style={{ animationDelay: '1.5s' }}>
-                  <p className="text-sm text-calm-700">✨ Gentle reminder at 9am</p>
+                  <p className="text-sm text-calm-700">Gentle reminder at 9am</p>
                 </div>
               </div>
             </div>
@@ -107,7 +108,7 @@ export default function LandingPage() {
               <h3 className="text-xl font-semibold text-calm-800 mb-3">Drops, Not Streaks</h3>
               <p className="text-calm-600">
                 Each completed task is a drop in your progress pool. Miss one? 
-                The water stays—no streak to break, no guilt to feel.
+                The water stays - no streak to break, no guilt to feel.
               </p>
             </div>
 
@@ -139,6 +140,64 @@ export default function LandingPage() {
                 Struggling? Reminders become softer and more supportive. Thriving? 
                 We&apos;ll encourage gradual progression with gentle nudges.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Showcase Section */}
+      <section className="py-20 bg-gradient-to-b from-white to-neo-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-calm-800 mb-4">
+              Transform Your Daily Life
+            </h2>
+            <p className="text-lg text-calm-600 max-w-2xl mx-auto">
+              See how NeoRoutine helps you build lasting habits with a fresh approach
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Showcase Image 1 */}
+            <div className="group relative overflow-hidden rounded-2xl shadow-neo hover:shadow-lg transition-shadow duration-300">
+              <Image
+                src="/landingPage1.png"
+                alt="Turn Goals Into Daily Routine"
+                width={400}
+                height={300}
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-calm-800/60 to-transparent flex items-end p-6">
+                <h3 className="text-white text-xl font-semibold">Turn Goals Into Daily Routine</h3>
+              </div>
+            </div>
+
+            {/* Showcase Image 2 */}
+            <div className="group relative overflow-hidden rounded-2xl shadow-neo hover:shadow-lg transition-shadow duration-300">
+              <Image
+                src="/landingPage2.png"
+                alt="Maximize Your Potential"
+                width={400}
+                height={300}
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-calm-800/60 to-transparent flex items-end p-6">
+                <h3 className="text-white text-xl font-semibold">Maximize Your Potential</h3>
+              </div>
+            </div>
+
+            {/* Showcase Image 3 */}
+            <div className="group relative overflow-hidden rounded-2xl shadow-neo hover:shadow-lg transition-shadow duration-300">
+              <Image
+                src="/landingPage3.png"
+                alt="Level Up With NeoRoutine"
+                width={400}
+                height={300}
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-calm-800/60 to-transparent flex items-end p-6">
+                <h3 className="text-white text-xl font-semibold">Level Up With NeoRoutine</h3>
+              </div>
             </div>
           </div>
         </div>
@@ -205,7 +264,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button href="/register" variant="primary" size="lg">
-              Start Your Neo Routine — Free
+              Start Your Neo Routine - Free
             </Button>
           </div>
         </div>
