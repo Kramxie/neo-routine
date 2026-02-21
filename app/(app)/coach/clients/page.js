@@ -92,7 +92,7 @@ export default function CoachClientsPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <Link href="/coach" className="text-sm text-neo-600 hover:text-neo-700 mb-2 inline-block">
-            ← Back to Dashboard
+            &larr; Back to Dashboard
           </Link>
           <h1 className="text-2xl font-bold text-calm-800">Clients</h1>
           <p className="text-calm-500 mt-1">Manage your client roster</p>
@@ -186,7 +186,7 @@ export default function CoachClientsPage() {
             onClick={generateInvite}
             className="text-neo-600 hover:text-neo-700 font-medium"
           >
-            Generate an invite code →
+            Generate an invite code &rarr;
           </button>
         </div>
       ) : (
@@ -223,9 +223,9 @@ export default function CoachClientsPage() {
                     </div>
                     <p className="text-sm text-calm-500">{client.email}</p>
                     <div className="flex items-center gap-4 mt-1 text-xs text-calm-400">
-                      <span>🔥 {client.stats?.currentStreak || 0} day streak</span>
-                      <span>📊 {client.stats?.totalCheckIns || 0} check-ins</span>
-                      <span>📝 {client.stats?.routineCount || 0} routines</span>
+                      <span>{client.stats?.currentStreak || 0} day streak</span>
+                      <span>{client.stats?.totalCheckIns || 0} check-ins</span>
+                      <span>{client.stats?.routineCount || 0} routines</span>
                     </div>
                   </div>
 

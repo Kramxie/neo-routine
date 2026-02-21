@@ -75,7 +75,7 @@ export default function CoachDashboard() {
             Coach Dashboard
             {stats?.coachProfile?.isVerified && (
               <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-neo-100 text-neo-700">
-                ✓ Verified
+                Verified
               </span>
             )}
           </h1>
@@ -179,7 +179,7 @@ export default function CoachDashboard() {
               </div>
               <div className="pt-4 border-t border-calm-100">
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-green-500">↑</span>
+                  <span className="text-green-500">&uarr;</span>
                   <span className="text-calm-600">
                     {stats?.overview?.newClientsThisMonth || 0} new clients this month
                   </span>
@@ -424,7 +424,9 @@ function BecomeCoachPrompt() {
           ].map((benefit, i) => (
             <div key={i} className="flex items-center gap-3 p-3 bg-calm-50 rounded-lg">
               <div className="w-6 h-6 rounded-full bg-neo-500 text-white flex items-center justify-center text-sm">
-                ✓
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
               </div>
               <span className="text-calm-700">{benefit}</span>
             </div>

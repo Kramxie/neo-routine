@@ -129,7 +129,7 @@ export async function POST(request) {
     await dbUser.save();
 
     return NextResponse.json({
-      message: 'Welcome to the coaching program! 🎉',
+      message: 'Welcome to the coaching program!',
       profile: {
         brandName: dbUser.coachProfile.brandName,
         bio: dbUser.coachProfile.bio,

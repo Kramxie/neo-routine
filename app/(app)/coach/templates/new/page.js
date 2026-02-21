@@ -108,7 +108,7 @@ export default function NewTemplatePage() {
       {/* Header */}
       <div>
         <Link href="/coach/templates" className="text-sm text-neo-600 hover:text-neo-700 mb-2 inline-block">
-          ← Back to Templates
+          &larr; Back to Templates
         </Link>
         <h1 className="text-2xl font-bold text-calm-800">Create Template</h1>
         <p className="text-calm-500 mt-1">Design a routine blueprint for your clients</p>

@@ -77,7 +77,7 @@ export default function CoachTemplatesPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <Link href="/coach" className="text-sm text-neo-600 hover:text-neo-700 mb-2 inline-block">
-            ← Back to Dashboard
+            &larr; Back to Dashboard
           </Link>
           <h1 className="text-2xl font-bold text-calm-800">Templates</h1>
           <p className="text-calm-500 mt-1">Create routine blueprints for your clients</p>
@@ -132,7 +132,7 @@ export default function CoachTemplatesPage() {
             href="/coach/templates/new"
             className="text-neo-600 hover:text-neo-700 font-medium"
           >
-            Create your first template →
+            Create your first template &rarr;
           </Link>
         </div>
       ) : (
