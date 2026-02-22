@@ -99,7 +99,7 @@ export default function RippleProgress({
             {Math.round(waterLevel)}%
           </div>
           {sublabel && (
-            <p className={`${sizeConfig.subtext} text-calm-500 mt-0.5`}>
+            <p className={`${sizeConfig.subtext} text-calm-500 dark:text-slate-400 mt-0.5`}>
               {sublabel}
             </p>
           )}
@@ -108,7 +108,7 @@ export default function RippleProgress({
 
       {/* Label below */}
       {label && (
-        <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-sm text-calm-600 whitespace-nowrap">
+        <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-sm text-calm-600 dark:text-slate-400 whitespace-nowrap">
           {label}
         </span>
       )}
@@ -129,7 +129,7 @@ export function RippleDot({ completed = false, size = 'md' }) {
         ${sizes[size]}
         rounded-full flex items-center justify-center
         transition-all duration-300
-        ${completed ? 'bg-neo-500 shadow-neo' : 'bg-calm-200'}
+        ${completed ? 'bg-neo-500 shadow-neo' : 'bg-calm-200 dark:bg-slate-600'}
       `}
     >
       {completed && (

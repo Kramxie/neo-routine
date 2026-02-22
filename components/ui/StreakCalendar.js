@@ -36,11 +36,11 @@ function getIntensityLevel(percent) {
 
 // Intensity colors matching neo theme
 const intensityColors = {
-  0: 'bg-calm-100',
-  1: 'bg-neo-100',
-  2: 'bg-neo-200',
-  3: 'bg-neo-400',
-  4: 'bg-neo-500',
+  0: 'bg-calm-100 dark:bg-slate-700',
+  1: 'bg-neo-100 dark:bg-neo-900/40',
+  2: 'bg-neo-200 dark:bg-neo-800/50',
+  3: 'bg-neo-400 dark:bg-neo-600',
+  4: 'bg-neo-500 dark:bg-neo-500',
 };
 
 const intensityBorders = {
@@ -156,8 +156,8 @@ export default function StreakCalendar({
               <span className="text-white text-sm font-bold">{currentStreak}</span>
             </div>
             <div>
-              <p className="text-xs text-calm-500">Current</p>
-              <p className="text-sm font-medium text-calm-700">Streak</p>
+              <p className="text-xs text-calm-500 dark:text-slate-400">Current</p>
+              <p className="text-sm font-medium text-calm-700 dark:text-slate-200">Streak</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -165,16 +165,16 @@ export default function StreakCalendar({
               <span className="text-white text-sm font-bold">{longestStreak}</span>
             </div>
             <div>
-              <p className="text-xs text-calm-500">Longest</p>
-              <p className="text-sm font-medium text-calm-700">Streak</p>
+              <p className="text-xs text-calm-500 dark:text-slate-400">Longest</p>
+              <p className="text-sm font-medium text-calm-700 dark:text-slate-200">Streak</p>
             </div>
           </div>
         </div>
         
         {currentStreak > 0 && (
-          <div className="flex items-center gap-1 px-3 py-1 bg-neo-50 rounded-full">
+          <div className="flex items-center gap-1 px-3 py-1 bg-neo-50 dark:bg-neo-900/30 rounded-full">
             <span className="text-lg">🔥</span>
-            <span className="text-sm font-medium text-neo-600">On Fire!</span>
+            <span className="text-sm font-medium text-neo-600 dark:text-neo-400">On Fire!</span>
           </div>
         )}
       </div>
@@ -183,7 +183,7 @@ export default function StreakCalendar({
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={goToPreviousMonth}
-          className="p-2 rounded-lg hover:bg-calm-100 transition-colors text-calm-600"
+          className="p-2 rounded-lg hover:bg-calm-100 dark:hover:bg-slate-700 transition-colors text-calm-600 dark:text-slate-300"
           aria-label="Previous month"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,12 +192,12 @@ export default function StreakCalendar({
         </button>
         
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-calm-800">
+          <h3 className="text-lg font-semibold text-calm-800 dark:text-slate-100">
             {monthNames[month]} {year}
           </h3>
           <button
             onClick={goToToday}
-            className="text-xs text-neo-500 hover:text-neo-600 transition-colors"
+            className="text-xs text-neo-500 hover:text-neo-600 dark:text-neo-400 dark:hover:text-neo-300 transition-colors"
           >
             Today
           </button>
@@ -205,7 +205,7 @@ export default function StreakCalendar({
         
         <button
           onClick={goToNextMonth}
-          className="p-2 rounded-lg hover:bg-calm-100 transition-colors text-calm-600"
+          className="p-2 rounded-lg hover:bg-calm-100 dark:hover:bg-slate-700 transition-colors text-calm-600 dark:text-slate-300"
           aria-label="Next month"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,7 +217,7 @@ export default function StreakCalendar({
       {/* Day Names */}
       <div className="grid grid-cols-7 gap-1 mb-2">
         {dayNames.map(day => (
-          <div key={day} className="text-center text-xs font-medium text-calm-500 py-1">
+          <div key={day} className="text-center text-xs font-medium text-calm-500 dark:text-slate-400 py-1">
             {day}
           </div>
         ))}
@@ -249,8 +249,8 @@ export default function StreakCalendar({
             >
               <span className={`
                 text-sm font-medium
-                ${intensity >= 3 ? 'text-white' : 'text-calm-700'}
-                ${cell.isFuture ? 'text-calm-300' : ''}
+                ${intensity >= 3 ? 'text-white' : 'text-calm-700 dark:text-slate-200'}
+                ${cell.isFuture ? 'text-calm-300 dark:text-slate-500' : ''}
               `}>
                 {cell.day}
               </span>
@@ -272,8 +272,8 @@ export default function StreakCalendar({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-calm-100">
-        <span className="text-xs text-calm-500">Less</span>
+      <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-calm-100 dark:border-slate-700">
+        <span className="text-xs text-calm-500 dark:text-slate-400">Less</span>
         {[0, 1, 2, 3, 4].map(level => (
           <div
             key={level}
@@ -281,7 +281,7 @@ export default function StreakCalendar({
             title={`${level * 25}% completion`}
           />
         ))}
-        <span className="text-xs text-calm-500">More</span>
+        <span className="text-xs text-calm-500 dark:text-slate-400">More</span>
       </div>
     </div>
   );
@@ -318,7 +318,7 @@ export function WeekStreak({ data = [], className = '' }) {
       <div className="flex items-center justify-between gap-1">
         {days.map(day => (
           <div key={day.dateISO} className="flex flex-col items-center gap-1">
-            <span className="text-xs text-calm-500">{day.dayName}</span>
+            <span className="text-xs text-calm-500 dark:text-slate-400">{day.dayName}</span>
             <div
               className={`
                 w-8 h-8 rounded-lg flex items-center justify-center

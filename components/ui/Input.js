@@ -42,7 +42,7 @@ const Input = forwardRef(function Input(props, ref) {
     setShowPassword(function (prev) { return !prev; });
   };
 
-  let inputClasses = 'w-full px-4 py-3 rounded-neo border-2 bg-white transition-all duration-200 placeholder:text-calm-400 focus:outline-none';
+  let inputClasses = 'w-full px-4 py-3 rounded-neo border-2 bg-white dark:bg-slate-800 text-calm-800 dark:text-slate-100 transition-all duration-200 placeholder:text-calm-400 dark:placeholder:text-slate-500 focus:outline-none';
 
   if (icon) {
     inputClasses += ' pl-10';
@@ -53,13 +53,13 @@ const Input = forwardRef(function Input(props, ref) {
   }
 
   if (error) {
-    inputClasses += ' border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100';
+    inputClasses += ' border-red-300 dark:border-red-500 focus:border-red-400 focus:ring-2 focus:ring-red-100 dark:focus:ring-red-900';
   } else {
-    inputClasses += ' border-calm-200 focus:border-neo-400 focus:ring-2 focus:ring-neo-100';
+    inputClasses += ' border-calm-200 dark:border-slate-600 focus:border-neo-400 dark:focus:border-neo-500 focus:ring-2 focus:ring-neo-100 dark:focus:ring-neo-900';
   }
 
   if (disabled) {
-    inputClasses += ' bg-calm-100 cursor-not-allowed opacity-60';
+    inputClasses += ' bg-calm-100 dark:bg-slate-700 cursor-not-allowed opacity-60';
   }
 
   return (
@@ -67,7 +67,7 @@ const Input = forwardRef(function Input(props, ref) {
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-calm-700 mb-1"
+          className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-1"
         >
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
@@ -77,7 +77,7 @@ const Input = forwardRef(function Input(props, ref) {
       <div className="relative">
         {icon && (
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <span className="text-calm-400">{icon}</span>
+            <span className="text-calm-400 dark:text-slate-500">{icon}</span>
           </div>
         )}
 
@@ -102,7 +102,7 @@ const Input = forwardRef(function Input(props, ref) {
           <button
             type="button"
             onClick={togglePassword}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center z-10 text-calm-400 hover:text-calm-600 transition-colors cursor-pointer"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center z-10 text-calm-400 dark:text-slate-500 hover:text-calm-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
             tabIndex={-1}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >

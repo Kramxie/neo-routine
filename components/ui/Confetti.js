@@ -111,7 +111,7 @@ export default function Confetti({
       setConfettiPieces(createPieces());
       
       // Show message after brief delay
-      setTimeout(() => setShowMessage(true), 300);
+      const messageTimer = setTimeout(() => setShowMessage(true), 300);
       
       // Cleanup after duration
       const timer = setTimeout(() => {
@@ -121,7 +121,10 @@ export default function Confetti({
         onComplete?.();
       }, duration);
 
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(messageTimer);
+        clearTimeout(timer);
+      };
     }
   }, [show, isActive, createPieces, duration, onComplete]);
 

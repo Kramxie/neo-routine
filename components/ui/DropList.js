@@ -51,11 +51,11 @@ export default function DropList({
 
   return (
     <div
-      className={`bg-white rounded-2xl shadow-sm border border-calm-100 overflow-hidden ${className}`}
+      className={`bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-calm-100 dark:border-slate-700 overflow-hidden ${className}`}
     >
       {/* Routine Header */}
       <div
-        className="px-4 py-3 border-b border-calm-100 flex items-center justify-between"
+        className="px-4 py-3 border-b border-calm-100 dark:border-slate-700 flex items-center justify-between"
         style={{ backgroundColor: routine.color ? `${toHex(routine.color)}10` : undefined }}
       >
         <div className="flex items-center gap-3">
@@ -64,15 +64,15 @@ export default function DropList({
             className="w-3 h-3 rounded-full"
             style={{ backgroundColor: toHex(routine.color) || '#0ea5e9' }}
           />
-          <h3 className="font-medium text-calm-800">{routine.name}</h3>
+          <h3 className="font-medium text-calm-800 dark:text-slate-100">{routine.name}</h3>
         </div>
 
         {/* Progress indicator */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-calm-500">
+          <span className="text-sm text-calm-500 dark:text-slate-400">
             {completedCount}/{activeTasks.length}
           </span>
-          <div className="w-16 h-2 bg-calm-100 rounded-full overflow-hidden">
+          <div className="w-16 h-2 bg-calm-100 dark:bg-slate-600 rounded-full overflow-hidden">
             <div
               className="h-full bg-neo-500 transition-all duration-500 ease-out"
               style={{ width: `${progressPercent}%` }}
@@ -82,7 +82,7 @@ export default function DropList({
       </div>
 
       {/* Task List */}
-      <ul className="divide-y divide-calm-50">
+      <ul className="divide-y divide-calm-50 dark:divide-slate-700">
         {activeTasks.map((task) => {
           const taskId = String(task._id || task.id);
           const isChecked = normalizedChecked.includes(taskId);
@@ -96,7 +96,7 @@ export default function DropList({
                 className={`
                   w-full px-4 py-3 flex items-center gap-3
                   transition-all duration-200
-                  hover:bg-neo-50/50
+                  hover:bg-neo-50/50 dark:hover:bg-slate-700/50
                   ${disabled ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}
                 `}
               >
@@ -108,7 +108,7 @@ export default function DropList({
                       transition-all duration-300
                       ${isChecked
                         ? 'bg-neo-500 border-neo-500'
-                        : 'border-calm-300 bg-white hover:border-neo-400'
+                        : 'border-calm-300 dark:border-slate-500 bg-white dark:bg-slate-700 hover:border-neo-400'
                       }
                     `}
                   >
@@ -143,8 +143,8 @@ export default function DropList({
                   className={`
                     flex-1 text-left transition-all duration-200
                     ${isChecked
-                      ? 'text-calm-400 line-through'
-                      : 'text-calm-700'
+                      ? 'text-calm-400 dark:text-slate-500 line-through'
+                      : 'text-calm-700 dark:text-slate-200'
                     }
                   `}
                 >
@@ -169,8 +169,8 @@ export default function DropList({
 
       {/* All done message */}
       {completedCount === activeTasks.length && activeTasks.length > 0 && (
-        <div className="px-4 py-3 bg-neo-50 border-t border-neo-100 text-center">
-          <p className="text-neo-600 text-sm font-medium">
+        <div className="px-4 py-3 bg-neo-50 dark:bg-neo-900/30 border-t border-neo-100 dark:border-neo-800 text-center">
+          <p className="text-neo-600 dark:text-neo-400 text-sm font-medium">
             All drops collected for {routine.name}!
           </p>
         </div>
@@ -191,8 +191,8 @@ export function TaskChip({ label, completed = false, onClick, disabled = false }
         inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm
         transition-all duration-200
         ${completed
-          ? 'bg-neo-100 text-neo-700'
-          : 'bg-calm-100 text-calm-600 hover:bg-neo-50'
+          ? 'bg-neo-100 dark:bg-neo-900/30 text-neo-700 dark:text-neo-300'
+          : 'bg-calm-100 dark:bg-slate-700 text-calm-600 dark:text-slate-300 hover:bg-neo-50 dark:hover:bg-slate-600'
         }
         ${disabled ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}
       `}
@@ -200,7 +200,7 @@ export function TaskChip({ label, completed = false, onClick, disabled = false }
       <span
         className={`
           w-3 h-3 rounded-full border flex items-center justify-center
-          ${completed ? 'bg-neo-500 border-neo-500' : 'border-calm-400'}
+          ${completed ? 'bg-neo-500 border-neo-500' : 'border-calm-400 dark:border-slate-500'}
         `}
       >
         {completed && (

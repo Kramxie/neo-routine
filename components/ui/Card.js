@@ -106,7 +106,7 @@ export function CardContent({ children, className = '' }) {
  */
 export function CardFooter({ children, className = '' }) {
   return (
-    <div className={`mt-4 pt-4 border-t border-calm-100 ${className}`}>
+    <div className={`mt-4 pt-4 border-t border-calm-100 dark:border-slate-700 ${className}`}>
       {children}
     </div>
   );

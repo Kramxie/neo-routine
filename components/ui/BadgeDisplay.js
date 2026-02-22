@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BADGE_DEFINITIONS, RARITY_COLORS } from '@/models/Badge';
+import { BADGE_DEFINITIONS, RARITY_COLORS } from '@/lib/badgeDefinitions';
 
 /**
  * Badge Display Components
