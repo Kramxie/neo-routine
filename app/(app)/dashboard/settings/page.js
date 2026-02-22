@@ -398,7 +398,7 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-calm-700 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
               Name
             </label>
             <input
@@ -406,20 +406,20 @@ export default function SettingsPage() {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-calm-200 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
+              className="w-full px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-calm-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-calm-700 mb-2">
+            <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
               Email
             </label>
             <input
               type="email"
               value={email}
               disabled
-              className="w-full px-4 py-2 rounded-lg border border-calm-200 bg-calm-50 text-calm-500 cursor-not-allowed"
+              className="w-full px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-calm-50 dark:bg-slate-700 text-calm-500 dark:text-slate-400 cursor-not-allowed"
             />
-            <p className="text-xs text-calm-400 mt-1">Email cannot be changed</p>
+            <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">Email cannot be changed</p>
           </div>
         </CardContent>
       </Card>
@@ -432,7 +432,7 @@ export default function SettingsPage() {
         <CardContent className="space-y-6">
           {/* Reminder Time */}
           <div>
-            <label htmlFor="reminderTime" className="block text-sm font-medium text-calm-700 mb-2">
+            <label htmlFor="reminderTime" className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
               Daily Reminder Time
             </label>
             <input
@@ -440,20 +440,20 @@ export default function SettingsPage() {
               id="reminderTime"
               value={reminderTime}
               onChange={(e) => setReminderTime(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-calm-200 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
+              className="px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-calm-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
             />
           </div>
 
           {/* Timezone */}
           <div>
-            <label htmlFor="timezone" className="block text-sm font-medium text-calm-700 mb-2">
+            <label htmlFor="timezone" className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
               Timezone
             </label>
             <select
               id="timezone"
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-calm-200 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
+              className="w-full px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-calm-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
             >
               {timezones.map((tz) => (
                 <option key={tz.value} value={tz.value}>
@@ -465,7 +465,7 @@ export default function SettingsPage() {
 
           {/* Reminder Frequency */}
           <div>
-            <label className="block text-sm font-medium text-calm-700 mb-2">
+            <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
               Reminder Intensity
             </label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -482,13 +482,13 @@ export default function SettingsPage() {
                   className={`
                     p-3 rounded-lg border text-left transition-all
                     ${reminderFrequency === option.value
-                      ? 'border-neo-500 bg-neo-50 ring-2 ring-neo-200'
-                      : 'border-calm-200 hover:border-calm-300'
+                      ? 'border-neo-500 bg-neo-50 dark:bg-neo-900/30 ring-2 ring-neo-200 dark:ring-neo-800'
+                      : 'border-calm-200 dark:border-slate-600 hover:border-calm-300 dark:hover:border-slate-500'
                     }
                   `}
                 >
-                  <p className="font-medium text-calm-800 text-sm">{option.label}</p>
-                  <p className="text-xs text-calm-500">{option.desc}</p>
+                  <p className="font-medium text-calm-800 dark:text-slate-100 text-sm">{option.label}</p>
+                  <p className="text-xs text-calm-500 dark:text-slate-400">{option.desc}</p>
                 </button>
               ))}
             </div>
@@ -496,10 +496,10 @@ export default function SettingsPage() {
 
           {/* Active Days */}
           <div>
-            <label className="block text-sm font-medium text-calm-700 mb-2">
+            <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
               Active Days
             </label>
-            <p className="text-xs text-calm-500 mb-3">
+            <p className="text-xs text-calm-500 dark:text-slate-400 mb-3">
               Which days would you like to track routines?
             </p>
             <div className="flex gap-2">
@@ -512,7 +512,7 @@ export default function SettingsPage() {
                     w-10 h-10 rounded-full text-sm font-medium transition-all
                     ${isDayActive(day.bit)
                       ? 'bg-neo-500 text-white'
-                      : 'bg-calm-100 text-calm-500 hover:bg-calm-200'
+                      : 'bg-calm-100 dark:bg-slate-700 text-calm-500 dark:text-slate-400 hover:bg-calm-200 dark:hover:bg-slate-600'
                     }
                   `}
                   title={day.full}
@@ -630,19 +630,19 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Current Plan */}
-          <div className="flex items-center justify-between p-4 rounded-lg bg-neo-50 border border-neo-100">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-neo-50 dark:bg-neo-900/30 border border-neo-100 dark:border-neo-800">
             <div>
-              <p className="text-sm text-calm-500">Current Plan</p>
-              <p className="text-xl font-bold text-calm-800 capitalize">
+              <p className="text-sm text-calm-500 dark:text-slate-400">Current Plan</p>
+              <p className="text-xl font-bold text-calm-800 dark:text-slate-100 capitalize">
                 {currentTier.replace('_', ' ')}
               </p>
               {subscription?.status === 'active' && subscription?.currentPeriodEnd && (
-                <p className="text-xs text-calm-400 mt-1">
+                <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">
                   Renews {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
                 </p>
               )}
               {subscription?.cancelAtPeriodEnd && (
-                <p className="text-xs text-orange-500 mt-1">
+                <p className="text-xs text-orange-500 dark:text-orange-400 mt-1">
                   Cancels at end of billing period
                 </p>
               )}
@@ -657,15 +657,15 @@ export default function SettingsPage() {
           {/* Usage Limits */}
           {limits && (
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg bg-calm-50 border border-calm-100">
-                <p className="text-xs text-calm-500 mb-1">Routines</p>
-                <p className="text-lg font-semibold text-calm-700">
+              <div className="p-3 rounded-lg bg-calm-50 dark:bg-slate-700/50 border border-calm-100 dark:border-slate-600">
+                <p className="text-xs text-calm-500 dark:text-slate-400 mb-1">Routines</p>
+                <p className="text-lg font-semibold text-calm-700 dark:text-slate-200">
                   {limits.routines === Infinity ? 'Unlimited' : `Up to ${limits.routines}`}
                 </p>
               </div>
-              <div className="p-3 rounded-lg bg-calm-50 border border-calm-100">
-                <p className="text-xs text-calm-500 mb-1">Tasks per Routine</p>
-                <p className="text-lg font-semibold text-calm-700">
+              <div className="p-3 rounded-lg bg-calm-50 dark:bg-slate-700/50 border border-calm-100 dark:border-slate-600">
+                <p className="text-xs text-calm-500 dark:text-slate-400 mb-1">Tasks per Routine</p>
+                <p className="text-lg font-semibold text-calm-700 dark:text-slate-200">
                   {limits.tasksPerRoutine === Infinity ? 'Unlimited' : `Up to ${limits.tasksPerRoutine}`}
                 </p>
               </div>
@@ -696,7 +696,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleManageSubscription}
                 disabled={managingSubscription}
-                className="flex-1 py-3 px-4 rounded-lg bg-calm-100 text-calm-700 font-medium hover:bg-calm-200 transition-colors disabled:opacity-50"
+                className="flex-1 py-3 px-4 rounded-lg bg-calm-100 dark:bg-slate-700 text-calm-700 dark:text-slate-200 font-medium hover:bg-calm-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50"
               >
                 {managingSubscription ? 'Loading...' : 'Manage Subscription'}
               </button>
@@ -705,14 +705,14 @@ export default function SettingsPage() {
 
           {currentTier === 'premium_plus' && (
             <div className="space-y-3">
-              <p className="text-center text-calm-500 text-sm">
+              <p className="text-center text-calm-500 dark:text-slate-400 text-sm">
                 You are on our highest tier - enjoy unlimited access!
               </p>
               {subscription?.status === 'active' && (
                 <button
                   onClick={handleManageSubscription}
                   disabled={managingSubscription}
-                  className="w-full py-3 px-4 rounded-lg bg-calm-100 text-calm-700 font-medium hover:bg-calm-200 transition-colors disabled:opacity-50"
+                  className="w-full py-3 px-4 rounded-lg bg-calm-100 dark:bg-slate-700 text-calm-700 dark:text-slate-200 font-medium hover:bg-calm-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50"
                 >
                   {managingSubscription ? 'Loading...' : 'Manage Subscription'}
                 </button>

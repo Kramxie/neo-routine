@@ -137,7 +137,7 @@ export default function AppLayout({ children }) {
               <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z" />
             </svg>
           </div>
-          <p className="text-calm-600">Loading your routine...</p>
+          <p className="text-calm-600 dark:text-slate-400">Loading your routine...</p>
         </div>
       </div>
     );
@@ -169,7 +169,7 @@ export default function AppLayout({ children }) {
             <svg className="w-8 h-8 text-neo-500" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z" />
             </svg>
-            <span className="text-xl font-semibold text-calm-800">
+            <span className="text-xl font-semibold text-calm-800 dark:text-slate-100">
               Neo<span className="text-neo-500">Routine</span>
             </span>
           </Link>
@@ -206,23 +206,23 @@ export default function AppLayout({ children }) {
         {/* User section at bottom */}
         <div className="p-4 border-t border-calm-100 dark:border-slate-700">
           <div className="flex items-center space-x-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-neo-100 flex items-center justify-center">
-              <span className="text-neo-600 font-semibold">
+            <div className="w-10 h-10 rounded-full bg-neo-100 dark:bg-neo-900/30 flex items-center justify-center">
+              <span className="text-neo-600 dark:text-neo-400 font-semibold">
                 {user?.name?.charAt(0).toUpperCase() || 'U'}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-calm-800 truncate">
+              <p className="text-sm font-medium text-calm-800 dark:text-slate-100 truncate">
                 {user?.name || 'User'}
               </p>
-              <p className="text-xs text-calm-500 truncate">
+              <p className="text-xs text-calm-500 dark:text-slate-400 truncate">
                 {user?.email || ''}
               </p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-neo text-calm-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-neo text-calm-600 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -239,7 +239,7 @@ export default function AppLayout({ children }) {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-lg text-calm-600 hover:bg-calm-100"
+            className="lg:hidden p-2 rounded-lg text-calm-600 dark:text-slate-300 hover:bg-calm-100 dark:hover:bg-slate-700"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -248,8 +248,8 @@ export default function AppLayout({ children }) {
 
           {/* Greeting */}
           <div className="hidden lg:block">
-            <p className="text-calm-600">
-              Welcome back, <span className="font-medium text-calm-800">{user?.name || 'there'}</span>
+            <p className="text-calm-600 dark:text-slate-400">
+              Welcome back, <span className="font-medium text-calm-800 dark:text-slate-100">{user?.name || 'there'}</span>
             </p>
           </div>
 

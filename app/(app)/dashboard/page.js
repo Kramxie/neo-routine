@@ -89,26 +89,37 @@ export default function DashboardPage() {
   };
 
   // Fetch dashboard stats (includes greeting, quote, streaks)
-  const fetchDashboardStats = useCallback(async () => {
+  // Returns a cleanup function for any scheduled celebrations
+  const fetchDashboardStats = useCallback(async (isMountedRef) => {
     try {
       const response = await fetch('/api/dashboard/stats');
       if (response.ok) {
         const result = await response.json();
-        if (result.success) {
+        if (result.success && isMountedRef.current) {
           setDashboardStats(result.data);
           
           // Trigger celebrations if any milestones reached
+          // Only show celebration once per session per type
           if (result.data.celebrations?.length > 0) {
             const first = result.data.celebrations[0];
-            setTimeout(() => {
-              celebrate({
-                type: first.type || 'achievement',
-                message: first.message,
-                subMessage: first.subMessage,
-                icon: first.message?.includes('🔥') ? '🔥' : '✨',
-                pieces: first.type === 'milestone' ? 150 : 100,
-              });
-            }, 1000);
+            const celebrationKey = `celebration_shown_${first.message?.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const alreadyShown = sessionStorage.getItem(celebrationKey);
+            
+            if (!alreadyShown && isMountedRef.current) {
+              sessionStorage.setItem(celebrationKey, 'true');
+              // Small delay to let UI render first
+              setTimeout(() => {
+                if (isMountedRef.current) {
+                  celebrate({
+                    type: first.type || 'achievement',
+                    message: first.message,
+                    subMessage: first.subMessage,
+                    icon: first.message?.includes('🔥') ? '🔥' : '✨',
+                    pieces: first.type === 'milestone' ? 150 : 100,
+                  });
+                }
+              }, 1000);
+            }
           }
         }
       }
@@ -144,8 +155,15 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    // Track if component is still mounted
+    const isMountedRef = { current: true };
+    
     fetchData();
-    fetchDashboardStats();
+    fetchDashboardStats(isMountedRef);
+    
+    return () => {
+      isMountedRef.current = false;
+    };
   }, [fetchData, fetchDashboardStats]);
 
   // Handle task check/uncheck
@@ -297,7 +315,7 @@ export default function DashboardPage() {
               <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z" />
             </svg>
           </div>
-          <p className="text-calm-500">Loading your flow...</p>
+          <p className="text-calm-500 dark:text-slate-400">Loading your flow...</p>
         </div>
       </div>
     );
@@ -310,6 +328,7 @@ export default function DashboardPage() {
         <Confetti
           show={true}
           type={celebration.type}
+          duration={15000}
           message={celebration.message}
           subMessage={celebration.subMessage}
           icon={celebration.icon}
@@ -328,16 +347,16 @@ export default function DashboardPage() {
 
       {/* Email Verification Banner */}
       {showVerifyBanner && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-800/30 flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
             <div>
-              <p className="text-amber-800 font-medium">Verify your email</p>
-              <p className="text-amber-600 text-sm">Check your inbox for a verification link to unlock all features.</p>
+              <p className="text-amber-800 dark:text-amber-200 font-medium">Verify your email</p>
+              <p className="text-amber-600 dark:text-amber-400 text-sm">Check your inbox for a verification link to unlock all features.</p>
             </div>
           </div>
           <div className="flex items-center space-x-2 ml-13 sm:ml-0">
@@ -367,13 +386,13 @@ export default function DashboardPage() {
 
       {/* Streak At Risk Alert */}
       {streakAtRisk && (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-4 animate-pulse">
-          <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 flex items-center gap-4 animate-pulse">
+          <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-800/30 flex items-center justify-center flex-shrink-0">
             <span className="text-2xl">🔥</span>
           </div>
           <div className="flex-1">
-            <p className="text-orange-800 font-bold">Your {currentStreak}-day streak is at risk!</p>
-            <p className="text-orange-600 text-sm">Don&apos;t break the chain - complete at least one task today.</p>
+            <p className="text-orange-800 dark:text-orange-200 font-bold">Your {currentStreak}-day streak is at risk!</p>
+            <p className="text-orange-600 dark:text-orange-400 text-sm">Don&apos;t break the chain - complete at least one task today.</p>
           </div>
           <a
             href="#routines"
@@ -385,14 +404,14 @@ export default function DashboardPage() {
       )}
 
       {/* Main Header with Quote */}
-      <div className="bg-gradient-to-r from-neo-50 to-calm-50 rounded-2xl p-6">
-        <h1 className="text-2xl lg:text-3xl font-bold text-calm-800">{greeting}</h1>
+      <div className="bg-gradient-to-r from-neo-50 to-calm-50 dark:from-slate-800 dark:to-slate-700 rounded-2xl p-6">
+        <h1 className="text-2xl lg:text-3xl font-bold text-calm-800 dark:text-slate-100">{greeting}</h1>
         <div className="mt-3 flex items-start gap-3">
           <span className="text-2xl">💧</span>
           <div>
-            <p className="text-calm-600 italic">&ldquo;{quote.text}&rdquo;</p>
+            <p className="text-calm-600 dark:text-slate-300 italic">&ldquo;{quote.text}&rdquo;</p>
             {quote.author && (
-              <p className="text-calm-400 text-sm mt-1">— {quote.author}</p>
+              <p className="text-calm-400 dark:text-slate-500 text-sm mt-1">— {quote.author}</p>
             )}
           </div>
         </div>
@@ -405,9 +424,9 @@ export default function DashboardPage() {
           <CardContent className="text-center py-4">
             <div className="text-2xl mb-1">{currentStreak > 0 ? '🔥' : '💧'}</div>
             <p className="text-3xl font-bold text-neo-600">{currentStreak}</p>
-            <p className="text-sm text-calm-500">Day Streak</p>
+            <p className="text-sm text-calm-500 dark:text-slate-400">Day Streak</p>
             {longestStreak > currentStreak && (
-              <p className="text-xs text-calm-400 mt-1">Best: {longestStreak}</p>
+              <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">Best: {longestStreak}</p>
             )}
           </CardContent>
         </Card>
@@ -417,8 +436,8 @@ export default function DashboardPage() {
           <CardContent className="text-center py-4">
             <div className="text-2xl mb-1">{todayPercent === 100 ? '✨' : '📊'}</div>
             <p className="text-3xl font-bold text-neo-600">{todayPercent}%</p>
-            <p className="text-sm text-calm-500">Today</p>
-            <p className="text-xs text-calm-400 mt-1">{completedTasks}/{totalTasks} tasks</p>
+            <p className="text-sm text-calm-500 dark:text-slate-400">Today</p>
+            <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">{completedTasks}/{totalTasks} tasks</p>
           </CardContent>
         </Card>
 
@@ -427,8 +446,8 @@ export default function DashboardPage() {
           <CardContent className="text-center py-4">
             <div className="text-2xl mb-1">{tasksRemaining === 0 ? '✅' : '📝'}</div>
             <p className="text-3xl font-bold text-neo-600">{tasksRemaining}</p>
-            <p className="text-sm text-calm-500">Tasks Left</p>
-            <p className="text-xs text-calm-400 mt-1">{tasksRemaining === 0 ? 'All done!' : 'Keep going!'}</p>
+            <p className="text-sm text-calm-500 dark:text-slate-400">Tasks Left</p>
+            <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">{tasksRemaining === 0 ? 'All done!' : 'Keep going!'}</p>
           </CardContent>
         </Card>
 
@@ -437,8 +456,8 @@ export default function DashboardPage() {
           <CardContent className="text-center py-4">
             <div className="text-2xl mb-1">🌊</div>
             <p className="text-3xl font-bold text-neo-600">{totalCheckIns}</p>
-            <p className="text-sm text-calm-500">Total Drops</p>
-            <p className="text-xs text-calm-400 mt-1">All time</p>
+            <p className="text-sm text-calm-500 dark:text-slate-400">Total Drops</p>
+            <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">All time</p>
           </CardContent>
         </Card>
       </div>
@@ -448,7 +467,7 @@ export default function DashboardPage() {
         {/* Today&apos;s Routines */}
         <div id="routines" className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-calm-800">Today&apos;s Routines</h2>
+            <h2 className="text-lg font-semibold text-calm-800 dark:text-slate-100">Today&apos;s Routines</h2>
             <Link
               href="/dashboard/routines/new"
               className="inline-flex items-center gap-1 text-sm text-neo-600 hover:text-neo-700 font-medium"
@@ -470,10 +489,10 @@ export default function DashboardPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-calm-700 mb-2">
+                  <h3 className="text-lg font-medium text-calm-700 dark:text-slate-200 mb-2">
                     No routines yet
                   </h3>
-                  <p className="text-calm-500 mb-6 max-w-sm mx-auto">
+                  <p className="text-calm-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">
                     Create your first routine to start tracking your daily drops. 
                     We&apos;ll help you build habits without pressure.
                   </p>
@@ -523,7 +542,7 @@ export default function DashboardPage() {
               
               <div className="mt-4 text-center">
                 <p className="text-2xl font-bold text-neo-600">{currentStreak} days</p>
-                <p className="text-sm text-calm-500">
+                <p className="text-sm text-calm-500 dark:text-slate-400">
                   {currentStreak > 0 
                     ? `Keep it going! ${7 - (currentStreak % 7)} more for a week milestone` 
                     : 'Complete a task to start your streak!'}

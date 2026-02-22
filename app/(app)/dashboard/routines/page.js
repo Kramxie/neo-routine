@@ -1,35 +1,133 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Card, { CardContent } from '@/components/ui/Card';
 import { toHex } from '@/lib/colorUtils';
 
 /**
  * Routines Management Page
- * View, edit, and organize all routines
+ * View, edit, and organize all routines with today's progress
  */
 
 export default function RoutinesPage() {
   const [routines, setRoutines] = useState([]);
+  const [todayCheckIns, setTodayCheckIns] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [checkLoading, setCheckLoading] = useState({});
   const [deleteId, setDeleteId] = useState(null);
 
-  useEffect(() => {
-    fetchRoutines();
-  }, []);
+  // Get user's local date in YYYY-MM-DD
+  const getLocalDateISO = () => {
+    const n = new Date();
+    return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+  };
 
-  const fetchRoutines = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await fetch('/api/routines');
-      if (response.ok) {
-        const data = await response.json();
+      const [routinesRes, todayRes] = await Promise.all([
+        fetch('/api/routines'),
+        fetch(`/api/checkins/today?date=${getLocalDateISO()}`),
+      ]);
+
+      if (routinesRes.ok) {
+        const data = await routinesRes.json();
         setRoutines(data.routines || []);
       }
+
+      if (todayRes.ok) {
+        const data = await todayRes.json();
+        // Handle both wrapped and unwrapped response formats
+        const checkIns = data.data?.checkIns || data.checkIns || [];
+        setTodayCheckIns(checkIns);
+      }
     } catch (error) {
-      console.error('Failed to fetch routines:', error);
+      console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Check if a task is completed today
+  const isTaskCompleted = (routineId, taskId) => {
+    return todayCheckIns.some(
+      (c) => c.routineId === routineId && c.taskId === taskId
+    );
+  };
+
+  // Get completion stats for a routine
+  const getRoutineProgress = (routine) => {
+    const activeTasks = routine.tasks?.filter((t) => t.isActive !== false) || [];
+    const completed = activeTasks.filter((t) => 
+      isTaskCompleted(routine._id, t._id)
+    ).length;
+    return {
+      completed,
+      total: activeTasks.length,
+      percent: activeTasks.length > 0 ? Math.round((completed / activeTasks.length) * 100) : 0,
+    };
+  };
+
+  // Toggle task completion
+  const handleToggleTask = async (routineId, taskId) => {
+    const key = `${routineId}_${taskId}`;
+    if (checkLoading[key]) return;
+
+    setCheckLoading((prev) => ({ ...prev, [key]: true }));
+
+    try {
+      const isCompleted = isTaskCompleted(routineId, taskId);
+
+      if (isCompleted) {
+        // Uncheck - DELETE request
+        const response = await fetch('/api/checkins', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            routineId,
+            taskId,
+            dateISO: getLocalDateISO(),
+          }),
+        });
+
+        if (response.ok) {
+          setTodayCheckIns((prev) =>
+            prev.filter((c) => !(c.routineId === routineId && c.taskId === taskId))
+          );
+        }
+      } else {
+        // Check - POST request
+        const response = await fetch('/api/checkins', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            routineId,
+            taskId,
+            dateISO: getLocalDateISO(),
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setTodayCheckIns((prev) => [
+            ...prev,
+            {
+              routineId,
+              taskId,
+              dateISO: getLocalDateISO(),
+              ...data.checkIn,
+            },
+          ]);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to toggle task:', error);
+    } finally {
+      setCheckLoading((prev) => ({ ...prev, [key]: false }));
     }
   };
 
@@ -114,13 +212,22 @@ export default function RoutinesPage() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {routines.map((routine) => (
+          {routines.map((routine) => {
+            const progress = getRoutineProgress(routine);
+            const activeTasks = routine.tasks?.filter((t) => t.isActive !== false) || [];
+            
+            return (
             <Card key={routine._id} variant="elevated" className="overflow-hidden">
-              {/* Color bar */}
-              <div
-                className="h-2"
-                style={{ backgroundColor: toHex(routine.color) || '#0ea5e9' }}
-              />
+              {/* Progress bar */}
+              <div className="h-2 bg-calm-100 relative overflow-hidden">
+                <div
+                  className="h-full transition-all duration-500 ease-out"
+                  style={{ 
+                    width: `${progress.percent}%`,
+                    backgroundColor: toHex(routine.color) || '#0ea5e9',
+                  }}
+                />
+              </div>
               <CardContent className="pt-4">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -140,7 +247,10 @@ export default function RoutinesPage() {
                     <div>
                       <h3 className="font-semibold text-calm-800">{routine.name}</h3>
                       <p className="text-sm text-calm-500">
-                        {routine.tasks?.filter((t) => t.isActive !== false).length || 0} tasks
+                        {progress.completed}/{progress.total} tasks
+                        {progress.percent === 100 && (
+                          <span className="ml-2 text-green-500">✓ Complete!</span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -170,26 +280,66 @@ export default function RoutinesPage() {
                   </div>
                 </div>
 
-                {/* Task preview */}
+                {/* Interactive Tasks */}
                 <div className="space-y-2">
-                  {routine.tasks?.slice(0, 3).map((task, index) => (
-                    <div key={task._id || index} className="flex items-center gap-2 text-sm">
-                      <div
-                        className="w-4 h-4 rounded-full border-2 flex-shrink-0"
-                        style={{ borderColor: toHex(routine.color) || '#0ea5e9' }}
-                      />
-                      <span className="text-calm-600 truncate">{task.label}</span>
-                    </div>
-                  ))}
-                  {(routine.tasks?.length || 0) > 3 && (
-                    <p className="text-xs text-calm-400 ml-6">
-                      +{routine.tasks.length - 3} more tasks
-                    </p>
-                  )}
+                  {activeTasks.map((task) => {
+                    const completed = isTaskCompleted(routine._id, task._id);
+                    const loadingKey = `${routine._id}_${task._id}`;
+                    const isLoading = checkLoading[loadingKey];
+                    
+                    return (
+                      <button
+                        key={task._id}
+                        onClick={() => handleToggleTask(routine._id, task._id)}
+                        disabled={isLoading}
+                        className={`
+                          w-full flex items-center gap-3 p-2 rounded-lg text-left
+                          transition-all duration-200 group
+                          ${completed 
+                            ? 'bg-green-50 hover:bg-green-100' 
+                            : 'hover:bg-calm-50'
+                          }
+                          ${isLoading ? 'opacity-50 cursor-wait' : 'cursor-pointer'}
+                        `}
+                      >
+                        <div
+                          className={`
+                            w-5 h-5 rounded-full border-2 flex-shrink-0
+                            flex items-center justify-center transition-all duration-200
+                            ${completed 
+                              ? 'border-green-500 bg-green-500' 
+                              : 'group-hover:border-neo-400'
+                            }
+                          `}
+                          style={{ 
+                            borderColor: completed ? '#22c55e' : (toHex(routine.color) || '#0ea5e9'),
+                          }}
+                        >
+                          {completed && (
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                          {isLoading && (
+                            <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                          )}
+                        </div>
+                        <span className={`
+                          text-sm truncate flex-1 transition-all duration-200
+                          ${completed ? 'text-green-700 line-through' : 'text-calm-700'}
+                        `}>
+                          {task.label}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )})}
         </div>
       )}
 
