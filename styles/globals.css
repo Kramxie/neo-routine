@@ -177,6 +177,64 @@
   }
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes drop {
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-ripple {
+  animation: ripple 2s ease-out infinite;
+}
+
+.animate-drop {
+  animation: drop 0.5s ease-out;
+}
+
 /* Animated background for hero section */
 .hero-water-bg {
   background: linear-gradient(-45deg, #f0f9ff, #e0f2fe, #bae6fd, #e0f2fe);
@@ -187,6 +245,12 @@
 /* ===========================================
    DARK MODE OVERRIDES
    =========================================== */
+
+/* Base body in dark mode */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
 
 /* Soft card in dark */
 html.dark .card-soft {
@@ -225,6 +289,59 @@ html.dark .input-neo::placeholder {
 /* Hero water bg in dark */
 html.dark .hero-water-bg {
   background: linear-gradient(-45deg, #0f172a, #1e293b, #0c1a2e, #1e293b);
+}
+
+/* =============================================
+   DARK MODE TEXT COLOR UTILITIES
+   These ensure text is readable in dark mode
+   ============================================= */
+
+/* Auto-invert calm text colors in dark mode */
+html.dark .text-calm-50 { color: #0f172a; }
+html.dark .text-calm-100 { color: #1e293b; }
+html.dark .text-calm-200 { color: #334155; }
+html.dark .text-calm-300 { color: #475569; }
+html.dark .text-calm-400 { color: #94a3b8; }
+html.dark .text-calm-500 { color: #cbd5e1; }
+html.dark .text-calm-600 { color: #e2e8f0; }
+html.dark .text-calm-700 { color: #e2e8f0; }
+html.dark .text-calm-800 { color: #f1f5f9; }
+html.dark .text-calm-900 { color: #f8fafc; }
+
+/* Auto-invert calm background colors in dark mode */
+html.dark .bg-calm-50 { background-color: #0f172a; }
+html.dark .bg-calm-100 { background-color: #1e293b; }
+html.dark .bg-calm-200 { background-color: #334155; }
+
+/* Border colors in dark */
+html.dark .border-calm-100 { border-color: #334155; }
+html.dark .border-calm-200 { border-color: #475569; }
+html.dark .border-calm-300 { border-color: #64748b; }
+
+/* White backgrounds to dark in dark mode */
+html.dark .bg-white:not(.dark\:bg-*) { background-color: #1e293b; }
+
+/* Neo colors adjustments for dark mode (brighter for visibility) */
+html.dark .text-neo-500 { color: #38bdf8; }
+html.dark .text-neo-600 { color: #7dd3fc; }
+html.dark .bg-neo-50 { background-color: #0c4a6e; }
+html.dark .bg-neo-100 { background-color: #075985; }
+
+/* Placeholder text in dark mode */
+html.dark ::placeholder { color: #64748b; }
+html.dark input::placeholder { color: #64748b; }
+html.dark textarea::placeholder { color: #64748b; }
+
+/* Select elements in dark mode */
+html.dark select {
+  background-color: #1e293b;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+html.dark select option {
+  background-color: #1e293b;
+  color: #e2e8f0;
 }
 
 /* Toast animation */

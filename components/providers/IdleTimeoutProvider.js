@@ -162,7 +162,7 @@ export function TimeoutWarningModal({
   
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-scaleIn">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-scaleIn">
         {/* Header */}
         <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
           <div className="flex items-center gap-3">
@@ -180,19 +180,19 @@ export function TimeoutWarningModal({
         
         {/* Body */}
         <div className="p-6">
-          <p className="text-calm-700 text-center mb-4">
+          <p className="text-calm-700 dark:text-slate-300 text-center mb-4">
             We noticed you&apos;ve been inactive for a while. For your security, 
             you&apos;ll be automatically logged out in:
           </p>
           
           {/* Countdown */}
           <div className="flex justify-center mb-6">
-            <div className="w-24 h-24 rounded-full bg-amber-50 border-4 border-amber-400 flex items-center justify-center">
-              <span className="text-3xl font-bold text-amber-600">{seconds}</span>
+            <div className="w-24 h-24 rounded-full bg-amber-50 dark:bg-amber-900/30 border-4 border-amber-400 flex items-center justify-center">
+              <span className="text-3xl font-bold text-amber-600 dark:text-amber-400">{seconds}</span>
             </div>
           </div>
           
-          <p className="text-calm-500 text-sm text-center mb-6">
+          <p className="text-calm-500 dark:text-slate-400 text-sm text-center mb-6">
             Click &quot;Stay Logged In&quot; to continue your session, or you can log out now.
           </p>
           
@@ -200,7 +200,7 @@ export function TimeoutWarningModal({
           <div className="flex gap-3">
             <button
               onClick={onLogout}
-              className="flex-1 px-4 py-3 border border-calm-200 text-calm-600 rounded-xl font-medium hover:bg-calm-50 transition-colors"
+              className="flex-1 px-4 py-3 border border-calm-200 dark:border-slate-600 text-calm-600 dark:text-slate-300 rounded-xl font-medium hover:bg-calm-50 dark:hover:bg-slate-700 transition-colors"
             >
               Log Out Now
             </button>
@@ -233,7 +233,7 @@ export function LoggedOutModal({ isOpen, onClose }) {
   
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-scaleIn">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-scaleIn">
         {/* Header */}
         <div className="bg-gradient-to-r from-calm-500 to-calm-600 px-6 py-4">
           <div className="flex items-center gap-3">
@@ -252,17 +252,17 @@ export function LoggedOutModal({ isOpen, onClose }) {
         {/* Body */}
         <div className="p-6">
           <div className="text-center mb-6">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-calm-100 flex items-center justify-center">
-              <svg className="w-10 h-10 text-calm-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-calm-100 dark:bg-slate-700 flex items-center justify-center">
+              <svg className="w-10 h-10 text-calm-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             
-            <p className="text-calm-700 mb-2">
+            <p className="text-calm-700 dark:text-slate-300 mb-2">
               For your security, we&apos;ve logged you out after 10 minutes of inactivity.
             </p>
             
-            <p className="text-calm-500 text-sm">
+            <p className="text-calm-500 dark:text-slate-400 text-sm">
               Please log in again to continue using Neo Routine.
             </p>
           </div>

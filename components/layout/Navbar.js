@@ -48,7 +48,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-calm-100">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-calm-100 dark:border-slate-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -64,7 +64,7 @@ export default function Navbar() {
                 priority
               />
             </div>
-            <span className="text-xl font-semibold text-calm-800">
+            <span className="text-xl font-semibold text-calm-800 dark:text-white">
               Neo<span className="text-neo-500">Routine</span>
             </span>
           </Link>
@@ -73,20 +73,20 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             <Link
               href="/"
-              className="text-calm-600 hover:text-neo-500 transition-colors font-medium"
+              className="text-calm-600 dark:text-slate-300 hover:text-neo-500 transition-colors font-medium"
             >
               Home
             </Link>
             <Link
               href="/pricing"
-              className="text-calm-600 hover:text-neo-500 transition-colors font-medium"
+              className="text-calm-600 dark:text-slate-300 hover:text-neo-500 transition-colors font-medium"
             >
               Pricing
             </Link>
             
             {/* Auth-aware buttons */}
             {isLoading ? (
-              <div className="w-20 h-8 bg-calm-100 rounded animate-pulse" />
+              <div className="w-20 h-8 bg-calm-100 dark:bg-slate-700 rounded animate-pulse" />
             ) : user ? (
               <Button href="/dashboard" variant="primary" size="sm">
                 Dashboard
@@ -95,7 +95,7 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="text-calm-600 hover:text-neo-500 transition-colors font-medium"
+                  className="text-calm-600 dark:text-slate-300 hover:text-neo-500 transition-colors font-medium"
                 >
                   Login
                 </Link>
@@ -109,7 +109,7 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-calm-600 hover:bg-calm-100 transition-colors"
+            className="md:hidden p-2 rounded-lg text-calm-600 dark:text-slate-300 hover:bg-calm-100 dark:hover:bg-slate-700 transition-colors"
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
@@ -127,18 +127,18 @@ export default function Navbar() {
 
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-calm-100">
+        <div className="md:hidden bg-white dark:bg-slate-800 border-b border-calm-100 dark:border-slate-700">
           <div className="px-4 py-4 space-y-3">
             <Link
               href="/"
-              className="block text-calm-600 hover:text-neo-500 transition-colors font-medium py-2"
+              className="block text-calm-600 dark:text-slate-300 hover:text-neo-500 transition-colors font-medium py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Home
             </Link>
             <Link
               href="/pricing"
-              className="block text-calm-600 hover:text-neo-500 transition-colors font-medium py-2"
+              className="block text-calm-600 dark:text-slate-300 hover:text-neo-500 transition-colors font-medium py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Pricing
@@ -154,7 +154,7 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/login"
-                    className="block text-calm-600 hover:text-neo-500 transition-colors font-medium py-2"
+                    className="block text-calm-600 dark:text-slate-300 hover:text-neo-500 transition-colors font-medium py-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Login
