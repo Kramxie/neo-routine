@@ -6,6 +6,9 @@ import { jwtVerify } from 'jose';
  * Redirects unauthenticated users to login for protected routes
  */
 
+// Server instance ID from next.config.js (invalidates sessions on dev restart)
+const SERVER_INSTANCE_ID = process.env.SERVER_INSTANCE_ID || 'default';
+
 // Routes that require authentication
 const protectedRoutes = ['/dashboard', '/coach'];
 
@@ -35,8 +38,14 @@ export async function middleware(request) {
       const secret = new TextEncoder().encode(
         process.env.JWT_SECRET || 'dev-secret-key'
       );
-      await jwtVerify(token, secret);
-      isValidToken = true;
+      const { payload } = await jwtVerify(token, secret);
+      
+      // In dev mode, invalidate tokens from previous server instances
+      if (process.env.NODE_ENV !== 'production' && payload.sid !== SERVER_INSTANCE_ID) {
+        isValidToken = false;
+      } else {
+        isValidToken = true;
+      }
     } catch (error) {
       // Token is invalid or expired
       isValidToken = false;

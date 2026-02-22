@@ -63,6 +63,17 @@ const UserSchema = new mongoose.Schema(
       enum: ['user', 'coach', 'admin'],
       default: 'user',
     },
+    // User profile info
+    bio: {
+      type: String,
+      maxlength: [500, 'Bio cannot exceed 500 characters'],
+      trim: true,
+      default: '',
+    },
+    avatar: {
+      type: String,
+      default: '',
+    },
     // Subscription tier
     tier: {
       type: String,
