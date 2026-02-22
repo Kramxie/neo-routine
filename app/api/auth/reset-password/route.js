@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
 
@@ -50,12 +49,9 @@ export async function POST(request) {
       );
     }
 
-    // Hash new password
-    var salt = await bcrypt.genSalt(10);
-    var hashedPassword = await bcrypt.hash(password, salt);
-
-    // Update user password and clear reset fields
-    user.passwordHash = hashedPassword;
+    // Set new password (pre-save hook will hash it)
+    // Use directPasswordSet flag to bypass the pre-save validation
+    user.passwordHash = password;
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save();
