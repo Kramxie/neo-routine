@@ -55,24 +55,24 @@ export default function DropList({
     >
       {/* Routine Header */}
       <div
-        className="px-4 py-3 border-b border-calm-100 dark:border-slate-700 flex items-center justify-between"
+        className="px-3 sm:px-4 py-3 border-b border-calm-100 dark:border-slate-700 flex items-center justify-between gap-2"
         style={{ backgroundColor: routine.color ? `${toHex(routine.color)}10` : undefined }}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           {/* Color indicator dot */}
           <div
-            className="w-3 h-3 rounded-full"
+            className="w-3 h-3 rounded-full flex-shrink-0"
             style={{ backgroundColor: toHex(routine.color) || '#0ea5e9' }}
           />
-          <h3 className="font-medium text-calm-800 dark:text-slate-100">{routine.name}</h3>
+          <h3 className="font-medium text-calm-800 dark:text-slate-100 text-sm sm:text-base truncate">{routine.name}</h3>
         </div>
 
         {/* Progress indicator */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-calm-500 dark:text-slate-400">
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-xs sm:text-sm text-calm-500 dark:text-slate-400">
             {completedCount}/{activeTasks.length}
           </span>
-          <div className="w-16 h-2 bg-calm-100 dark:bg-slate-600 rounded-full overflow-hidden">
+          <div className="w-12 sm:w-16 h-2 bg-calm-100 dark:bg-slate-600 rounded-full overflow-hidden">
             <div
               className="h-full bg-neo-500 transition-all duration-500 ease-out"
               style={{ width: `${progressPercent}%` }}
@@ -94,9 +94,9 @@ export default function DropList({
                   onClick={() => handleToggle(task)}
                 disabled={disabled}
                 className={`
-                  w-full px-4 py-3 flex items-center gap-3
-                  transition-all duration-200
-                  hover:bg-neo-50/50 dark:hover:bg-slate-700/50
+                  w-full px-3 sm:px-4 py-3 sm:py-3.5 flex items-center gap-2 sm:gap-3
+                  transition-all duration-200 min-h-[48px]
+                  hover:bg-neo-50/50 dark:hover:bg-slate-700/50 active:bg-neo-100/50 dark:active:bg-slate-600/50
                   ${disabled ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}
                 `}
               >
