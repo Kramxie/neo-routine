@@ -69,9 +69,9 @@ export default function CoachDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-calm-800">
+          <h1 className="text-xl sm:text-2xl font-bold text-calm-800">
             Coach Dashboard
             {stats?.coachProfile?.isVerified && (
               <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-neo-100 text-neo-700">
@@ -79,20 +79,20 @@ export default function CoachDashboard() {
               </span>
             )}
           </h1>
-          <p className="text-calm-500 mt-1">
+          <p className="text-calm-500 mt-1 text-sm sm:text-base">
             Welcome back, {stats?.coachProfile?.brandName}
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
           <Link
             href="/coach/templates/new"
-            className="px-4 py-2 bg-neo-500 text-white rounded-lg hover:bg-neo-600 transition-colors"
+            className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-neo-500 text-white rounded-lg hover:bg-neo-600 transition-colors text-center text-sm sm:text-base"
           >
             + New Template
           </Link>
           <Link
             href="/coach/clients"
-            className="px-4 py-2 border border-calm-200 text-calm-700 rounded-lg hover:bg-calm-50 transition-colors"
+            className="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-calm-200 text-calm-700 rounded-lg hover:bg-calm-50 transition-colors text-center text-sm sm:text-base"
           >
             Manage Clients
           </Link>
@@ -106,7 +106,7 @@ export default function CoachDashboard() {
       )}
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           label="Active Clients"
           value={stats?.overview?.activeClients || 0}
@@ -151,7 +151,7 @@ export default function CoachDashboard() {
       </div>
 
       {/* Two Column Layout */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Client Activity */}
         <Card variant="elevated">
           <CardHeader>

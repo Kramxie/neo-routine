@@ -72,19 +72,19 @@ export default function CoachTemplatesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <Link href="/coach" className="text-sm text-neo-600 hover:text-neo-700 mb-2 inline-block">
             &larr; Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-bold text-calm-800">Templates</h1>
-          <p className="text-calm-500 mt-1">Create routine blueprints for your clients</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-calm-800">Templates</h1>
+          <p className="text-sm sm:text-base text-calm-500 mt-1">Create routine blueprints for your clients</p>
         </div>
         <Link
           href="/coach/templates/new"
-          className="px-4 py-2 bg-neo-500 text-white rounded-lg hover:bg-neo-600 transition-colors inline-flex items-center gap-2"
+          className="px-4 py-2.5 bg-neo-500 text-white rounded-lg hover:bg-neo-600 transition-colors inline-flex items-center justify-center gap-2 w-full sm:w-auto sm:self-start"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -94,7 +94,7 @@ export default function CoachTemplatesPage() {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 border-b border-calm-200">
+      <div className="flex gap-1 sm:gap-2 border-b border-calm-200 overflow-x-auto">
         {[
           { value: 'all', label: 'All' },
           { value: 'published', label: 'Published' },
@@ -103,8 +103,7 @@ export default function CoachTemplatesPage() {
           <button
             key={tab.value}
             onClick={() => setFilter(tab.value)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              filter === tab.value
+            className={`px-3 sm:px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${filter === tab.value
                 ? 'border-neo-500 text-neo-600'
                 : 'border-transparent text-calm-500 hover:text-calm-700'
             }`}
@@ -136,14 +135,14 @@ export default function CoachTemplatesPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3 sm:gap-4">
           {templates.map((template) => (
             <Card key={template.id} variant="flat">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-4">
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
                   {/* Color indicator */}
-                  <div className={`w-12 h-12 rounded-lg flex-shrink-0 flex items-center justify-center border ${colorClasses[template.color]}`}>
-                    <svg className="w-6 h-6 text-calm-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex-shrink-0 flex items-center justify-center border ${colorClasses[template.color]}`}>
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-calm-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z" />
                     </svg>
                   </div>

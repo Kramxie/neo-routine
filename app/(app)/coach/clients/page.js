@@ -87,20 +87,20 @@ export default function CoachClientsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <Link href="/coach" className="text-sm text-neo-600 hover:text-neo-700 mb-2 inline-block">
             &larr; Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-bold text-calm-800">Clients</h1>
-          <p className="text-calm-500 mt-1">Manage your client roster</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-calm-800">Clients</h1>
+          <p className="text-sm sm:text-base text-calm-500 mt-1">Manage your client roster</p>
         </div>
         <button
           onClick={generateInvite}
           disabled={generating}
-          className="px-4 py-2 bg-neo-500 text-white rounded-lg hover:bg-neo-600 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+          className="px-4 py-2.5 bg-neo-500 text-white rounded-lg hover:bg-neo-600 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2 w-full sm:w-auto sm:self-start"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -148,7 +148,7 @@ export default function CoachClientsPage() {
       )}
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 border-b border-calm-200">
+      <div className="flex gap-1 sm:gap-2 border-b border-calm-200 overflow-x-auto">
         {[
           { value: 'active', label: 'Active' },
           { value: 'pending', label: 'Pending' },
@@ -157,8 +157,7 @@ export default function CoachClientsPage() {
           <button
             key={tab.value}
             onClick={() => setFilter(tab.value)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              filter === tab.value
+            className={`px-3 sm:px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${filter === tab.value
                 ? 'border-neo-500 text-neo-600'
                 : 'border-transparent text-calm-500 hover:text-calm-700'
             }`}
@@ -190,25 +189,24 @@ export default function CoachClientsPage() {
           </button>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3 sm:gap-4">
           {clients.map((client) => (
             <Card key={client.id} variant="flat">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-4">
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                   {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-neo-100 flex items-center justify-center">
-                    <span className="text-neo-600 font-semibold text-lg">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-neo-100 flex items-center justify-center flex-shrink-0">
+                    <span className="text-neo-600 font-semibold text-base sm:text-lg">
                       {client.name?.charAt(0)?.toUpperCase() || '?'}
                     </span>
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-calm-800">{client.name}</h3>
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-calm-800 text-sm sm:text-base">{client.name}</h3>
                       <span
-                        className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                          client.status === 'active'
+                        className={`px-2 py-0.5 text-xs font-medium rounded-full ${client.status === 'active'
                             ? 'bg-green-100 text-green-700'
                             : client.status === 'pending'
                             ? 'bg-yellow-100 text-yellow-700'
@@ -221,8 +219,8 @@ export default function CoachClientsPage() {
                         <span className="w-2 h-2 rounded-full bg-green-500" title="Active today" />
                       )}
                     </div>
-                    <p className="text-sm text-calm-500">{client.email}</p>
-                    <div className="flex items-center gap-4 mt-1 text-xs text-calm-400">
+                    <p className="text-xs sm:text-sm text-calm-500 truncate">{client.email}</p>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-1 text-xs text-calm-400">
                       <span>{client.stats?.currentStreak || 0} day streak</span>
                       <span>{client.stats?.totalCheckIns || 0} check-ins</span>
                       <span>{client.stats?.routineCount || 0} routines</span>
@@ -230,11 +228,11 @@ export default function CoachClientsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mt-2 sm:mt-0 self-end sm:self-auto">
                     {client.status === 'pending' && (
                       <button
                         onClick={() => updateClientStatus(client.id, 'active')}
-                        className="px-3 py-1.5 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                        className="px-3 py-1.5 text-xs sm:text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
                       >
                         Accept
                       </button>
@@ -242,7 +240,7 @@ export default function CoachClientsPage() {
                     {client.status === 'active' && (
                       <button
                         onClick={() => updateClientStatus(client.id, 'paused')}
-                        className="px-3 py-1.5 text-sm bg-calm-100 text-calm-600 rounded-lg hover:bg-calm-200 transition-colors"
+                        className="px-3 py-1.5 text-xs sm:text-sm bg-calm-100 text-calm-600 rounded-lg hover:bg-calm-200 transition-colors"
                       >
                         Pause
                       </button>
