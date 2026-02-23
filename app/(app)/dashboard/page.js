@@ -299,10 +299,9 @@ export default function DashboardPage() {
       const weeklyPct = Number(weeklyPercent);
       const perDay = (todayData?.stats?.weekly?.data || weeklyData).map((d) => ({ date: d.date, count: d.count ?? 0, percent: d.percent ?? 0 }));
 
-      console.table({ completedToday, totalToday, todayPct, completedThisWeek, totalThisWeek, weeklyPct });
-      console.table(perDay);
+      // Debug logging removed for production
     } catch (e) {
-      console.error('Debug log failed', e);
+      // Silent fail for debug operations
     }
   }, [todayData]);
 

@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import stripe, { PRICE_TO_PLAN } from '@/lib/stripe';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
+import { sendPaymentFailedEmail } from '@/lib/email';
 
 /**
  * POST /api/webhooks/stripe
@@ -191,8 +192,6 @@ async function handlePaymentSucceeded(invoice) {
  * Handle failed invoice payment
  */
 async function handlePaymentFailed(invoice) {
-  console.log('[Stripe] Payment failed for invoice:', invoice.id);
-
   const customerId = invoice.customer;
   
   const user = await User.findOne({ 'subscription.stripeCustomerId': customerId });
@@ -204,8 +203,8 @@ async function handlePaymentFailed(invoice) {
   user.subscription.status = 'past_due';
   await user.save();
 
-  // TODO: Send email notification about failed payment
-  console.log('[Stripe] Payment failed for user', user.email);
+  // Send email notification about failed payment
+  await sendPaymentFailedEmail(user.email, user.name);
 }
 
 // Note: In Next.js App Router, body parsing is handled automatically.
