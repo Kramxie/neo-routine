@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import CheckIn from '@/models/CheckIn';
 import Routine from '@/models/Routine';
+import User from '@/models/User';
 import { getCurrentUser } from '@/lib/auth';
+import { getTodayInTimezone } from '@/lib/timezone';
 
 // In-memory store for demo check-ins (resets on server restart)
 const demoCheckIns = new Map();
@@ -27,8 +29,16 @@ export async function POST(request) {
     const body = await request.json();
     const { routineId, taskId, note } = body;
     
-    // Use provided date or today
-    const dateISO = body.dateISO || new Date().toISOString().split('T')[0];
+    // Get user's timezone for accurate "today" calculation
+    let userTimezone = 'UTC';
+    if (user.userId !== 'demo-user-123') {
+      await connectDB();
+      const dbUser = await User.findById(user.userId).select('preferences.timezone');
+      userTimezone = dbUser?.preferences?.timezone || 'UTC';
+    }
+    
+    // Use provided date or today in user's timezone
+    const dateISO = body.dateISO || getTodayInTimezone(userTimezone);
 
     // Validate required fields
     if (!routineId) {
@@ -71,9 +81,6 @@ export async function POST(request) {
         isDemo: true,
       });
     }
-
-    // Connect to database
-    await connectDB();
 
     // Verify routine exists and belongs to user
     const routine = await Routine.findOne({
@@ -192,7 +199,16 @@ export async function DELETE(request) {
     // Parse request body
     const body = await request.json();
     const { routineId, taskId } = body;
-    const dateISO = body.dateISO || new Date().toISOString().split('T')[0];
+    
+    // Get user's timezone for accurate "today" calculation
+    let userTimezone = 'UTC';
+    if (user.userId !== 'demo-user-123') {
+      await connectDB();
+      const dbUser = await User.findById(user.userId).select('preferences.timezone');
+      userTimezone = dbUser?.preferences?.timezone || 'UTC';
+    }
+    
+    const dateISO = body.dateISO || getTodayInTimezone(userTimezone);
 
     // Validate required fields
     if (!routineId || !taskId) {
@@ -212,9 +228,6 @@ export async function DELETE(request) {
         isDemo: true,
       });
     }
-
-    // Connect to database
-    await connectDB();
 
     // Delete check-in
     const result = await CheckIn.deleteOne({

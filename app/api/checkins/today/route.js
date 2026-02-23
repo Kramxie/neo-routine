@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import CheckIn from "@/models/CheckIn";
 import Routine from "@/models/Routine";
+import User from "@/models/User";
 import { getCurrentUser } from "@/lib/auth";
 import { getGentleMessage } from "@/lib/reminderEngine";
+import { getTodayInTimezone } from "@/lib/timezone";
 
 // Demo data for testing without database
 const DEMO_TODAY_DATA = {
@@ -63,9 +65,16 @@ export async function GET(request) {
       return NextResponse.json(DEMO_TODAY_DATA);
     }
 
-    // Get date from query params or use today
+    // Connect to database
+    await connectDB();
+
+    // Get user's timezone preference
+    const dbUser = await User.findById(user.userId).select('preferences.timezone');
+    const userTimezone = dbUser?.preferences?.timezone || 'UTC';
+
+    // Get date from query params or use today in user's timezone
     const { searchParams } = new URL(request.url);
-    const dateISO = searchParams.get("date") || new Date().toISOString().split("T")[0];
+    const dateISO = searchParams.get("date") || getTodayInTimezone(userTimezone);
 
     // Validate date format
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO)) {
@@ -74,9 +83,6 @@ export async function GET(request) {
         { status: 400 }
       );
     }
-
-    // Connect to database
-    await connectDB();
 
     // Get today's check-ins
     const checkIns = await CheckIn.find({
