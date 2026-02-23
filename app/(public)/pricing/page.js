@@ -135,21 +135,21 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-calm-50 dark:bg-calm-900">
       {/* Header */}
-      <section className="pt-20 pb-8 px-4">
+      <section className="pt-16 sm:pt-20 pb-6 sm:pb-8 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-calm-800 dark:text-white mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-calm-800 dark:text-white mb-3 sm:mb-4">
             Simple, Transparent Pricing
           </h1>
-          <p className="text-xl text-calm-600 dark:text-calm-300 mb-8">
+          <p className="text-lg sm:text-xl text-calm-600 dark:text-calm-300 mb-6 sm:mb-8">
             Start free, upgrade when you&apos;re ready
           </p>
 
           {/* Billing Toggle */}
-          <div className="inline-flex items-center gap-3 bg-white dark:bg-calm-800 rounded-full p-1 shadow-soft">
+          <div className="inline-flex items-center gap-2 sm:gap-3 bg-white dark:bg-calm-800 rounded-full p-1 shadow-soft">
             <button
               onClick={function() { setBillingCycle('monthly'); }}
               className={
-                'px-6 py-2 rounded-full text-sm font-medium transition-all ' +
+                'px-4 sm:px-6 py-2 rounded-full text-sm font-medium transition-all ' +
                 (billingCycle === 'monthly'
                   ? 'bg-neo-500 text-white'
                   : 'text-calm-600 dark:text-calm-300 hover:text-calm-800 dark:hover:text-white')
@@ -160,15 +160,15 @@ export default function PricingPage() {
             <button
               onClick={function() { setBillingCycle('yearly'); }}
               className={
-                'px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ' +
+                'px-4 sm:px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 ' +
                 (billingCycle === 'yearly'
                   ? 'bg-neo-500 text-white'
                   : 'text-calm-600 dark:text-calm-300 hover:text-calm-800 dark:hover:text-white')
               }
             >
               Yearly
-              <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
-                Save up to 33%
+              <span className="bg-green-100 text-green-700 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full">
+                Save 33%
               </span>
             </button>
           </div>
@@ -176,19 +176,19 @@ export default function PricingPage() {
       </section>
 
       {/* Pricing Cards */}
-      <section className="pb-20 px-4">
+      <section className="pb-16 sm:pb-20 px-4">
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-neo-500"></div>
           </div>
         ) : (
-          <div className={'max-w-6xl mx-auto grid gap-8 ' + (plans.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2')}>
+          <div className={'max-w-6xl mx-auto grid gap-4 sm:gap-6 md:gap-8 ' + (plans.length === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2')}>
             {plans.map(function(plan) {
               return (
                 <div
                   key={plan.id}
                   className={
-                    'bg-white dark:bg-calm-800 rounded-2xl shadow-soft p-8 ' +
+                    'bg-white dark:bg-calm-800 rounded-xl sm:rounded-2xl shadow-soft p-5 sm:p-8 ' +
                     (plan.highlighted ? 'ring-2 ring-neo-500 relative' : '')
                   }
                 >
@@ -208,13 +208,13 @@ export default function PricingPage() {
                     </div>
                   )}
 
-                  <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-calm-800 dark:text-white mb-2">
+                  <div className="text-center mb-4 sm:mb-6">
+                    <h3 className="text-xl sm:text-2xl font-bold text-calm-800 dark:text-white mb-2">
                       {plan.name}
                     </h3>
-                    <p className="text-calm-600 dark:text-calm-400 mb-4">{plan.description}</p>
+                    <p className="text-calm-600 dark:text-calm-400 mb-3 sm:mb-4 text-sm sm:text-base">{plan.description}</p>
                     <div className="flex items-baseline justify-center gap-2">
-                      <span className="text-5xl font-bold text-calm-800 dark:text-white">
+                      <span className="text-4xl sm:text-5xl font-bold text-calm-800 dark:text-white">
                         {formatPrice(plan.price, plan.currency)}
                       </span>
                       <span className="text-calm-600 dark:text-calm-400">

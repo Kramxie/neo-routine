@@ -174,61 +174,61 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-white dark:bg-slate-900">
+      <section className="py-16 sm:py-24 bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <span className="inline-block px-4 py-2 rounded-full bg-neo-100 dark:bg-neo-900/50 text-neo-600 dark:text-neo-400 text-sm font-medium mb-4">
+          <div className="text-center mb-10 sm:mb-16">
+            <span className="inline-block px-3 sm:px-4 py-2 rounded-full bg-neo-100 dark:bg-neo-900/50 text-neo-600 dark:text-neo-400 text-xs sm:text-sm font-medium mb-3 sm:mb-4">
               Why NeoRoutine?
             </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-calm-800 dark:text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-calm-800 dark:text-white mb-3 sm:mb-4">
               Habits that flow, not force
             </h2>
-            <p className="text-lg text-calm-600 dark:text-slate-400 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-calm-600 dark:text-slate-400 max-w-2xl mx-auto px-4">
               Built on research about sustainable behavior change, Neo Routine removes the 
               pressure that makes most habit apps fail.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Feature 1: Drops not streaks */}
-            <div className="group p-8 rounded-2xl bg-gradient-to-br from-neo-50 to-white dark:from-slate-800 dark:to-slate-800/50 border border-neo-100 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-              <div className="w-14 h-14 mb-6 rounded-xl bg-neo-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <div className="group p-5 sm:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-neo-50 to-white dark:from-slate-800 dark:to-slate-800/50 border border-neo-100 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 mb-4 sm:mb-6 rounded-xl bg-neo-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2ZM12 19C9.791 19 8 17.209 8 15C8 13.5 9 11.5 12 8C15 11.5 16 13.5 16 15C16 17.209 14.209 19 12 19Z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-calm-800 dark:text-white mb-3">Drops, Not Streaks</h3>
-              <p className="text-calm-600 dark:text-slate-400">
+              <h3 className="text-lg sm:text-xl font-bold text-calm-800 dark:text-white mb-2 sm:mb-3">Drops, Not Streaks</h3>
+              <p className="text-calm-600 dark:text-slate-400 text-sm sm:text-base">
                 Each completed task is a drop in your progress pool. Miss one? 
                 The water stays - no streak to break, no guilt to feel.
               </p>
             </div>
 
             {/* Feature 2: Ripple progress */}
-            <div className="group p-8 rounded-2xl bg-gradient-to-br from-neo-50 to-white dark:from-slate-800 dark:to-slate-800/50 border border-neo-100 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-              <div className="w-14 h-14 mb-6 rounded-xl bg-neo-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="group p-5 sm:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-neo-50 to-white dark:from-slate-800 dark:to-slate-800/50 border border-neo-100 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 mb-4 sm:mb-6 rounded-xl bg-neo-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <circle cx="12" cy="12" r="10" strokeWidth="2" />
                   <circle cx="12" cy="12" r="6" strokeWidth="2" />
                   <circle cx="12" cy="12" r="2" strokeWidth="2" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-calm-800 dark:text-white mb-3">Ripple Progress</h3>
-              <p className="text-calm-600 dark:text-slate-400">
+              <h3 className="text-lg sm:text-xl font-bold text-calm-800 dark:text-white mb-2 sm:mb-3">Ripple Progress</h3>
+              <p className="text-calm-600 dark:text-slate-400 text-sm sm:text-base">
                 See your progress as gentle ripples expanding outward. A calm visualization 
                 that celebrates consistency without anxiety.
               </p>
             </div>
 
             {/* Feature 3: Adaptive reminders */}
-            <div className="group p-8 rounded-2xl bg-gradient-to-br from-neo-50 to-white dark:from-slate-800 dark:to-slate-800/50 border border-neo-100 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-              <div className="w-14 h-14 mb-6 rounded-xl bg-neo-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="group p-5 sm:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-neo-50 to-white dark:from-slate-800 dark:to-slate-800/50 border border-neo-100 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 sm:col-span-2 md:col-span-1">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 mb-4 sm:mb-6 rounded-xl bg-neo-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-calm-800 dark:text-white mb-3">Adaptive Reminders</h3>
-              <p className="text-calm-600 dark:text-slate-400">
+              <h3 className="text-lg sm:text-xl font-bold text-calm-800 dark:text-white mb-2 sm:mb-3">Adaptive Reminders</h3>
+              <p className="text-calm-600 dark:text-slate-400 text-sm sm:text-base">
                 Struggling? Reminders become softer and more supportive. Thriving? 
                 We&apos;ll encourage gradual progression with gentle nudges.
               </p>
@@ -262,23 +262,23 @@ export default function LandingPage() {
       </section>
 
       {/* Showcase Section */}
-      <section className="py-24 bg-calm-50 dark:bg-slate-800">
+      <section className="py-16 sm:py-24 bg-calm-50 dark:bg-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <span className="inline-block px-4 py-2 rounded-full bg-neo-100 dark:bg-neo-900/50 text-neo-600 dark:text-neo-400 text-sm font-medium mb-4">
+          <div className="text-center mb-10 sm:mb-16">
+            <span className="inline-block px-3 sm:px-4 py-2 rounded-full bg-neo-100 dark:bg-neo-900/50 text-neo-600 dark:text-neo-400 text-xs sm:text-sm font-medium mb-3 sm:mb-4">
               See It In Action
             </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-calm-800 dark:text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-calm-800 dark:text-white mb-3 sm:mb-4">
               Transform Your Daily Life
             </h2>
-            <p className="text-lg text-calm-600 dark:text-slate-400 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-calm-600 dark:text-slate-400 max-w-2xl mx-auto px-4">
               See how NeoRoutine helps you build lasting habits with a fresh approach
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             {/* Showcase Image 1 */}
-            <div className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
+            <div className="group relative overflow-hidden rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
               <div className="aspect-[4/3]">
                 <Image
                   src="/landingPage1.png"
@@ -288,14 +288,14 @@ export default function LandingPage() {
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-              <div className="absolute inset-0 flex flex-col justify-end p-6">
-                <span className="text-neo-300 text-sm font-medium mb-2">ADAPTIVE ROUTINE</span>
-                <h3 className="text-white text-2xl font-bold">Turn Goals Into Daily Routine</h3>
+              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">
+                <span className="text-neo-300 text-xs sm:text-sm font-medium mb-1 sm:mb-2">ADAPTIVE ROUTINE</span>
+                <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold">Turn Goals Into Daily Routine</h3>
               </div>
             </div>
 
             {/* Showcase Image 2 */}
-            <div className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
+            <div className="group relative overflow-hidden rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
               <div className="aspect-[4/3]">
                 <Image
                   src="/landingPage2.png"
@@ -305,14 +305,14 @@ export default function LandingPage() {
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-              <div className="absolute inset-0 flex flex-col justify-end p-6">
-                <span className="text-neo-300 text-sm font-medium mb-2">UNSTOPPABLE GROWTH</span>
-                <h3 className="text-white text-2xl font-bold">Maximize Your Potential</h3>
+              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">
+                <span className="text-neo-300 text-xs sm:text-sm font-medium mb-1 sm:mb-2">UNSTOPPABLE GROWTH</span>
+                <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold">Maximize Your Potential</h3>
               </div>
             </div>
 
             {/* Showcase Image 3 */}
-            <div className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
+            <div className="group relative overflow-hidden rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer sm:col-span-2 md:col-span-1">
               <div className="aspect-[4/3]">
                 <Image
                   src="/landingPage3.png"
@@ -322,9 +322,9 @@ export default function LandingPage() {
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-              <div className="absolute inset-0 flex flex-col justify-end p-6">
-                <span className="text-neo-300 text-sm font-medium mb-2">LEVEL UP</span>
-                <h3 className="text-white text-2xl font-bold">Level Up With NeoRoutine</h3>
+              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">
+                <span className="text-neo-300 text-xs sm:text-sm font-medium mb-1 sm:mb-2">LEVEL UP</span>
+                <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold">Level Up With NeoRoutine</h3>
               </div>
             </div>
           </div>
@@ -332,59 +332,59 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24 bg-white dark:bg-slate-900">
+      <section className="py-16 sm:py-24 bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <span className="inline-block px-4 py-2 rounded-full bg-neo-100 dark:bg-neo-900/50 text-neo-600 dark:text-neo-400 text-sm font-medium mb-4">
+          <div className="text-center mb-10 sm:mb-16">
+            <span className="inline-block px-3 sm:px-4 py-2 rounded-full bg-neo-100 dark:bg-neo-900/50 text-neo-600 dark:text-neo-400 text-xs sm:text-sm font-medium mb-3 sm:mb-4">
               How It Works
             </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-calm-800 dark:text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-calm-800 dark:text-white mb-3 sm:mb-4">
               Simple as water
             </h2>
-            <p className="text-lg text-calm-600 dark:text-slate-400 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-calm-600 dark:text-slate-400 max-w-2xl mx-auto px-4">
               Get started in minutes. No complex setup, no overwhelming options.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             {/* Step 1 */}
             <div className="text-center group">
-              <div className="relative w-20 h-20 mx-auto mb-6">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6">
                 <div className="absolute inset-0 rounded-full bg-neo-100 dark:bg-neo-900/30 group-hover:scale-110 transition-transform duration-300" />
-                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-neo-500 to-neo-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg shadow-neo-500/30">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-neo-500 to-neo-600 text-white flex items-center justify-center text-xl sm:text-2xl font-bold shadow-lg shadow-neo-500/30">
                   1
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-calm-800 dark:text-white mb-3">Set Your Flow</h3>
-              <p className="text-calm-600 dark:text-slate-400">
+              <h3 className="text-lg sm:text-xl font-bold text-calm-800 dark:text-white mb-2 sm:mb-3">Set Your Flow</h3>
+              <p className="text-calm-600 dark:text-slate-400 text-sm sm:text-base">
                 Define your long-term goals and break them into small daily drops.
               </p>
             </div>
 
             {/* Step 2 */}
             <div className="text-center group">
-              <div className="relative w-20 h-20 mx-auto mb-6">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6">
                 <div className="absolute inset-0 rounded-full bg-neo-100 dark:bg-neo-900/30 group-hover:scale-110 transition-transform duration-300" />
-                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-neo-500 to-neo-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg shadow-neo-500/30">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-neo-500 to-neo-600 text-white flex items-center justify-center text-xl sm:text-2xl font-bold shadow-lg shadow-neo-500/30">
                   2
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-calm-800 dark:text-white mb-3">Complete Drops</h3>
-              <p className="text-calm-600 dark:text-slate-400">
+              <h3 className="text-lg sm:text-xl font-bold text-calm-800 dark:text-white mb-2 sm:mb-3">Complete Drops</h3>
+              <p className="text-calm-600 dark:text-slate-400 text-sm sm:text-base">
                 Check off your daily drops. Each one adds to your progress pool.
               </p>
             </div>
 
             {/* Step 3 */}
-            <div className="text-center group">
-              <div className="relative w-20 h-20 mx-auto mb-6">
+            <div className="text-center group sm:col-span-2 md:col-span-1">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6">
                 <div className="absolute inset-0 rounded-full bg-neo-100 dark:bg-neo-900/30 group-hover:scale-110 transition-transform duration-300" />
-                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-neo-500 to-neo-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg shadow-neo-500/30">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-neo-500 to-neo-600 text-white flex items-center justify-center text-xl sm:text-2xl font-bold shadow-lg shadow-neo-500/30">
                   3
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-calm-800 dark:text-white mb-3">Watch Ripples Grow</h3>
-              <p className="text-calm-600 dark:text-slate-400">
+              <h3 className="text-lg sm:text-xl font-bold text-calm-800 dark:text-white mb-2 sm:mb-3">Watch Ripples Grow</h3>
+              <p className="text-calm-600 dark:text-slate-400 text-sm sm:text-base">
                 See your consistent effort visualized as expanding ripples of progress.
               </p>
             </div>
@@ -393,28 +393,28 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden">
+      <section className="py-16 sm:py-24 relative overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-neo-600 via-neo-700 to-neo-800" />
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-64 h-64 rounded-full border border-white animate-ping" style={{ animationDuration: '3s' }} />
-          <div className="absolute bottom-10 right-10 w-48 h-48 rounded-full border border-white animate-ping" style={{ animationDuration: '4s' }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full border border-white animate-ping" style={{ animationDuration: '5s' }} />
+          <div className="absolute top-10 left-10 w-32 sm:w-64 h-32 sm:h-64 rounded-full border border-white animate-ping" style={{ animationDuration: '3s' }} />
+          <div className="absolute bottom-10 right-10 w-24 sm:w-48 h-24 sm:h-48 rounded-full border border-white animate-ping" style={{ animationDuration: '4s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 sm:w-96 h-48 sm:h-96 rounded-full border border-white animate-ping" style={{ animationDuration: '5s' }} />
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 sm:mb-6">
             Ready to flow with your goals?
           </h2>
-          <p className="text-xl text-neo-100 mb-10 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg lg:text-xl text-neo-100 mb-8 sm:mb-10 max-w-2xl mx-auto px-4">
             Join thousands who&apos;ve discovered that sustainable habits come from 
             gentle systems, not forced discipline.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button href="/register" variant="primary" size="lg" className="bg-white text-neo-600 hover:bg-neo-50 shadow-xl">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <Button href="/register" variant="primary" size="lg" className="bg-white text-neo-600 hover:bg-neo-50 shadow-xl w-full sm:w-auto">
               Start Your Neo Routine - Free
             </Button>
-            <Button href="/pricing" variant="secondary" size="lg" className="border-white/30 text-white hover:bg-white/10">
+            <Button href="/pricing" variant="secondary" size="lg" className="border-white/30 text-white hover:bg-white/10 w-full sm:w-auto">
               View Pricing
             </Button>
           </div>
