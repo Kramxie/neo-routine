@@ -163,16 +163,16 @@ export default function RoutinesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-2xl font-bold text-calm-800">Your Routines</h1>
-          <p className="text-calm-500 mt-1">Manage your daily flows</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-calm-800">Your Routines</h1>
+          <p className="text-calm-500 mt-1 text-sm sm:text-base">Manage your daily flows</p>
         </div>
         <Link
           href="/dashboard/routines/new"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neo-500 text-white hover:bg-neo-600 transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-neo-500 text-white hover:bg-neo-600 transition-colors text-sm sm:text-base w-full sm:w-auto"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

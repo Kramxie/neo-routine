@@ -62,12 +62,12 @@ export default function InsightsPage() {
   const { summary, weekly, insights, dailyData, routineStats, goalsProgress, patterns } = data;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-2xl font-bold text-calm-800">Insights</h1>
-          <p className="text-calm-500 mt-1">Understand your progress patterns</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-calm-800">Insights</h1>
+          <p className="text-calm-500 mt-1 text-sm sm:text-base">Understand your progress patterns</p>
         </div>
 
         {/* Time Range Selector */}
@@ -77,7 +77,7 @@ export default function InsightsPage() {
               key={d}
               onClick={() => setDays(d)}
               className={`
-                px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-1 sm:flex-none
                 ${days === d
                   ? 'bg-neo-500 text-white'
                   : 'bg-calm-100 text-calm-600 hover:bg-calm-200'
@@ -91,15 +91,15 @@ export default function InsightsPage() {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Completion Rate */}
         <Card variant="elevated" className="relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-20 h-20 -mr-6 -mt-6">
+          <div className="absolute top-0 right-0 w-16 sm:w-20 h-16 sm:h-20 -mr-4 sm:-mr-6 -mt-4 sm:-mt-6">
             <div className="w-full h-full rounded-full bg-neo-100 opacity-50" />
           </div>
           <CardContent className="relative">
-            <p className="text-sm text-calm-500 mb-1">Completion Rate</p>
-            <p className="text-3xl font-bold text-neo-600">
+            <p className="text-xs sm:text-sm text-calm-500 mb-1">Completion Rate</p>
+            <p className="text-2xl sm:text-3xl font-bold text-neo-600">
               {Math.round(summary.completionRate)}%
             </p>
             <div className="flex items-center gap-1 mt-2">
@@ -133,12 +133,12 @@ export default function InsightsPage() {
 
         {/* Active Days */}
         <Card variant="elevated" className="relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-20 h-20 -mr-6 -mt-6">
+          <div className="absolute top-0 right-0 w-16 sm:w-20 h-16 sm:h-20 -mr-4 sm:-mr-6 -mt-4 sm:-mt-6">
             <div className="w-full h-full rounded-full bg-neo-100 opacity-50" />
           </div>
           <CardContent className="relative">
-            <p className="text-sm text-calm-500 mb-1">Active Days</p>
-            <p className="text-3xl font-bold text-neo-600">
+            <p className="text-xs sm:text-sm text-calm-500 mb-1">Active Days</p>
+            <p className="text-2xl sm:text-3xl font-bold text-neo-600">
               {summary.daysWithActivity}
             </p>
             <p className="text-xs text-calm-500 mt-2">
@@ -149,12 +149,12 @@ export default function InsightsPage() {
 
         {/* Total Check-ins */}
         <Card variant="elevated" className="relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-20 h-20 -mr-6 -mt-6">
+          <div className="absolute top-0 right-0 w-16 sm:w-20 h-16 sm:h-20 -mr-4 sm:-mr-6 -mt-4 sm:-mt-6">
             <div className="w-full h-full rounded-full bg-neo-100 opacity-50" />
           </div>
           <CardContent className="relative">
-            <p className="text-sm text-calm-500 mb-1">Total Drops</p>
-            <p className="text-3xl font-bold text-neo-600">
+            <p className="text-xs sm:text-sm text-calm-500 mb-1">Total Drops</p>
+            <p className="text-2xl sm:text-3xl font-bold text-neo-600">
               {summary.totalCheckIns}
             </p>
             <p className="text-xs text-calm-500 mt-2">
@@ -165,7 +165,7 @@ export default function InsightsPage() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
         {/* Daily Activity Chart */}
         <div className="lg:col-span-2">
           <Card variant="elevated">
@@ -174,11 +174,11 @@ export default function InsightsPage() {
             </CardHeader>
             <CardContent>
               {/* Simple bar chart */}
-              <div className="h-48 flex items-end gap-1">
+              <div className="h-32 sm:h-48 flex items-end gap-0.5 sm:gap-1 overflow-x-auto">
                 {dailyData.slice(-14).map((day, index) => (
                   <div
                     key={day.date}
-                    className="flex-1 flex flex-col items-center gap-1"
+                    className="flex-1 min-w-[12px] sm:min-w-0 flex flex-col items-center gap-1"
                   >
                     <div
                       className="w-full bg-neo-400 rounded-t transition-all hover:bg-neo-500"

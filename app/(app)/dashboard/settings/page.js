@@ -373,10 +373,10 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-calm-800 dark:text-slate-100">Settings</h1>
-        <p className="text-calm-500 dark:text-slate-400 mt-1">Customize your Neo Routine experience</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-calm-800 dark:text-slate-100">Settings</h1>
+        <p className="text-calm-500 dark:text-slate-400 mt-1 text-sm sm:text-base">Customize your Neo Routine experience</p>
       </div>
 
       {/* Success/Error Messages */}
@@ -468,7 +468,7 @@ export default function SettingsPage() {
             <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
               Reminder Intensity
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2">
               {[
                 { value: 'off', label: 'Off', desc: 'No reminders' },
                 { value: 'gentle', label: 'Gentle', desc: 'Minimal nudges' },
@@ -502,14 +502,14 @@ export default function SettingsPage() {
             <p className="text-xs text-calm-500 dark:text-slate-400 mb-3">
               Which days would you like to track routines?
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {daysOfWeek.map((day) => (
                 <button
                   key={day.bit}
                   type="button"
                   onClick={() => toggleDay(day.bit)}
                   className={`
-                    w-10 h-10 rounded-full text-sm font-medium transition-all
+                    w-9 h-9 sm:w-10 sm:h-10 rounded-full text-xs sm:text-sm font-medium transition-all
                     ${isDayActive(day.bit)
                       ? 'bg-neo-500 text-white'
                       : 'bg-calm-100 dark:bg-slate-700 text-calm-500 dark:text-slate-400 hover:bg-calm-200 dark:hover:bg-slate-600'

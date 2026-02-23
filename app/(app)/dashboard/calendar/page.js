@@ -117,9 +117,9 @@ export default function CalendarPage() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-calm-800 dark:text-white mb-2">Calendar</h1>
-        <p className="text-calm-600 dark:text-calm-400">Track your daily progress over time</p>
+      <div className="mb-4 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-calm-800 dark:text-white mb-1 sm:mb-2">Calendar</h1>
+        <p className="text-calm-600 dark:text-calm-400 text-sm sm:text-base">Track your daily progress over time</p>
       </div>
 
       {/* Calendar Card */}
@@ -155,18 +155,19 @@ export default function CalendarPage() {
           ) : (
             <>
               {/* Day headers */}
-              <div className="grid grid-cols-7 gap-1 mb-2">
+              <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-1 sm:mb-2">
                 {dayNames.map(function(day) {
                   return (
-                    <div key={day} className="text-center text-sm font-medium text-calm-500 dark:text-calm-400 py-2">
-                      {day}
+                    <div key={day} className="text-center text-[10px] sm:text-sm font-medium text-calm-500 dark:text-calm-400 py-1 sm:py-2">
+                      <span className="hidden sm:inline">{day}</span>
+                      <span className="sm:hidden">{day.charAt(0)}</span>
                     </div>
                   );
                 })}
               </div>
 
               {/* Calendar grid */}
-              <div className="grid grid-cols-7 gap-1">
+              <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
                 {calendarDays.map(function(day, idx) {
                   if (day === null) {
                     return <div key={idx} className="aspect-square"></div>;

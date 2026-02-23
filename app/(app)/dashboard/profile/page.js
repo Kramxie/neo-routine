@@ -196,17 +196,17 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <div className="h-9 w-40 bg-calm-200 dark:bg-slate-700 rounded animate-pulse mb-2" />
-          <div className="h-5 w-64 bg-calm-100 dark:bg-slate-800 rounded animate-pulse" />
+        <div className="mb-6 sm:mb-8">
+          <div className="h-8 sm:h-9 w-32 sm:w-40 bg-calm-200 dark:bg-slate-700 rounded animate-pulse mb-2" />
+          <div className="h-4 sm:h-5 w-48 sm:w-64 bg-calm-100 dark:bg-slate-800 rounded animate-pulse" />
         </div>
         <Card>
-          <CardContent className="p-8">
-            <div className="flex items-center space-x-6">
-              <div className="w-24 h-24 rounded-full bg-calm-200 dark:bg-slate-700 animate-pulse" />
-              <div className="space-y-3">
-                <div className="h-7 w-48 bg-calm-200 dark:bg-slate-700 rounded animate-pulse" />
-                <div className="h-5 w-32 bg-calm-100 dark:bg-slate-800 rounded animate-pulse" />
+          <CardContent className="p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-calm-200 dark:bg-slate-700 animate-pulse" />
+              <div className="space-y-3 w-full sm:w-auto text-center sm:text-left">
+                <div className="h-6 sm:h-7 w-48 mx-auto sm:mx-0 bg-calm-200 dark:bg-slate-700 rounded animate-pulse" />
+                <div className="h-4 sm:h-5 w-32 mx-auto sm:mx-0 bg-calm-100 dark:bg-slate-800 rounded animate-pulse" />
               </div>
             </div>
           </CardContent>
@@ -220,9 +220,9 @@ export default function ProfilePage() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-calm-800 dark:text-white mb-2">Profile</h1>
-        <p className="text-calm-600 dark:text-slate-400">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-calm-800 dark:text-white mb-2">Profile</h1>
+        <p className="text-sm sm:text-base text-calm-600 dark:text-slate-400">
           Manage your account, security, and view your progress
         </p>
       </div>

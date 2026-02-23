@@ -386,17 +386,17 @@ export default function DashboardPage() {
 
       {/* Streak At Risk Alert */}
       {streakAtRisk && (
-        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 flex items-center gap-4 animate-pulse">
-          <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-800/30 flex items-center justify-center flex-shrink-0">
-            <span className="text-2xl">🔥</span>
+        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 animate-pulse">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-orange-100 dark:bg-orange-800/30 flex items-center justify-center flex-shrink-0">
+            <span className="text-xl sm:text-2xl">🔥</span>
           </div>
           <div className="flex-1">
-            <p className="text-orange-800 dark:text-orange-200 font-bold">Your {currentStreak}-day streak is at risk!</p>
-            <p className="text-orange-600 dark:text-orange-400 text-sm">Don&apos;t break the chain - complete at least one task today.</p>
+            <p className="text-orange-800 dark:text-orange-200 font-bold text-sm sm:text-base">Your {currentStreak}-day streak is at risk!</p>
+            <p className="text-orange-600 dark:text-orange-400 text-xs sm:text-sm">Don&apos;t break the chain - complete at least one task today.</p>
           </div>
           <a
             href="#routines"
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors whitespace-nowrap"
+            className="px-3 sm:px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors whitespace-nowrap text-sm sm:text-base w-full sm:w-auto text-center"
           >
             Check In Now
           </a>
@@ -404,12 +404,12 @@ export default function DashboardPage() {
       )}
 
       {/* Main Header with Quote */}
-      <div className="bg-gradient-to-r from-neo-50 to-calm-50 dark:from-slate-800 dark:to-slate-700 rounded-2xl p-6">
-        <h1 className="text-2xl lg:text-3xl font-bold text-calm-800 dark:text-slate-100">{greeting}</h1>
-        <div className="mt-3 flex items-start gap-3">
-          <span className="text-2xl">💧</span>
+      <div className="bg-gradient-to-r from-neo-50 to-calm-50 dark:from-slate-800 dark:to-slate-700 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-calm-800 dark:text-slate-100">{greeting}</h1>
+        <div className="mt-2 sm:mt-3 flex items-start gap-2 sm:gap-3">
+          <span className="text-xl sm:text-2xl">💧</span>
           <div>
-            <p className="text-calm-600 dark:text-slate-300 italic">&ldquo;{quote.text}&rdquo;</p>
+            <p className="text-calm-600 dark:text-slate-300 italic text-sm sm:text-base">&ldquo;{quote.text}&rdquo;</p>
             {quote.author && (
               <p className="text-calm-400 dark:text-slate-500 text-sm mt-1">— {quote.author}</p>
             )}
@@ -418,13 +418,13 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {/* Streak Card */}
         <Card variant="elevated" className="relative overflow-hidden">
-          <CardContent className="text-center py-4">
-            <div className="text-2xl mb-1">{currentStreak > 0 ? '🔥' : '💧'}</div>
-            <p className="text-3xl font-bold text-neo-600">{currentStreak}</p>
-            <p className="text-sm text-calm-500 dark:text-slate-400">Day Streak</p>
+          <CardContent className="text-center py-3 sm:py-4">
+            <div className="text-xl sm:text-2xl mb-1">{currentStreak > 0 ? '🔥' : '💧'}</div>
+            <p className="text-2xl sm:text-3xl font-bold text-neo-600">{currentStreak}</p>
+            <p className="text-xs sm:text-sm text-calm-500 dark:text-slate-400">Day Streak</p>
             {longestStreak > currentStreak && (
               <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">Best: {longestStreak}</p>
             )}
@@ -433,41 +433,41 @@ export default function DashboardPage() {
 
         {/* Today's Progress */}
         <Card variant="elevated" className="relative overflow-hidden">
-          <CardContent className="text-center py-4">
-            <div className="text-2xl mb-1">{todayPercent === 100 ? '✨' : '📊'}</div>
-            <p className="text-3xl font-bold text-neo-600">{todayPercent}%</p>
-            <p className="text-sm text-calm-500 dark:text-slate-400">Today</p>
-            <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">{completedTasks}/{totalTasks} tasks</p>
+          <CardContent className="text-center py-3 sm:py-4">
+            <div className="text-xl sm:text-2xl mb-1">{todayPercent === 100 ? '✨' : '📊'}</div>
+            <p className="text-2xl sm:text-3xl font-bold text-neo-600">{todayPercent}%</p>
+            <p className="text-xs sm:text-sm text-calm-500 dark:text-slate-400">Today</p>
+            <p className="text-[10px] sm:text-xs text-calm-400 dark:text-slate-500 mt-1">{completedTasks}/{totalTasks} tasks</p>
           </CardContent>
         </Card>
 
         {/* Tasks Remaining */}
         <Card variant="elevated" className="relative overflow-hidden">
-          <CardContent className="text-center py-4">
-            <div className="text-2xl mb-1">{tasksRemaining === 0 ? '✅' : '📝'}</div>
-            <p className="text-3xl font-bold text-neo-600">{tasksRemaining}</p>
-            <p className="text-sm text-calm-500 dark:text-slate-400">Tasks Left</p>
-            <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">{tasksRemaining === 0 ? 'All done!' : 'Keep going!'}</p>
+          <CardContent className="text-center py-3 sm:py-4">
+            <div className="text-xl sm:text-2xl mb-1">{tasksRemaining === 0 ? '✅' : '📝'}</div>
+            <p className="text-2xl sm:text-3xl font-bold text-neo-600">{tasksRemaining}</p>
+            <p className="text-xs sm:text-sm text-calm-500 dark:text-slate-400">Tasks Left</p>
+            <p className="text-[10px] sm:text-xs text-calm-400 dark:text-slate-500 mt-1">{tasksRemaining === 0 ? 'All done!' : 'Keep going!'}</p>
           </CardContent>
         </Card>
 
         {/* Total Check-ins */}
         <Card variant="elevated" className="relative overflow-hidden">
-          <CardContent className="text-center py-4">
-            <div className="text-2xl mb-1">🌊</div>
-            <p className="text-3xl font-bold text-neo-600">{totalCheckIns}</p>
-            <p className="text-sm text-calm-500 dark:text-slate-400">Total Drops</p>
-            <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">All time</p>
+          <CardContent className="text-center py-3 sm:py-4">
+            <div className="text-xl sm:text-2xl mb-1">🌊</div>
+            <p className="text-2xl sm:text-3xl font-bold text-neo-600">{totalCheckIns}</p>
+            <p className="text-xs sm:text-sm text-calm-500 dark:text-slate-400">Total Drops</p>
+            <p className="text-[10px] sm:text-xs text-calm-400 dark:text-slate-500 mt-1">All time</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Today&apos;s Routines */}
-        <div id="routines" className="lg:col-span-2 space-y-4">
+        <div id="routines" className="lg:col-span-2 space-y-3 sm:space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-calm-800 dark:text-slate-100">Today&apos;s Routines</h2>
+            <h2 className="text-base sm:text-lg font-semibold text-calm-800 dark:text-slate-100">Today&apos;s Routines</h2>
             <Link
               href="/dashboard/routines/new"
               className="inline-flex items-center gap-1 text-sm text-neo-600 hover:text-neo-700 font-medium"

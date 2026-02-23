@@ -228,51 +228,51 @@ export default function AchievementsPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-calm-800 dark:text-white">Achievements</h1>
-          <p className="text-calm-600 dark:text-calm-400">
+          <h1 className="text-xl sm:text-2xl font-bold text-calm-800 dark:text-white">Achievements</h1>
+          <p className="text-sm sm:text-base text-calm-600 dark:text-calm-400">
             {unlockedCount} of {BADGES.length} badges unlocked
           </p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-neo-100 dark:bg-neo-900/30 rounded-full">
-          <span className="text-2xl" dangerouslySetInnerHTML={{ __html: '&#127942;' }} />
+        <div className="flex items-center gap-2 px-4 py-2 bg-neo-100 dark:bg-neo-900/30 rounded-full self-start sm:self-auto">
+          <span className="text-xl sm:text-2xl" dangerouslySetInnerHTML={{ __html: '&#127942;' }} />
           <span className="font-bold text-neo-700 dark:text-neo-300">{unlockedCount}</span>
         </div>
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-3xl font-bold text-neo-600 dark:text-neo-400">{stats?.currentStreak || 0}</div>
-            <div className="text-sm text-calm-600 dark:text-calm-400">Current Streak</div>
+          <CardContent className="p-3 sm:p-4 text-center">
+            <div className="text-2xl sm:text-3xl font-bold text-neo-600 dark:text-neo-400">{stats?.currentStreak || 0}</div>
+            <div className="text-xs sm:text-sm text-calm-600 dark:text-calm-400">Current Streak</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-3xl font-bold text-neo-600 dark:text-neo-400">{stats?.longestStreak || 0}</div>
-            <div className="text-sm text-calm-600 dark:text-calm-400">Best Streak</div>
+          <CardContent className="p-3 sm:p-4 text-center">
+            <div className="text-2xl sm:text-3xl font-bold text-neo-600 dark:text-neo-400">{stats?.longestStreak || 0}</div>
+            <div className="text-xs sm:text-sm text-calm-600 dark:text-calm-400">Best Streak</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-3xl font-bold text-neo-600 dark:text-neo-400">{stats?.totalCheckIns || 0}</div>
-            <div className="text-sm text-calm-600 dark:text-calm-400">Total Check-ins</div>
+          <CardContent className="p-3 sm:p-4 text-center">
+            <div className="text-2xl sm:text-3xl font-bold text-neo-600 dark:text-neo-400">{stats?.totalCheckIns || 0}</div>
+            <div className="text-xs sm:text-sm text-calm-600 dark:text-calm-400">Total Check-ins</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-3xl font-bold text-neo-600 dark:text-neo-400">{stats?.perfectDays || 0}</div>
-            <div className="text-sm text-calm-600 dark:text-calm-400">Perfect Days</div>
+          <CardContent className="p-3 sm:p-4 text-center">
+            <div className="text-2xl sm:text-3xl font-bold text-neo-600 dark:text-neo-400">{stats?.perfectDays || 0}</div>
+            <div className="text-xs sm:text-sm text-calm-600 dark:text-calm-400">Perfect Days</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Badges Grid */}
       <div>
-        <h2 className="text-lg font-semibold text-calm-800 dark:text-white mb-4">Badges</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <h2 className="text-base sm:text-lg font-semibold text-calm-800 dark:text-white mb-4">Badges</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
           {BADGES.map(function(badge) {
             const unlocked = isBadgeUnlocked(badge);
             const progress = getBadgeProgress(badge);
@@ -281,7 +281,7 @@ export default function AchievementsPage() {
               <div
                 key={badge.id}
                 className={
-                  'relative p-4 rounded-xl text-center transition-all ' +
+                  'relative p-3 sm:p-4 rounded-xl text-center transition-all ' +
                   (unlocked
                     ? TIER_BG[badge.tier] + ' shadow-lg'
                     : 'bg-calm-100 dark:bg-slate-800 opacity-60')
@@ -290,7 +290,7 @@ export default function AchievementsPage() {
                 {/* Badge Icon */}
                 <div
                   className={
-                    'w-16 h-16 mx-auto mb-2 rounded-full flex items-center justify-center text-3xl ' +
+                    'w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 rounded-full flex items-center justify-center text-2xl sm:text-3xl ' +
                     (unlocked
                       ? 'bg-gradient-to-br ' + TIER_COLORS[badge.tier] + ' text-white shadow-md'
                       : 'bg-calm-200 dark:bg-slate-700 text-calm-400 dark:text-slate-500')

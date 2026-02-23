@@ -272,24 +272,24 @@ export default function UpgradePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neo-50/50 to-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-neo-50/50 to-white py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-8 sm:mb-10">
           <Link
             href="/dashboard"
-            className="inline-flex items-center text-neo-600 hover:text-neo-700 mb-6"
+            className="inline-flex items-center text-neo-600 hover:text-neo-700 mb-4 sm:mb-6 text-sm sm:text-base"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Back to Dashboard
           </Link>
 
-          <h1 className="text-4xl font-bold text-calm-900 mb-3">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-calm-900 mb-2 sm:mb-3">
             Unlock Your Full Potential
           </h1>
-          <p className="text-lg text-calm-600 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-calm-600 max-w-2xl mx-auto px-2">
             Choose the plan that fits your journey. Every drop counts towards building 
             lasting habits.
           </p>
@@ -306,12 +306,11 @@ export default function UpgradePage() {
         )}
 
         {/* Billing Toggle */}
-        <div className="flex justify-center mb-10">
-          <div className="bg-calm-100 p-1 rounded-full flex">
+        <div className="flex justify-center mb-8 sm:mb-10">
+          <div className="bg-calm-100 p-1 rounded-full flex flex-col sm:flex-row w-full sm:w-auto max-w-xs sm:max-w-none">
             <button
               onClick={() => setBillingCycle('monthly')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                billingCycle === 'monthly'
+              className={`px-4 sm:px-6 py-2 rounded-full text-sm font-medium transition-all ${billingCycle === 'monthly'
                   ? 'bg-white text-calm-900 shadow-sm'
                   : 'text-calm-600 hover:text-calm-800'
               }`}
@@ -320,8 +319,7 @@ export default function UpgradePage() {
             </button>
             <button
               onClick={() => setBillingCycle('yearly')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                billingCycle === 'yearly'
+              className={`px-4 sm:px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center justify-center ${billingCycle === 'yearly'
                   ? 'bg-white text-calm-900 shadow-sm'
                   : 'text-calm-600 hover:text-calm-800'
               }`}
@@ -347,7 +345,7 @@ export default function UpgradePage() {
         )}
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {['free', 'premium', 'premium_plus'].map((plan) => {
             const theme = getPlanTheme(plan);
             const isCurrentPlan = currentTier === plan;

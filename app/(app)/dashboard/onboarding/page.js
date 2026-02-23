@@ -86,14 +86,14 @@ export default function OnboardingPage() {
 
   // Step 1: Welcome
   const renderWelcome = () => (
-    <div className="text-center">
-      <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-neo-400 to-neo-600 flex items-center justify-center">
-        <span className="text-4xl" dangerouslySetInnerHTML={{ __html: '&#128167;' }} />
+    <div className="text-center px-4">
+      <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 sm:mb-6 rounded-full bg-gradient-to-br from-neo-400 to-neo-600 flex items-center justify-center">
+        <span className="text-3xl sm:text-4xl" dangerouslySetInnerHTML={{ __html: '&#128167;' }} />
       </div>
-      <h1 className="text-3xl font-bold text-calm-800 dark:text-white mb-3">
+      <h1 className="text-2xl sm:text-3xl font-bold text-calm-800 dark:text-white mb-2 sm:mb-3">
         Welcome to Neo Routine
       </h1>
-      <p className="text-lg text-calm-600 dark:text-calm-300 mb-8 max-w-md mx-auto">
+      <p className="text-base sm:text-lg text-calm-600 dark:text-calm-300 mb-6 sm:mb-8 max-w-md mx-auto">
         Build better habits with gentle, mindful routines. Let&apos;s set you up for success in just a few steps.
       </p>
       <div className="flex flex-col gap-3 max-w-xs mx-auto">
@@ -112,14 +112,14 @@ export default function OnboardingPage() {
 
   // Step 2: Choose a template
   const renderTemplateSelection = () => (
-    <div>
-      <h2 className="text-2xl font-bold text-calm-800 dark:text-white mb-2 text-center">
+    <div className="px-2 sm:px-0">
+      <h2 className="text-xl sm:text-2xl font-bold text-calm-800 dark:text-white mb-2 text-center">
         Choose Your First Routine
       </h2>
-      <p className="text-calm-600 dark:text-calm-300 mb-6 text-center">
+      <p className="text-sm sm:text-base text-calm-600 dark:text-calm-300 mb-6 text-center">
         Pick a template to start with, or create your own
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-2xl mx-auto">
         {ROUTINE_TEMPLATES.map(function(template) {
           const isSelected = selectedTemplate?.id === template.id;
           return (
@@ -133,17 +133,17 @@ export default function OnboardingPage() {
                 }));
               }}
               className={
-                'p-4 rounded-xl border-2 text-left transition-all ' +
+                'p-3 sm:p-4 rounded-xl border-2 text-left transition-all ' +
                 (isSelected
                   ? 'border-neo-500 bg-neo-50 dark:bg-neo-900/30'
                   : 'border-calm-200 dark:border-calm-700 hover:border-neo-300 dark:hover:border-neo-600 bg-white dark:bg-calm-800')
               }
             >
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl" dangerouslySetInnerHTML={{ __html: template.icon }} />
-                <span className="font-semibold text-calm-800 dark:text-white">{template.name}</span>
+              <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                <span className="text-xl sm:text-2xl" dangerouslySetInnerHTML={{ __html: template.icon }} />
+                <span className="font-semibold text-sm sm:text-base text-calm-800 dark:text-white">{template.name}</span>
               </div>
-              <p className="text-sm text-calm-500 dark:text-calm-400">{template.description}</p>
+              <p className="text-xs sm:text-sm text-calm-500 dark:text-calm-400">{template.description}</p>
             </button>
           );
         })}
@@ -177,11 +177,11 @@ export default function OnboardingPage() {
     };
 
     return (
-      <div>
-        <h2 className="text-2xl font-bold text-calm-800 dark:text-white mb-2 text-center">
+      <div className="px-2 sm:px-0">
+        <h2 className="text-xl sm:text-2xl font-bold text-calm-800 dark:text-white mb-2 text-center">
           Customize Your Routine
         </h2>
-        <p className="text-calm-600 dark:text-calm-300 mb-6 text-center">
+        <p className="text-sm sm:text-base text-calm-600 dark:text-calm-300 mb-6 text-center">
           Add, remove, or edit tasks to make it yours
         </p>
         <div className="max-w-lg mx-auto space-y-4">

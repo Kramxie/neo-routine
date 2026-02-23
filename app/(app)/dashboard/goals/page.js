@@ -259,14 +259,14 @@ export default function GoalsPage() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="mb-8 flex items-start justify-between">
+      <div className="mb-4 sm:mb-8 flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold text-calm-800 dark:text-white mb-2">Goals</h1>
-          <p className="text-calm-600 dark:text-calm-400">
+          <h1 className="text-2xl sm:text-3xl font-bold text-calm-800 dark:text-white mb-1 sm:mb-2">Goals</h1>
+          <p className="text-calm-600 dark:text-calm-400 text-sm sm:text-base">
             Set meaningful goals and track your progress
           </p>
         </div>
-        <Button onClick={() => setShowNewGoal(true)} variant="primary">
+        <Button onClick={() => setShowNewGoal(true)} variant="primary" className="w-full sm:w-auto">
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -311,7 +311,7 @@ export default function GoalsPage() {
               </div>
 
               {/* Category & Timeframe */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-calm-700 dark:text-calm-300 mb-1">
                     Category
@@ -342,7 +342,7 @@ export default function GoalsPage() {
               </div>
 
               {/* Target Value */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-calm-700 dark:text-calm-300 mb-1">
                     Target Value
