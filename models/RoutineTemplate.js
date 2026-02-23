@@ -148,7 +148,7 @@ const RoutineTemplateSchema = new mongoose.Schema(
 // Indexes for efficient queries
 RoutineTemplateSchema.index({ coachId: 1, isPublished: 1 });
 RoutineTemplateSchema.index({ category: 1, isPublic: 1 });
-RoutineTemplateSchema.index({ shareCode: 1 });
+// Note: shareCode already has unique index from schema definition
 RoutineTemplateSchema.index({ tags: 1 });
 
 /**
