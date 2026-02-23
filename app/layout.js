@@ -28,6 +28,15 @@ export const metadata = {
   authors: [{ name: 'NeoRoutine', url: APP_URL }],
   creator: 'NeoRoutine',
   publisher: 'NeoRoutine',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'NeoRoutine',
+  },
+  formatDetection: {
+    telephone: false,
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',

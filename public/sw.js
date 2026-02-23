@@ -1,14 +1,96 @@
 // Neo Routine Service Worker
-// Handles push notifications and background sync
+// Handles push notifications, background sync, and offline caching
 
 const CACHE_NAME = 'neo-routine-v1';
+const STATIC_CACHE_NAME = 'neo-routine-static-v1';
 
+// Assets to cache for offline use
+const STATIC_ASSETS = [
+  '/',
+  '/dashboard',
+  '/login',
+  '/neoLogo.jfif',
+  '/manifest.json',
+];
+
+// Install event - cache static assets
 self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(STATIC_CACHE_NAME).then((cache) => {
+      return cache.addAll(STATIC_ASSETS).catch((err) => {
+        console.log('[SW] Static cache failed (expected in dev):', err.message);
+      });
+    })
+  );
   self.skipWaiting();
 });
 
+// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME && name !== STATIC_CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+    })
+  );
   event.waitUntil(clients.claim());
+});
+
+// Fetch event - serve from cache, fallback to network
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests and API calls
+  if (request.method !== 'GET' || url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // Network-first strategy for HTML pages
+  if (request.headers.get('accept')?.includes('text/html')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Cache successful responses
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Serve from cache if offline
+          return caches.match(request).then((cached) => {
+            return cached || caches.match('/dashboard');
+          });
+        })
+    );
+    return;
+  }
+
+  // Cache-first strategy for static assets
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) {
+        return cached;
+      }
+      return fetch(request).then((response) => {
+        // Only cache successful responses
+        if (response.ok && url.origin === self.location.origin) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
+        }
+        return response;
+      });
+    })
+  );
 });
 
 // Handle incoming push notifications
