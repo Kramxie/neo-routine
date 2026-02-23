@@ -208,9 +208,5 @@ async function handlePaymentFailed(invoice) {
   console.log('[Stripe] Payment failed for user', user.email);
 }
 
-// Disable body parsing for webhooks (needed for Stripe signature verification)
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// Note: In Next.js App Router, body parsing is handled automatically.
+// We use request.text() in the POST handler to get raw body for Stripe signature verification.
