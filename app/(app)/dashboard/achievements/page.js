@@ -137,13 +137,13 @@ export default function AchievementsPage() {
         const userData = userRes.ok ? await userRes.json() : null;
         const insightsData = insightsRes.ok ? await insightsRes.json() : null;
         
-        // Mock stats - in production, these would come from the API
+        // Get stats from API responses
         setStats({
-          routinesCreated: insightsData?.data?.totalRoutines || 0,
+          routinesCreated: insightsData?.summary?.routineCount || 0,
           totalCheckIns: userData?.data?.user?.analytics?.totalCheckIns || 0,
           currentStreak: userData?.data?.user?.analytics?.currentStreak || 0,
           longestStreak: userData?.data?.user?.analytics?.longestStreak || 0,
-          perfectDays: insightsData?.data?.perfectDays || 0,
+          perfectDays: insightsData?.weekly?.daysWithActivity || 0,
           earlyCheckIns: 0, // Would need to track this
         });
       } catch (err) {
