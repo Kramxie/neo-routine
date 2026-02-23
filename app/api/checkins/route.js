@@ -5,6 +5,7 @@ import Routine from '@/models/Routine';
 import User from '@/models/User';
 import { getCurrentUser } from '@/lib/auth';
 import { getTodayInTimezone } from '@/lib/timezone';
+import { runBadgeChecks } from '@/lib/badgeEngine';
 
 // In-memory store for demo check-ins (resets on server restart)
 const demoCheckIns = new Map();
@@ -136,6 +137,47 @@ export async function POST(request) {
     });
 
     await checkIn.save();
+
+    // Update user analytics
+    const dbUser = await User.findById(user.userId);
+    if (dbUser) {
+      // Calculate streak
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayISO = yesterday.toISOString().split('T')[0];
+      const lastActive = dbUser.analytics?.lastActiveDate;
+      
+      let newStreak = dbUser.analytics?.currentStreak || 0;
+      
+      if (lastActive === dateISO) {
+        // Already active today, no streak change
+      } else if (lastActive === yesterdayISO) {
+        // Consecutive day, increment streak
+        newStreak += 1;
+      } else if (!lastActive) {
+        // First ever check-in
+        newStreak = 1;
+      } else {
+        // Streak broken, reset to 1
+        newStreak = 1;
+      }
+      
+      const longestStreak = Math.max(dbUser.analytics?.longestStreak || 0, newStreak);
+      
+      await User.findByIdAndUpdate(user.userId, {
+        $inc: { 'analytics.totalCheckIns': 1 },
+        $set: {
+          'analytics.currentStreak': newStreak,
+          'analytics.longestStreak': longestStreak,
+          'analytics.lastActiveDate': dateISO,
+        },
+      });
+      
+      // Check and award badges (fire and forget)
+      runBadgeChecks(user.userId, { todayPercent: 0 }).catch(err =>
+        console.error('[Badge] Check-in badge check failed:', err)
+      );
+    }
 
     // Get encouraging message based on today's progress
     const todayCheckIns = await CheckIn.countDocuments({

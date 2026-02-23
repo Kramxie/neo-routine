@@ -5,6 +5,7 @@ import User from '@/models/User';
 import { getCurrentUser } from '@/lib/auth';
 import { validateRoutine, sanitizeString } from '@/lib/validators';
 import { canCreateRoutine, canAddTask, getEffectiveTier } from '@/lib/features';
+import { checkRoutineBadges } from '@/lib/badgeEngine';
 
 // Demo data for testing without database
 const DEMO_ROUTINES = [
@@ -240,6 +241,11 @@ export async function POST(request) {
     });
 
     await routine.save();
+
+    // Check and award routine badges
+    checkRoutineBadges(user.userId).catch(err => 
+      console.error('[Badge] Routine badge check failed:', err)
+    );
 
     return NextResponse.json(
       {
