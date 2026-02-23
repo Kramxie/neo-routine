@@ -3,6 +3,7 @@ import connectDB from '@/lib/db';
 import User from '@/models/User';
 import { generateToken, setTokenCookie } from '@/lib/auth';
 import { validateLogin, sanitizeString } from '@/lib/validators';
+import { rateLimit, resetRateLimit } from '@/lib/rateLimit';
 
 /**
  * POST /api/auth/login
@@ -10,6 +11,9 @@ import { validateLogin, sanitizeString } from '@/lib/validators';
  */
 export async function POST(request) {
   try {
+    // Rate limiting - 5 attempts per 15 minutes
+    const rateLimitResult = rateLimit(request, 'login');
+    if (rateLimitResult) return rateLimitResult;
     // Parse request body
     const body = await request.json();
 
@@ -66,6 +70,9 @@ export async function POST(request) {
 
     // Set cookie
     await setTokenCookie(token);
+
+    // Reset rate limit on successful login
+    resetRateLimit(request, 'login');
 
     // Return success response
     return NextResponse.json(

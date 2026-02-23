@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
 import { sendPasswordResetEmail } from '@/lib/email';
+import { rateLimit } from '@/lib/rateLimit';
 
 /**
  * POST /api/auth/forgot-password
@@ -10,6 +11,10 @@ import { sendPasswordResetEmail } from '@/lib/email';
  */
 export async function POST(request) {
   try {
+    // Rate limiting - 3 password resets per hour per IP
+    const rateLimitResult = rateLimit(request, 'forgotPassword');
+    if (rateLimitResult) return rateLimitResult;
+
     var body = await request.json();
     var email = body.email;
 

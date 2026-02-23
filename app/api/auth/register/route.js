@@ -4,6 +4,7 @@ import User from '@/models/User';
 import { generateToken, setTokenCookie } from '@/lib/auth';
 import { validateRegister, sanitizeString } from '@/lib/validators';
 import { sendVerificationEmail } from '@/lib/email';
+import { rateLimit } from '@/lib/rateLimit';
 
 /**
  * POST /api/auth/register
@@ -11,6 +12,9 @@ import { sendVerificationEmail } from '@/lib/email';
  */
 export async function POST(request) {
   try {
+    // Rate limiting - 3 registrations per hour per IP
+    const rateLimitResult = rateLimit(request, 'register');
+    if (rateLimitResult) return rateLimitResult;
     // Parse request body
     const body = await request.json();
     

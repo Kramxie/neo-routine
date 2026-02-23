@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
 import { sendVerificationEmail } from '@/lib/email';
+import { rateLimit } from '@/lib/rateLimit';
 
 /**
  * POST /api/auth/resend-verification
@@ -10,6 +11,10 @@ import { sendVerificationEmail } from '@/lib/email';
  */
 export async function POST(request) {
   try {
+    // Rate limiting - 5 resends per hour per IP
+    const rateLimitResult = rateLimit(request, 'resendVerification');
+    if (rateLimitResult) return rateLimitResult;
+
     const { email } = await request.json();
 
     if (!email) {
