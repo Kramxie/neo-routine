@@ -6,7 +6,7 @@ import Routine from '@/models/Routine';
 import CheckIn from '@/models/CheckIn';
 import Badge from '@/models/Badge';
 import Goal from '@/models/Goal';
-import { getDailyQuote, getTimeBasedQuote, getStreakQuote } from '@/lib/quotes';
+import { getDailyQuote as _getDailyQuote, getTimeBasedQuote, getStreakQuote } from '@/lib/quotes';
 
 /**
  * GET /api/dashboard/stats
@@ -43,7 +43,7 @@ export async function GET() {
     const yesterdayISO = `${yesterday.getFullYear()}-${pad(yesterday.getMonth() + 1)}-${pad(yesterday.getDate())}`;
 
     // Parallel data fetching
-    const [user, routines, todayCheckIns, yesterdayCheckIns, badges, goals] = await Promise.all([
+    const [user, routines, todayCheckIns, _yesterdayCheckIns, badges, goals] = await Promise.all([
       User.findById(userId).select('name email analytics preferences tier'),
       Routine.find({ userId, isArchived: false }).lean(),
       CheckIn.find({ userId, dateISO: todayISO }).lean(),

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import User from '@/models/User';
-import Routine from '@/models/Routine';
+import _Routine from '@/models/Routine';
 import CheckIn from '@/models/CheckIn';
 import { sendPushToUser } from '@/lib/push';
 
@@ -18,7 +18,7 @@ function getDateISO(date = new Date()) {
 }
 
 // Helper to get time string from Date
-function getTimeString(date) {
+function _getTimeString(date) {
   const pad = (n) => String(n).padStart(2, '0');
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }

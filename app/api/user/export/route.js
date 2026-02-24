@@ -4,7 +4,7 @@ import CheckIn from '@/models/CheckIn';
 import Goal from '@/models/Goal';
 import User from '@/models/User';
 import { getCurrentUser } from '@/lib/auth';
-import { success, unauthorized, forbidden, error } from '@/lib/apiResponse';
+import { success as _success, unauthorized, forbidden, error } from '@/lib/apiResponse';
 import { hasFeature, getEffectiveTier } from '@/lib/features';
 
 /**

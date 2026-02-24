@@ -10,7 +10,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
  * POST /api/subscription/portal
  * Create a Stripe Customer Portal session for managing subscription
  */
-export async function POST(request) {
+export async function POST(_request) {
   try {
     const authUser = await getCurrentUser();
     if (!authUser) {

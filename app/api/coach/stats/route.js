@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
 import RoutineTemplate from '@/models/RoutineTemplate';
-import Routine from '@/models/Routine';
+import _Routine from '@/models/Routine';
 import CheckIn from '@/models/CheckIn';
 import { getCurrentUser } from '@/lib/auth';
 
@@ -79,7 +79,7 @@ export async function GET() {
         : 0;
 
     // Get top performing template
-    const topTemplate = templates
+    const _topTemplate = templates
       .filter((t) => t.isPublished)
       .sort((a, b) => (b.stats?.adoptions || 0) - (a.stats?.adoptions || 0))[0];
 

@@ -7,7 +7,7 @@ import { getCurrentUser } from '@/lib/auth';
  * GET /api/user/profile
  * Get current user's profile
  */
-export async function GET(request) {
+export async function GET(_request) {
   try {
     const user = await getCurrentUser();
     if (!user) {

@@ -94,7 +94,7 @@ export async function GET(request) {
  * POST /api/coach/clients
  * Generate invite link for new client
  */
-export async function POST(request) {
+export async function POST(_request) {
   try {
     const user = await getCurrentUser();
     if (!user) {

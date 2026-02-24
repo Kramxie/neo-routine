@@ -43,7 +43,7 @@ export async function POST(request) {
  * GET /api/user/onboarding
  * Get onboarding status
  */
-export async function GET(request) {
+export async function GET(_request) {
   try {
     const authUser = await getCurrentUser();
     if (!authUser) {

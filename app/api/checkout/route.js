@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
-import stripe, { getOrCreateCustomer, createCheckoutSession, STRIPE_PRICES } from '@/lib/stripe';
+import _stripe, { getOrCreateCustomer, createCheckoutSession, STRIPE_PRICES } from '@/lib/stripe';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 

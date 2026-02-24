@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import RoutineTemplate from '@/models/RoutineTemplate';
-import User from '@/models/User';
+import _User from '@/models/User';
 import { getCurrentUser } from '@/lib/auth';
 import { sanitizeString } from '@/lib/validators';
 

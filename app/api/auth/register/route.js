@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
-import { generateToken, setTokenCookie } from '@/lib/auth';
+import { generateToken as _generateToken, setTokenCookie as _setTokenCookie } from '@/lib/auth';
 import { validateRegister, sanitizeString } from '@/lib/validators';
 import { sendVerificationEmail } from '@/lib/email';
 import { rateLimit } from '@/lib/rateLimit';
