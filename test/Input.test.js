@@ -3,7 +3,6 @@
  * Tests for the reusable Input component
  */
 
-/* eslint-disable @next/next/no-assign-module-variable */
 /**
  * Input Component Unit Tests
  * Tests for Input component logic and props

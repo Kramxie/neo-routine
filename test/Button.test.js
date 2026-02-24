@@ -3,7 +3,6 @@
  * Tests for the reusable Button component
  */
 
-/* eslint-disable @next/next/no-assign-module-variable */
 /**
  * Button Component Unit Tests
  * Tests for Button component logic and props
