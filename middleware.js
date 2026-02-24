@@ -46,7 +46,7 @@ export async function middleware(request) {
       } else {
         isValidToken = true;
       }
-    } catch (error) {
+    } catch (_error) {
       // Token is invalid or expired
       isValidToken = false;
     }
