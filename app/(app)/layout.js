@@ -15,7 +15,7 @@ export default function AppLayout({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, _setNotifications] = useState([]);
 
   // Fetch current user on mount
   useEffect(() => {
