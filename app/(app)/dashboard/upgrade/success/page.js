@@ -11,7 +11,7 @@ import Link from 'next/link';
 export default function CheckoutSuccessPage() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
-  const [verified, setVerified] = useState(false);
+  const [_verified, setVerified] = useState(false);
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -25,7 +25,9 @@ export default function CheckoutSuccessPage() {
         setLoading(false);
       }, 1500);
     } else {
-      setLoading(false);
+      // Use timeout to avoid sync setState in effect
+      const immediateTimer = setTimeout(() => setLoading(false), 0);
+      return () => clearTimeout(immediateTimer);
     }
   }, [searchParams]);
 

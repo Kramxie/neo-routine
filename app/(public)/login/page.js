@@ -28,7 +28,7 @@ export default function LoginPage() {
       } else {
         toast.error('Demo login failed. Please try again.');
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error('Connection error. Please try again.');
     } finally {
       setDemoLoading(false);

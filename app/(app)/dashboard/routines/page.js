@@ -196,7 +196,7 @@ export default function RoutinesPage() {
               </h3>
               <p className="text-calm-500 mb-6 max-w-md mx-auto">
                 Create your first routine to start building positive habits.
-                Each routine can have multiple tasks that you'll check off daily.
+                Each routine can have multiple tasks that you&apos;ll check off daily.
               </p>
               <Link
                 href="/dashboard/routines/new"

@@ -43,7 +43,7 @@ export default function ResendVerificationPage() {
         setStatus('error');
         setMessage(data.message || 'Failed to send verification code.');
       }
-    } catch (error) {
+    } catch (_error) {
       setStatus('error');
       setMessage('An error occurred. Please try again.');
     }

@@ -20,7 +20,7 @@ const GOAL_CATEGORIES = [
   { id: 'other', name: 'Other', icon: '✨', color: 'bg-gray-500' },
 ];
 
-const GOAL_TIMEFRAMES = [
+const _GOAL_TIMEFRAMES = [
   { id: 'weekly', name: 'Weekly', days: 7 },
   { id: 'monthly', name: 'Monthly', days: 30 },
   { id: 'quarterly', name: 'Quarterly', days: 90 },

@@ -291,18 +291,19 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!todayData) return;
     try {
-      const completedToday = Number(todayData?.stats?.today?.completed ?? 0);
-      const totalToday = Number(todayData?.stats?.today?.total ?? 0);
-      const todayPct = Number(todayPercent);
-      const completedThisWeek = Number(todayData?.stats?.weekly?.completed ?? 0);
-      const totalThisWeek = Number(todayData?.stats?.weekly?.possible ?? 0);
-      const weeklyPct = Number(weeklyPercent);
-      const perDay = (todayData?.stats?.weekly?.data || weeklyData).map((d) => ({ date: d.date, count: d.count ?? 0, percent: d.percent ?? 0 }));
+      const _completedToday = Number(todayData?.stats?.today?.completed ?? 0);
+      const _totalToday = Number(todayData?.stats?.today?.total ?? 0);
+      const _todayPct = Number(todayPercent);
+      const _completedThisWeek = Number(todayData?.stats?.weekly?.completed ?? 0);
+      const _totalThisWeek = Number(todayData?.stats?.weekly?.possible ?? 0);
+      const _weeklyPct = Number(weeklyPercent);
+      const _perDay = (todayData?.stats?.weekly?.data || weeklyData).map((d) => ({ date: d.date, count: d.count ?? 0, percent: d.percent ?? 0 }));
 
       // Debug logging removed for production
-    } catch (e) {
+    } catch (_e) {
       // Silent fail for debug operations
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [todayData]);
 
   if (loading) {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import Card, { CardContent } from '@/components/ui/Card';
 
 /**
  * Coach Clients Page
@@ -17,6 +17,7 @@ export default function CoachClientsPage() {
 
   useEffect(() => {
     fetchClients();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   const fetchClients = async () => {

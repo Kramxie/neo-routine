@@ -149,7 +149,7 @@ function PushNotificationSection() {
       }
       setIsSubscribed(false);
       setStatusMsg('Push notifications disabled.');
-    } catch (err) {
+    } catch (_err) {
       setStatusMsg('Failed to disable notifications.');
     } finally {
       setIsLoading(false);

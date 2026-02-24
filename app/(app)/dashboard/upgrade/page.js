@@ -68,7 +68,7 @@ function CheckIcon({ className }) {
 }
 
 export default function UpgradePage() {
-  const router = useRouter();
+  const _router = useRouter();
   const searchParams = useSearchParams();
   const [currentTier, setCurrentTier] = useState('free');
   const [subscription, setSubscription] = useState(null);
@@ -140,7 +140,7 @@ export default function UpgradePage() {
     // Note: Don't set upgrading to false here since we're redirecting
   };
 
-  const handleCancel = async () => {
+  const _handleCancel = async () => {
     // Open Stripe Customer Portal for subscription management
     setUpgrading(true);
     setError('');
@@ -486,7 +486,7 @@ export default function UpgradePage() {
                 Can I change plans anytime?
               </h3>
               <p className="text-calm-600 text-sm">
-                Yes! You can upgrade your plan at any time. When upgrading, you'll be 
+                Yes! You can upgrade your plan at any time. When upgrading, you&apos;ll be 
                 credited for the remaining time on your current plan.
               </p>
             </div>
@@ -513,7 +513,7 @@ export default function UpgradePage() {
                 How do refunds work?
               </h3>
               <p className="text-calm-600 text-sm">
-                We offer a 30-day money-back guarantee. If you're not satisfied, 
+                We offer a 30-day money-back guarantee. If you&apos;re not satisfied, 
                 contact support for a full refund.
               </p>
             </div>

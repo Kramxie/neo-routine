@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Card, { CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -84,7 +85,7 @@ export default function ProfilePage() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const _data = await response.json();
         setUser({ ...user, name: formData.name.trim(), bio: formData.bio.trim() });
         setEditing(false);
         setMessage({ type: 'success', text: 'Profile updated successfully!' });
@@ -93,7 +94,7 @@ export default function ProfilePage() {
         const error = await response.json();
         setMessage({ type: 'error', text: error.message || 'Failed to update profile' });
       }
-    } catch (err) {
+    } catch (_err) {
       setMessage({ type: 'error', text: 'An error occurred. Please try again.' });
     } finally {
       setSaving(false);
@@ -123,7 +124,7 @@ export default function ProfilePage() {
         setPasswordResetStatus('error');
         setPasswordResetMessage(data.message || 'Failed to send reset link');
       }
-    } catch (err) {
+    } catch (_err) {
       setPasswordResetStatus('error');
       setPasswordResetMessage('An error occurred. Please try again.');
     }
@@ -257,9 +258,12 @@ export default function ProfilePage() {
               {/* Avatar */}
               <div className="relative flex-shrink-0">
                 {formData.avatar ? (
-                  <img
+                  <Image
                     src={formData.avatar}
                     alt={formData.name}
+                    width={96}
+                    height={96}
+                    unoptimized
                     className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-neo-100 dark:border-neo-900/50"
                   />
                 ) : (

@@ -95,7 +95,7 @@ function VerifyEmailContent() {
         setCode(['', '', '', '', '', '']);
         inputRefs.current[0]?.focus();
       }
-    } catch (error) {
+    } catch (_error) {
       setStatus('error');
       setMessage('An error occurred. Please try again.');
       setCode(['', '', '', '', '', '']);

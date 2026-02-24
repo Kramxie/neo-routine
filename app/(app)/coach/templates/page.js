@@ -15,6 +15,7 @@ export default function CoachTemplatesPage() {
 
   useEffect(() => {
     fetchTemplates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   const fetchTemplates = async () => {

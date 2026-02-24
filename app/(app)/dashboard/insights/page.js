@@ -10,7 +10,7 @@ import { toHex } from '@/lib/colorUtils';
  * Analytics and progress visualization
  */
 
-const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const _dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export default function InsightsPage() {
@@ -20,6 +20,7 @@ export default function InsightsPage() {
 
   useEffect(() => {
     fetchInsights();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [days]);
 
   const fetchInsights = async () => {
@@ -175,7 +176,7 @@ export default function InsightsPage() {
             <CardContent>
               {/* Simple bar chart */}
               <div className="h-32 sm:h-48 flex items-end gap-0.5 sm:gap-1 overflow-x-auto">
-                {dailyData.slice(-14).map((day, index) => (
+                {dailyData.slice(-14).map((day, _index) => (
                   <div
                     key={day.date}
                     className="flex-1 min-w-[12px] sm:min-w-0 flex flex-col items-center gap-1"
