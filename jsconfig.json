@@ -6,6 +6,11 @@
       "@/components/*": ["components/*"],
       "@/lib/*": ["lib/*"],
       "@/models/*": ["models/*"]
-    }
-  }
+    },
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "types": ["node"]
+  },
+  "include": ["**/*", "e2e/**/*"],
+  "exclude": ["node_modules"]
 }
