@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import SkipNavigation from '../ui/SkipNavigation';
 import { useEffect } from 'react';
 
 /**
@@ -49,8 +50,14 @@ export default function LayoutWrapper({ children }) {
 
   return (
     <>
+      <SkipNavigation />
       <Navbar />
-      <main className={isAppRoute ? '' : 'flex-grow pt-16'}>
+      <main 
+        id="main-content" 
+        tabIndex={-1}
+        className={isAppRoute ? '' : 'flex-grow pt-16'}
+        role="main"
+      >
         {children}
       </main>
       <Footer />
