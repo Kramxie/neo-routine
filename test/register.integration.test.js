@@ -5,7 +5,7 @@ import { getVerificationCodeEmailTemplate } from '../lib/email.js';
 
 test('prepareRegisterData validates and sanitizes input', () => {
   const raw = { name: ' Alice ', email: ' ALICE@EXAMPLE.COM ', password: 'secret123' };
-  const { isValid, errors, data } = prepareRegisterData(raw);
+  const { isValid, errors: _errors, data } = prepareRegisterData(raw);
   assert.equal(isValid, true);
   assert.equal(data.name, 'Alice');
   assert.equal(data.email, 'alice@example.com');

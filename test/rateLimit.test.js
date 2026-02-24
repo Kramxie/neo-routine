@@ -1,4 +1,4 @@
-import { describe, it, beforeEach } from 'node:test';
+import { describe, it, beforeEach as _beforeEach } from 'node:test';
 import assert from 'node:assert';
 import { checkRateLimit, RATE_LIMITS } from '../lib/rateLimit.js';
 

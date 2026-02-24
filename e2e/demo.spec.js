@@ -26,7 +26,7 @@ test.describe('Dashboard Demo View', () => {
   // This test assumes demo mode is accessible via a specific route or cookie
   // Adjust based on actual demo implementation
 
-  test('dashboard shows routines in demo mode', async ({ page, context }) => {
+  test('dashboard shows routines in demo mode', async ({ page, context: _context }) => {
     // Set demo auth cookie/token if needed
     // For now, try accessing via demo login flow
     await page.goto('/login');
