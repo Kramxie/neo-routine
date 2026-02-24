@@ -24,7 +24,7 @@ const getColor = (type) => {
 };
 
 // Individual confetti piece component
-function ConfettiPiece({ piece, type }) {
+function ConfettiPiece({ piece, type: _type }) {
   return (
     <div
       className="confetti-piece"
@@ -107,14 +107,17 @@ export default function Confetti({
 
   useEffect(() => {
     if (show && !isActive) {
-      setIsActive(true);
-      setConfettiPieces(createPieces());
+      // Use functional updates to avoid sync setState warnings
+      const initTimer = setTimeout(() => {
+        setIsActive(true);
+        setConfettiPieces(createPieces());
+      }, 0);
       
       // Show message after brief delay
       const messageTimer = setTimeout(() => setShowMessage(true), 300);
       
       // Cleanup after duration
-      const timer = setTimeout(() => {
+      const cleanupTimer = setTimeout(() => {
         setIsActive(false);
         setShowMessage(false);
         setConfettiPieces([]);
@@ -122,8 +125,9 @@ export default function Confetti({
       }, duration);
 
       return () => {
+        clearTimeout(initTimer);
         clearTimeout(messageTimer);
-        clearTimeout(timer);
+        clearTimeout(cleanupTimer);
       };
     }
   }, [show, isActive, createPieces, duration, onComplete]);

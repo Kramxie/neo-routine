@@ -241,7 +241,7 @@ export function BadgeModal({ badge, onClose }) {
 }
 
 // Badge Progress - shows progress towards next badge
-export function BadgeProgress({ currentStreak = 0, totalCheckIns = 0, completedGoals = 0 }) {
+export function BadgeProgress({ currentStreak = 0, totalCheckIns = 0, completedGoals: _completedGoals = 0 }) {
   // Define next milestones
   const milestones = [
     { badgeId: 'streak_3', current: currentStreak, target: 3, type: 'streak' },

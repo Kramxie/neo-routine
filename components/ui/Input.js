@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useState } from 'react';
+import { forwardRef, useState, useId } from 'react';
 
 const EyeIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,7 +33,8 @@ const Input = forwardRef(function Input(props, ref) {
   } = props;
 
   const [showPassword, setShowPassword] = useState(false);
-  const inputId = name || 'input-' + Math.random().toString(36).substr(2, 9);
+  const generatedId = useId();
+  const inputId = name || generatedId;
 
   const isPasswordField = type === 'password';
   const inputType = isPasswordField && showPassword ? 'text' : type;

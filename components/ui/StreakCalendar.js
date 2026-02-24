@@ -43,7 +43,7 @@ const intensityColors = {
   4: 'bg-neo-500 dark:bg-neo-500',
 };
 
-const intensityBorders = {
+const _intensityBorders = {
   0: 'border-calm-200',
   1: 'border-neo-200',
   2: 'border-neo-300',

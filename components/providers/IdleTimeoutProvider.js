@@ -45,7 +45,14 @@ export function useIdleTimeout(options = {}) {
   const idleTimerRef = useRef(null);
   const warningTimerRef = useRef(null);
   const countdownRef = useRef(null);
-  const lastActivityRef = useRef(Date.now());
+  const lastActivityRef = useRef(null);
+
+  // Initialize lastActivityRef on mount (avoid impure function in render)
+  useEffect(() => {
+    if (lastActivityRef.current === null) {
+      lastActivityRef.current = Date.now();
+    }
+  }, []);
 
   // Reset all timers
   const resetTimers = useCallback(() => {
@@ -117,11 +124,12 @@ export function useIdleTimeout(options = {}) {
       document.addEventListener(event, handleActivity, { passive: true });
     });
 
-    // Start timers
-    resetTimers();
+    // Start timers (use setTimeout to avoid sync setState in effect)
+    const initTimer = setTimeout(() => resetTimers(), 0);
 
     // Cleanup
     return () => {
+      clearTimeout(initTimer);
       ACTIVITY_EVENTS.forEach(event => {
         document.removeEventListener(event, handleActivity);
       });
