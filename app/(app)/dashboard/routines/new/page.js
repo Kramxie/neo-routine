@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
@@ -27,9 +27,24 @@ export default function NewRoutinePage() {
   const [color, setColor] = useState(colorOptions[0].value);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [taskLimit, setTaskLimit] = useState(5); // default to free tier limit
 
-  // Add new task input
+  // Fetch user's tier limits on mount
+  useEffect(() => {
+    fetch('/api/subscription')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.limits?.maxTasksPerRoutine) {
+          const max = data.limits.maxTasksPerRoutine;
+          setTaskLimit(max === Infinity ? 999 : max);
+        }
+      })
+      .catch(() => {}); // fail silently — API enforces the real limit
+  }, []);
+
+  // Add new task input (respects tier task limit)
   const addTask = () => {
+    if (tasks.length >= taskLimit) return;
     setTasks([...tasks, { label: '', id: Date.now() }]);
   };
 
@@ -82,7 +97,7 @@ export default function NewRoutinePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create routine');
+        throw new Error(data.message || data.error || 'Failed to create routine');
       }
 
       // Redirect to dashboard on success
@@ -206,12 +221,19 @@ export default function NewRoutinePage() {
               <button
                 type="button"
                 onClick={addTask}
-                className="mt-3 inline-flex items-center gap-1 text-sm text-neo-600 hover:text-neo-700 font-medium"
+                disabled={tasks.length >= taskLimit}
+                className={`mt-3 inline-flex items-center gap-1 text-sm font-medium transition-colors ${
+                  tasks.length >= taskLimit
+                    ? 'text-calm-400 cursor-not-allowed'
+                    : 'text-neo-600 hover:text-neo-700'
+                }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Add Another Task
+                {tasks.length >= taskLimit
+                  ? `Task limit reached (${taskLimit} max on your plan)`
+                  : `Add Another Task (${tasks.length}/${taskLimit})`}
               </button>
             </div>
 
