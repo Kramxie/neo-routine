@@ -16,6 +16,7 @@ export default function RoutinesPage() {
   const [loading, setLoading] = useState(true);
   const [checkLoading, setCheckLoading] = useState({});
   const [deleteId, setDeleteId] = useState(null);
+  const [routineLimits, setRoutineLimits] = useState({ canCreate: true, remaining: null, max: null });
 
   // Get user's local date in YYYY-MM-DD
   const getLocalDateISO = () => {
@@ -33,6 +34,9 @@ export default function RoutinesPage() {
       if (routinesRes.ok) {
         const data = await routinesRes.json();
         setRoutines(data.routines || []);
+        if (data.limits) {
+          setRoutineLimits(data.limits);
+        }
       }
 
       if (todayRes.ok) {
@@ -170,15 +174,30 @@ export default function RoutinesPage() {
           <h1 className="text-xl sm:text-2xl font-bold text-calm-800">Your Routines</h1>
           <p className="text-calm-500 mt-1 text-sm sm:text-base">Manage your daily flows</p>
         </div>
-        <Link
-          href="/dashboard/routines/new"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-neo-500 text-white hover:bg-neo-600 transition-colors text-sm sm:text-base w-full sm:w-auto"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          New Routine
-        </Link>
+        {routineLimits.canCreate ? (
+          <Link
+            href="/dashboard/routines/new"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-neo-500 text-white hover:bg-neo-600 transition-colors text-sm sm:text-base w-full sm:w-auto"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            New Routine
+            {routineLimits.remaining !== null && routineLimits.max !== null && (
+              <span className="text-xs opacity-75">({routineLimits.remaining}/{routineLimits.max})</span>
+            )}
+          </Link>
+        ) : (
+          <Link
+            href="/dashboard/upgrade"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-colors text-sm sm:text-base w-full sm:w-auto"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
+            </svg>
+            Limit Reached — Upgrade
+          </Link>
+        )}
       </div>
 
       {/* Empty State */}
