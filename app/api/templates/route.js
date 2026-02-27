@@ -135,7 +135,7 @@ export async function POST(request) {
     });
 
     // Import feature helper
-    const { canCreateRoutine, getEffectiveTier } = await import('@/lib/features');
+    const { canCreateRoutine, canAddTask, getEffectiveTier } = await import('@/lib/features');
     const effectiveTier = getEffectiveTier(dbUser);
     const routineCheck = canCreateRoutine(effectiveTier, currentRoutineCount);
 
@@ -144,6 +144,20 @@ export async function POST(request) {
         {
           message: `Routine limit reached (${routineCheck.limit}). Upgrade to adopt this template!`,
           error: 'ROUTINE_LIMIT_REACHED',
+          upgradeRequired: true,
+        },
+        { status: 403 }
+      );
+    }
+
+    // Check if template's task count exceeds user's tier limit
+    const templateTaskCount = template.tasks ? template.tasks.length : 0;
+    const taskCheck = canAddTask(effectiveTier, 0, templateTaskCount);
+    if (!taskCheck.allowed) {
+      return NextResponse.json(
+        {
+          message: `This template has ${templateTaskCount} tasks, but your plan allows up to ${taskCheck.limit}. Upgrade to adopt it!`,
+          error: 'TASK_LIMIT_EXCEEDED',
           upgradeRequired: true,
         },
         { status: 403 }
