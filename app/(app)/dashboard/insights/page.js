@@ -15,8 +15,10 @@ const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 
 export default function InsightsPage() {
   const [loading, setLoading] = useState(true);
-  const [days, setDays] = useState(30);
+  const [days, setDays] = useState(7);
   const [data, setData] = useState(null);
+  const [tierLimit, setTierLimit] = useState(7);
+  const [_tier, setTier] = useState('free');
 
   useEffect(() => {
     fetchInsights();
@@ -25,10 +27,15 @@ export default function InsightsPage() {
 
   const fetchInsights = async () => {
     try {
-      const response = await fetch(`/api/insights/user?range=${days}`);
+      const response = await fetch(`/api/insights?days=${days}`);
       if (response.ok) {
         const result = await response.json();
         setData(result);
+        // Sync tier limits from API response
+        if (result.limits) {
+          setTierLimit(result.limits.insightsDays);
+          setTier(result.limits.tier);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch insights:', error);
@@ -72,22 +79,28 @@ export default function InsightsPage() {
         </div>
 
         {/* Time Range Selector */}
-        <div className="flex gap-2">
-          {[7, 14, 30].map((d) => (
-            <button
-              key={d}
-              onClick={() => setDays(d)}
-              className={`
-                px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-1 sm:flex-none
-                ${days === d
-                  ? 'bg-neo-500 text-white'
-                  : 'bg-calm-100 text-calm-600 hover:bg-calm-200'
-                }
-              `}
-            >
-              {d}d
-            </button>
-          ))}
+        <div className="flex gap-2 items-center">
+          {[7, 14, 30, 90].map((d) => {
+            const locked = d > tierLimit;
+            return (
+              <button
+                key={d}
+                onClick={() => !locked && setDays(d)}
+                title={locked ? `Available on ${d <= 90 ? 'Premium' : 'Premium+'} plan` : undefined}
+                className={`
+                  px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-1 sm:flex-none relative
+                  ${days === d
+                    ? 'bg-neo-500 text-white'
+                    : locked
+                      ? 'bg-calm-100 text-calm-400 cursor-not-allowed opacity-60'
+                      : 'bg-calm-100 text-calm-600 hover:bg-calm-200'
+                  }
+                `}
+              >
+                {d}d{locked && ' 🔒'}
+              </button>
+            );
+          })}
         </div>
       </div>
 

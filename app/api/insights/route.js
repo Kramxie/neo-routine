@@ -5,6 +5,7 @@ import Routine from '@/models/Routine';
 import CheckIn from '@/models/CheckIn';
 import User from '@/models/User';
 import { calculateCompletionStats, generateInsights, getWeeklyMessage } from '@/lib/reminderEngine';
+import { getEffectiveTier, getInsightsDaysLimit } from '@/lib/features';
 
 /**
  * GET /api/insights
@@ -22,9 +23,15 @@ export async function GET(request) {
 
     // Get time range from query params (default: 30 days)
     const { searchParams } = new URL(request.url);
-    const days = parseInt(searchParams.get('days')) || 30;
+    const requestedDays = parseInt(searchParams.get('days') || searchParams.get('range')) || 30;
 
     await connectDB();
+
+    // Enforce insightsDays tier limit
+    const dbUser = await User.findById(authUser.userId).select('tier subscription role analytics createdAt');
+    const effectiveTier = getEffectiveTier(dbUser);
+    const tierDaysLimit = getInsightsDaysLimit(effectiveTier);
+    const days = Math.min(requestedDays, tierDaysLimit);
 
     // Get user's routines
     const routines = await Routine.find({
@@ -52,7 +59,7 @@ export async function GET(request) {
     const stats = calculateCompletionStats(checkIns, totalTasksPerDay, days);
 
     // Generate personalized insights
-    const user = await User.findById(authUser.userId).select('analytics createdAt');
+    const user = dbUser; // already fetched above with analytics field
     const insights = generateInsights(stats, user?.analytics || {});
 
     // Calculate daily breakdown for chart
@@ -168,6 +175,12 @@ export async function GET(request) {
       patterns: {
         bestDayOfWeek: stats.bestDayOfWeek,
         preferredTimeOfDay: stats.preferredTimeOfDay,
+      },
+      limits: {
+        insightsDays: tierDaysLimit,
+        tier: effectiveTier,
+        daysRequested: requestedDays,
+        daysCapped: days,
       },
     });
   } catch (error) {
