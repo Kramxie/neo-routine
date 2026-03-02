@@ -22,9 +22,16 @@ export async function POST(request) {
     // Verify webhook signature
     if (webhookSecret) {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    } else if (process.env.NODE_ENV === 'production') {
+      // NEVER skip signature verification in production
+      console.error('[Stripe] STRIPE_WEBHOOK_SECRET is not configured in production!');
+      return NextResponse.json(
+        { error: 'Webhook configuration error' },
+        { status: 500 }
+      );
     } else {
-      // In development without webhook secret, parse directly (not recommended for production)
-      console.warn('[Stripe] Webhook secret not configured - skipping signature verification');
+      // Development only: allow unsigned webhooks with a warning
+      console.warn('[Stripe] Webhook secret not configured - skipping signature verification (dev only)');
       event = JSON.parse(body);
     }
   } catch (err) {
