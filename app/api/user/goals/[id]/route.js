@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import connectDB from '@/lib/db';
 import Goal from '@/models/Goal';
 import { getCurrentUser } from '@/lib/auth';
@@ -10,6 +11,13 @@ import { getCurrentUser } from '@/lib/auth';
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { message: 'Invalid goal ID' },
+        { status: 400 }
+      );
+    }
 
     // Get current user
     const user = await getCurrentUser();
@@ -68,6 +76,13 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { message: 'Invalid goal ID' },
+        { status: 400 }
+      );
+    }
 
     // Get current user
     const user = await getCurrentUser();
@@ -156,6 +171,13 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { message: 'Invalid goal ID' },
+        { status: 400 }
+      );
+    }
 
     // Get current user
     const user = await getCurrentUser();

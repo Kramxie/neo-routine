@@ -29,7 +29,7 @@ export async function GET() {
           status: 'error',
           timestamp: new Date().toISOString(),
           database: 'disconnected',
-          error: error.message,
+          ...(process.env.NODE_ENV === 'development' && { error: error.message }),
         },
       },
       { status: 503 }

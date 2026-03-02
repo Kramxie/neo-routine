@@ -216,7 +216,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json(
-      { message: 'Failed to create check-in', data: { error: error.message } },
+      { message: 'Failed to create check-in', data: process.env.NODE_ENV === 'development' ? { error: error.message } : null },
       { status: 500 }
     );
   }
@@ -296,7 +296,7 @@ export async function DELETE(request) {
   } catch (error) {
     console.error('Delete check-in error:', error);
     return NextResponse.json(
-      { message: 'Failed to remove check-in', data: { error: error.message } },
+      { message: 'Failed to remove check-in', data: process.env.NODE_ENV === 'development' ? { error: error.message } : null },
       { status: 500 }
     );
   }

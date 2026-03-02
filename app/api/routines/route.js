@@ -267,7 +267,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Create routine error:', error);
     return NextResponse.json(
-      { message: 'Failed to create routine', data: { error: error.message } },
+      { message: 'Failed to create routine', data: process.env.NODE_ENV === 'development' ? { error: error.message } : null },
       { status: 500 }
     );
   }

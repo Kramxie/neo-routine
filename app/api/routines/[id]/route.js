@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import connectDB from '@/lib/db';
 import Routine from '@/models/Routine';
 import User from '@/models/User';
@@ -13,6 +14,13 @@ import { canAddTask, getEffectiveTier } from '@/lib/features';
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { message: 'Invalid routine ID', data: null },
+        { status: 400 }
+      );
+    }
 
     // Get current user
     const user = await getCurrentUser();
@@ -54,7 +62,7 @@ export async function GET(request, { params }) {
   } catch (error) {
     console.error('Get routine error:', error);
     return NextResponse.json(
-      { message: 'Failed to fetch routine', data: { error: error.message } },
+      { message: 'Failed to fetch routine', data: process.env.NODE_ENV === 'development' ? { error: error.message } : null },
       { status: 500 }
     );
   }
@@ -67,6 +75,13 @@ export async function GET(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { message: 'Invalid routine ID', data: null },
+        { status: 400 }
+      );
+    }
 
     // Get current user
     const user = await getCurrentUser();
@@ -199,7 +214,7 @@ export async function PATCH(request, { params }) {
   } catch (error) {
     console.error('Update routine error:', error);
     return NextResponse.json(
-      { message: 'Failed to update routine', data: { error: error.message } },
+      { message: 'Failed to update routine', data: process.env.NODE_ENV === 'development' ? { error: error.message } : null },
       { status: 500 }
     );
   }
@@ -213,6 +228,13 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { message: 'Invalid routine ID', data: null },
+        { status: 400 }
+      );
+    }
 
     // Get current user
     const user = await getCurrentUser();
@@ -268,7 +290,7 @@ export async function DELETE(request, { params }) {
   } catch (error) {
     console.error('Delete routine error:', error);
     return NextResponse.json(
-      { message: 'Failed to delete routine', data: { error: error.message } },
+      { message: 'Failed to delete routine', data: process.env.NODE_ENV === 'development' ? { error: error.message } : null },
       { status: 500 }
     );
   }
