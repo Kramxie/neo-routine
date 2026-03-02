@@ -9,8 +9,8 @@ import rateLimit from '@/lib/rateLimit';
  * For testing/development purposes only — disabled in production
  */
 export async function POST(request) {
-  // Block demo login in production
-  if (process.env.NODE_ENV === 'production') {
+  // Block demo login in production (allow in CI/E2E via ALLOW_DEMO)
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEMO !== 'true') {
     return NextResponse.json(
       { message: 'Demo mode is not available in production' },
       { status: 403 }
@@ -68,7 +68,7 @@ export async function POST(request) {
  * Get demo user info
  */
 export async function GET() {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEMO !== 'true') {
     return NextResponse.json(
       { message: 'Demo mode is not available in production' },
       { status: 403 }

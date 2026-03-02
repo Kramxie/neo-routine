@@ -82,6 +82,7 @@ jobs:
       - name: Build application
         run: npm run build
         env:
+          ALLOW_DEMO: 'true'
           MONGO_URI: mongodb://localhost:27017/neo-routine-test
           JWT_SECRET: test-secret-key-for-ci
           NEXT_PUBLIC_APP_URL: http://localhost:3000
@@ -90,6 +91,7 @@ jobs:
         run: npm run test:e2e
         env:
           CI: true
+          ALLOW_DEMO: 'true'
           MONGO_URI: mongodb://localhost:27017/neo-routine-test
           JWT_SECRET: test-secret-key-for-ci
           NEXT_PUBLIC_APP_URL: http://localhost:3000
