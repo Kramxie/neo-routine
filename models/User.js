@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
       match: [
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/,
         'Please enter a valid email',
       ],
     },
@@ -198,11 +198,20 @@ const UserSchema = new mongoose.Schema(
       isVerified: { type: Boolean, default: false },
       // Active since (when became a coach)
       activeSince: { type: Date },
+      // Application status (admin approval flow)
+      applicationStatus: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+      },
+      appliedAt: { type: Date },
+      rejectionReason: { type: String },
+      reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      reviewedAt: { type: Date },
     },
     // Client relationship (for users with a coach)
     coaching: {
       // Reference to coach user
-      coachId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      coachId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
       // When client joined this coach
       joinedAt: { type: Date },
       // Status of coaching relationship
@@ -214,11 +223,21 @@ const UserSchema = new mongoose.Schema(
       // Invite code used to join
       inviteCode: { type: String },
     },
+    // Account suspension (admin action)
+    isSuspended: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true, // Adds createdAt and updatedAt
   }
 );
+
+// Indexes for query performance
+UserSchema.index({ 'subscription.stripeCustomerId': 1 });
+UserSchema.index({ 'coachProfile.applicationStatus': 1 });
+UserSchema.index({ role: 1 });
 
 /**
  * Pre-save middleware to hash password

@@ -10,7 +10,7 @@ import { jwtVerify } from 'jose';
 const SERVER_INSTANCE_ID = process.env.SERVER_INSTANCE_ID || 'default';
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard', '/coach'];
+const protectedRoutes = ['/dashboard', '/coach', '/admin'];
 
 // Routes only for unauthenticated users
 const authRoutes = ['/login', '/register'];
