@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
 import CheckIn from '@/models/CheckIn';
@@ -67,19 +68,19 @@ export async function GET(request, { params }) {
 
     const checkIns = await CheckIn.find({
       userId: id,
-      date: { $gte: dateStr },
+      dateISO: { $gte: dateStr },
     })
-      .select('date routine task')
+      .select('dateISO routineId taskId')
       .sort({ date: -1 })
       .lean();
 
     // Calculate activity by day
     const activityByDay = {};
     checkIns.forEach((checkIn) => {
-      if (!activityByDay[checkIn.date]) {
-        activityByDay[checkIn.date] = 0;
+      if (!activityByDay[checkIn.dateISO]) {
+        activityByDay[checkIn.dateISO] = 0;
       }
-      activityByDay[checkIn.date]++;
+      activityByDay[checkIn.dateISO]++;
     });
 
     // Get weekly completion rate
@@ -127,6 +128,13 @@ export async function GET(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { message: 'Invalid client ID' },
+        { status: 400 }
+      );
+    }
 
     const user = await getCurrentUser();
     if (!user) {

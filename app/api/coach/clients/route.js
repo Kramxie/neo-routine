@@ -58,7 +58,7 @@ export async function GET(request) {
         // Check if active today
         const todayCheckIns = await CheckIn.countDocuments({
           userId: client._id,
-          date: today,
+          dateISO: today,
         });
 
         return {
