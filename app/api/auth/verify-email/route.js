@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
+import rateLimit from '@/lib/rateLimit';
 
 /**
  * POST /api/auth/verify-email
@@ -8,6 +9,10 @@ import User from '@/models/User';
  * Body: { email, code }
  */
 export async function POST(request) {
+  // Rate limit: 5 attempts per 15 minutes to prevent brute-force on 6-digit code
+  const limited = rateLimit(request, 'verifyEmail');
+  if (limited) return limited;
+
   try {
     const { email, code } = await request.json();
 
@@ -86,7 +91,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Email verification error:', error);
     return NextResponse.json(
-      { message: 'Failed to verify email', error: error.message },
+      { message: 'Failed to verify email', ...(process.env.NODE_ENV === 'development' && { error: error.message }) },
       { status: 500 }
     );
   }

@@ -53,7 +53,7 @@ export async function GET() {
     return NextResponse.json(
       {
         message: 'Failed to get user',
-        data: { error: error.message },
+        data: process.env.NODE_ENV === 'development' ? { error: error.message } : null,
       },
       { status: 500 }
     );

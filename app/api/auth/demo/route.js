@@ -1,13 +1,26 @@
 import { NextResponse } from 'next/server';
 import { generateToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import rateLimit from '@/lib/rateLimit';
 
 /**
  * POST /api/auth/demo
  * Demo login - creates a test session without database
- * For testing purposes only
+ * For testing/development purposes only — disabled in production
  */
-export async function POST() {
+export async function POST(request) {
+  // Block demo login in production
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { message: 'Demo mode is not available in production' },
+      { status: 403 }
+    );
+  }
+
+  // Rate limit: 5 demo logins per 15 minutes
+  const limited = rateLimit(request, 'login');
+  if (limited) return limited;
+
   try {
     // Demo user data
     const demoUser = {
@@ -44,7 +57,7 @@ export async function POST() {
   } catch (error) {
     console.error('Demo login error:', error);
     return NextResponse.json(
-      { message: 'Demo login failed', error: error.message },
+      { message: 'Demo login failed', ...(process.env.NODE_ENV === 'development' && { error: error.message }) },
       { status: 500 }
     );
   }
@@ -55,6 +68,13 @@ export async function POST() {
  * Get demo user info
  */
 export async function GET() {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { message: 'Demo mode is not available in production' },
+      { status: 403 }
+    );
+  }
+
   return NextResponse.json({
     message: 'Demo mode available',
     credentials: {

@@ -60,7 +60,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Resend verification error:', error);
     return NextResponse.json(
-      { message: 'Failed to send verification email', error: error.message },
+      { message: 'Failed to send verification email', ...(process.env.NODE_ENV === 'development' && { error: error.message }) },
       { status: 500 }
     );
   }

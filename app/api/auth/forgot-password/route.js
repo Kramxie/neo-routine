@@ -15,8 +15,8 @@ export async function POST(request) {
     const rateLimitResult = rateLimit(request, 'forgotPassword');
     if (rateLimitResult) return rateLimitResult;
 
-    var body = await request.json();
-    var email = body.email;
+    const body = await request.json();
+    const email = body.email;
 
     if (!email) {
       return NextResponse.json(
@@ -28,7 +28,7 @@ export async function POST(request) {
     await connectDB();
 
     // Find user by email
-    var user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: email.toLowerCase() });
 
     // Always return success to prevent email enumeration attacks
     if (!user) {
@@ -38,8 +38,8 @@ export async function POST(request) {
     }
 
     // Generate reset token
-    var resetToken = crypto.randomBytes(32).toString('hex');
-    var hashedToken = crypto
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto
       .createHash('sha256')
       .update(resetToken)
       .digest('hex');
@@ -50,7 +50,7 @@ export async function POST(request) {
     await user.save();
 
     // Send email
-    var result = await sendPasswordResetEmail(
+    const result = await sendPasswordResetEmail(
       user.email,
       user.name,
       resetToken

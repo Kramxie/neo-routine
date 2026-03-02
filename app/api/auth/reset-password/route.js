@@ -2,16 +2,20 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
+import rateLimit from '@/lib/rateLimit';
 
 /**
  * POST /api/auth/reset-password
  * Reset user's password with valid token
  */
 export async function POST(request) {
+  // Rate limit: 5 attempts per 15 minutes to prevent token brute-force
+  const limited = rateLimit(request, 'resetPassword');
+  if (limited) return limited;
+
   try {
-    var body = await request.json();
-    var token = body.token;
-    var password = body.password;
+    const body = await request.json();
+    const { token, password } = body;
 
     if (!token || !password) {
       return NextResponse.json(
@@ -31,13 +35,13 @@ export async function POST(request) {
     await connectDB();
 
     // Hash the token to compare with stored hash
-    var hashedToken = crypto
+    const hashedToken = crypto
       .createHash('sha256')
       .update(token)
       .digest('hex');
 
     // Find user with valid token
-    var user = await User.findOne({
+    const user = await User.findOne({
       passwordResetToken: hashedToken,
       passwordResetExpires: { $gt: new Date() },
     }).select('+passwordResetToken +passwordResetExpires');
