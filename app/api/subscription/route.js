@@ -96,10 +96,20 @@ export async function GET() {
 
 /**
  * POST /api/subscription
- * Create/upgrade subscription (mock implementation - would integrate with Stripe)
+ * Create/upgrade subscription
+ * In production: redirects to Stripe Checkout via /api/checkout
+ * In development: allows mock activation for testing
  */
 export async function POST(request) {
   try {
+    // Block mock subscription in production — use /api/checkout for real payments
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json(
+        { error: 'Use /api/checkout for subscription management in production' },
+        { status: 403 }
+      );
+    }
+
     const authUser = await getCurrentUser();
     if (!authUser) {
       return NextResponse.json(
@@ -130,9 +140,7 @@ export async function POST(request) {
       );
     }
 
-    // In production, this would create a Stripe checkout session
-    // For now, we simulate the subscription activation
-    
+    // DEV ONLY: simulate the subscription activation
     const now = new Date();
     const periodEnd = new Date();
     
@@ -158,14 +166,13 @@ export async function POST(request) {
     await user.save();
 
     return NextResponse.json({
-      message: 'Subscription activated successfully',
+      message: '[DEV] Subscription activated successfully',
       subscription: {
         status: 'active',
         plan: planId,
         tier: selectedPlan.tier,
         currentPeriodEnd: periodEnd,
       },
-      // In production, this would be a Stripe checkout URL
       checkoutUrl: null,
     });
   } catch (error) {
@@ -208,7 +215,13 @@ export async function DELETE() {
       );
     }
 
-    // In production, this would cancel via Stripe API
+    // Cancel via Stripe API if real subscription exists
+    const subId = user.subscription.stripeSubscriptionId;
+    if (subId && !subId.startsWith('sub_mock_')) {
+      const { cancelSubscription } = await import('@/lib/stripe');
+      await cancelSubscription(subId);
+    }
+
     // Subscription remains active until period end
     user.subscription.cancelAtPeriodEnd = true;
     user.subscription.canceledAt = new Date();
