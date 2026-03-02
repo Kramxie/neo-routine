@@ -65,7 +65,7 @@ export async function GET() {
 
 /**
  * POST /api/coach/profile
- * Apply to become a coach (upgrade role from user to coach)
+ * Apply to become a coach — submits an application (pending admin approval)
  */
 export async function POST(request) {
   try {
@@ -96,6 +96,14 @@ export async function POST(request) {
       );
     }
 
+    // Already has a pending application
+    if (dbUser.coachProfile?.applicationStatus === 'pending') {
+      return NextResponse.json(
+        { message: 'Your coach application is already pending review' },
+        { status: 400 }
+      );
+    }
+
     const body = await request.json();
 
     // Validate required fields
@@ -106,8 +114,7 @@ export async function POST(request) {
       );
     }
 
-    // Update to coach role
-    dbUser.role = 'coach';
+    // Save application (role stays 'user' until admin approves)
     dbUser.coachProfile = {
       brandName: sanitizeString(body.brandName, 100),
       bio: sanitizeString(body.bio || '', 500),
@@ -123,24 +130,24 @@ export async function POST(request) {
       brandColor: body.brandColor || '#0ea5e9',
       avatarUrl: sanitizeString(body.avatarUrl || '', 500),
       isVerified: false,
-      activeSince: new Date(),
+      applicationStatus: 'pending',
+      appliedAt: new Date(),
     };
 
     await dbUser.save();
 
     return NextResponse.json({
-      message: 'Welcome to the coaching program!',
-      profile: {
+      message: 'Coach application submitted! An admin will review your application.',
+      application: {
         brandName: dbUser.coachProfile.brandName,
-        bio: dbUser.coachProfile.bio,
-        specializations: dbUser.coachProfile.specializations,
-        activeSince: dbUser.coachProfile.activeSince,
+        status: 'pending',
+        appliedAt: dbUser.coachProfile.appliedAt,
       },
     }, { status: 201 });
   } catch (error) {
     console.error('Apply as coach error:', error);
     return NextResponse.json(
-      { message: 'Failed to apply as coach' },
+      { message: 'Failed to submit coach application' },
       { status: 500 }
     );
   }

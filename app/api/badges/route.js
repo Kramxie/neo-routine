@@ -40,8 +40,10 @@ export async function GET() {
 }
 
 /**
- * POST /api/badges - Award a badge to user
- * Body: { badgeId: string, context?: object }
+ * POST /api/badges - Award a badge to user (server-side only)
+ * This endpoint is restricted — badges can only be awarded by the badge engine
+ * or by admin users. Regular users cannot self-award badges.
+ * Body: { badgeId: string, context?: object, targetUserId?: string (admin only) }
  */
 export async function POST(request) {
   try {
@@ -53,8 +55,17 @@ export async function POST(request) {
       );
     }
 
+    // Only admins can award badges via API
+    // Regular users get badges through the server-side badge engine (lib/badgeEngine.js)
+    if (user.role !== 'admin') {
+      return NextResponse.json(
+        { success: false, error: 'Badges are awarded automatically — you cannot self-award badges' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
-    const { badgeId, context } = body;
+    const { badgeId, context, targetUserId } = body;
 
     if (!badgeId) {
       return NextResponse.json(
@@ -63,11 +74,13 @@ export async function POST(request) {
       );
     }
 
+    const userId = targetUserId || user.userId;
+
     await connectDB();
 
     // Check if badge already exists
     const existingBadge = await Badge.findOne({
-      userId: user.userId,
+      userId,
       badgeId,
     });
 
@@ -80,7 +93,7 @@ export async function POST(request) {
 
     // Create new badge
     const badge = await Badge.create({
-      userId: user.userId,
+      userId,
       badgeId,
       context,
       seen: false,
