@@ -68,7 +68,7 @@ function ToastItem({ id, type, message, onDismiss }) {
 
 function ToastContainer({ toasts, removeToast }) {
   return (
-    <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-auto">
+    <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-auto" role="status" aria-live="polite">
       {toasts.map(function (t) {
         return (
           <ToastItem

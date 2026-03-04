@@ -6,7 +6,7 @@
  */
 export default function PublicLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-water dark:bg-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-water dark:bg-slate-900" role="status" aria-live="polite">
       <div className="text-center">
         {/* Animated water drop */}
         <div className="relative w-16 h-16 mx-auto mb-6">

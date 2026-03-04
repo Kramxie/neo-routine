@@ -36,6 +36,18 @@ export default function AppLayout({ children }) {
     fetchUser();
   }, []);
 
+  // Close sidebar and notification dropdown on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showNotifications) setShowNotifications(false);
+        if (isSidebarOpen) setIsSidebarOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showNotifications, isSidebarOpen]);
+
   // Handle logout
   const handleLogout = async () => {
     try {
@@ -150,6 +162,7 @@ export default function AppLayout({ children }) {
         <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setIsSidebarOpen(false); }}
         />
       )}
 
@@ -162,6 +175,7 @@ export default function AppLayout({ children }) {
           lg:translate-x-0 flex flex-col
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
+        aria-label="App sidebar navigation"
       >
         {/* Logo */}
         <div className="h-16 flex items-center px-6 border-b border-calm-100 dark:border-slate-700">
@@ -240,6 +254,7 @@ export default function AppLayout({ children }) {
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="lg:hidden p-2 rounded-lg text-calm-600 dark:text-slate-300 hover:bg-calm-100 dark:hover:bg-slate-700"
+            aria-label="Open sidebar menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -260,12 +275,16 @@ export default function AppLayout({ children }) {
               <button
                 onClick={function() { setShowNotifications(!showNotifications); }}
                 className="p-2 rounded-lg text-calm-500 hover:bg-calm-100 hover:text-calm-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white transition-colors relative"
+                aria-label="Notifications"
+                aria-expanded={showNotifications}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 {/* Notification badge */}
-                <span className="absolute top-1 right-1 w-2 h-2 bg-neo-500 rounded-full"></span>
+                {notifications.length > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-neo-500 rounded-full" aria-hidden="true"></span>
+                )}
               </button>
 
               {/* Notification dropdown */}

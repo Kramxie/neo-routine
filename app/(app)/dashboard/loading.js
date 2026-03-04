@@ -4,7 +4,7 @@
  */
 export default function DashboardLoading() {
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="flex items-center justify-center min-h-[60vh]" role="status" aria-live="polite">
       <div className="text-center">
         {/* Animated water drop */}
         <div className="relative w-20 h-20 mx-auto mb-6">
