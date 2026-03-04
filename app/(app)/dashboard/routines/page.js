@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Card, { CardContent } from '@/components/ui/Card';
 import { toHex } from '@/lib/colorUtils';
+import { useToast } from '@/components/ui/Toast';
 
 /**
  * Routines Management Page
@@ -17,6 +18,7 @@ export default function RoutinesPage() {
   const [checkLoading, setCheckLoading] = useState({});
   const [deleteId, setDeleteId] = useState(null);
   const [routineLimits, setRoutineLimits] = useState({ canCreate: true, remaining: null, max: null });
+  const toast = useToast();
 
   // Get user's local date in YYYY-MM-DD
   const getLocalDateISO = () => {
@@ -130,6 +132,7 @@ export default function RoutinesPage() {
       }
     } catch (error) {
       console.error('Failed to toggle task:', error);
+      toast.error('Failed to update task. Please try again.');
     } finally {
       setCheckLoading((prev) => ({ ...prev, [key]: false }));
     }
@@ -146,6 +149,7 @@ export default function RoutinesPage() {
       }
     } catch (error) {
       console.error('Failed to delete routine:', error);
+      toast.error('Failed to delete routine. Please try again.');
     } finally {
       setDeleteId(null);
     }
@@ -364,8 +368,15 @@ export default function RoutinesPage() {
 
       {/* Delete Confirmation Modal */}
       {deleteId && (
-        <div className="fixed inset-0 bg-calm-900/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+        <div
+          className="fixed inset-0 bg-calm-900/50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirm routine deletion"
+          onClick={() => setDeleteId(null)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setDeleteId(null); }}
+        >
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
               <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
