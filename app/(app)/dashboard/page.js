@@ -9,6 +9,7 @@ import DropList from '@/components/ui/DropList';
 import Confetti, { useCelebration } from '@/components/ui/Confetti';
 import { WeekStreak } from '@/components/ui/StreakCalendar';
 import { BadgeProgress, BadgeUnlockAnimation } from '@/components/ui/BadgeDisplay';
+import { useToast } from '@/components/ui/Toast';
 
 /**
  * Enhanced Dashboard Page
@@ -216,6 +217,7 @@ export default function DashboardPage() {
       await fetchDashboardStats();
     } catch (error) {
       console.error('Check-in error:', error);
+      toast.error('Failed to update check-in. Please try again.');
     } finally {
       setCheckLoading(false);
     }

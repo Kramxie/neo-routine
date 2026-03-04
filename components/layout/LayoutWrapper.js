@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import SkipNavigation from '../ui/SkipNavigation';
+import ErrorBoundary from '../ui/ErrorBoundary';
 import { useEffect } from 'react';
 
 /**
@@ -56,9 +57,10 @@ export default function LayoutWrapper({ children }) {
         id="main-content" 
         tabIndex={-1}
         className={isAppRoute ? '' : 'flex-grow pt-16'}
-        role="main"
       >
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </main>
       <Footer />
     </>

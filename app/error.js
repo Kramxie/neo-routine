@@ -14,7 +14,7 @@ export default function Error({ error, reset }) {
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-red-50 to-white dark:from-slate-900 dark:to-slate-800 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-red-50 to-white dark:from-slate-900 dark:to-slate-800 px-4" role="alert">
       <div className="text-center max-w-lg">
         {/* Error icon */}
         <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
