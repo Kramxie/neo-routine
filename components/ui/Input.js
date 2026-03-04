@@ -104,7 +104,7 @@ const Input = forwardRef(function Input(props, ref) {
             type="button"
             onClick={togglePassword}
             className="absolute inset-y-0 right-0 pr-3 flex items-center z-10 text-calm-400 dark:text-slate-500 hover:text-calm-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
-            tabIndex={-1}
+            tabIndex={0}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? <EyeOffIcon /> : <EyeIcon />}

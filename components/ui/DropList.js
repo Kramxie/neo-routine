@@ -93,6 +93,9 @@ export default function DropList({
               <button
                   onClick={() => handleToggle(task)}
                 disabled={disabled}
+                role="checkbox"
+                aria-checked={isChecked}
+                aria-label={`Mark ${task.label} as ${isChecked ? 'incomplete' : 'complete'}`}
                 className={`
                   w-full px-3 sm:px-4 py-3 sm:py-3.5 flex items-center gap-2 sm:gap-3
                   transition-all duration-200 min-h-[48px]

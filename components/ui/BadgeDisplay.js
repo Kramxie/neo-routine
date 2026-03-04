@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BADGE_DEFINITIONS, RARITY_COLORS } from '@/lib/badgeDefinitions';
 
 /**
@@ -20,12 +20,21 @@ export function BadgeCard({ badge, showDetails = false, onClick, isNew = false }
   const colors = RARITY_COLORS[definition.rarity] || RARITY_COLORS.common;
   const earnedDate = badge.earnedAt ? new Date(badge.earnedAt).toLocaleDateString() : '';
 
+  const handleKeyDown = onClick
+    ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(e); } }
+    : undefined;
+
   return (
     <div
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={`${definition.name} badge - ${definition.rarity} rarity`}
       className={`
         badge-card relative rounded-xl p-4 border-2 cursor-pointer
         transition-all duration-300 hover:scale-105 hover:shadow-lg
+        focus:outline-none focus:ring-2 focus:ring-neo-400 focus:ring-offset-2
         ${isNew ? 'animate-pulse ring-2 ring-yellow-400 ring-offset-2' : ''}
       `}
       style={{
@@ -164,10 +173,23 @@ export function BadgeModal({ badge, onClose }) {
       })
     : '';
 
+  // Close on Escape key
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === 'Escape') onClose();
+  }, [onClose]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
   return (
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${definition.name} badge details`}
     >
       <div
         className="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl"

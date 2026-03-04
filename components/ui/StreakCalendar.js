@@ -237,9 +237,15 @@ export default function StreakCalendar({
             <div
               key={cell.key}
               onClick={() => !cell.isFuture && onDayClick?.(cell)}
+              onKeyDown={(e) => { if (!cell.isFuture && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onDayClick?.(cell); } }}
+              role={!cell.isFuture ? 'button' : undefined}
+              tabIndex={!cell.isFuture ? 0 : undefined}
+              aria-disabled={cell.isFuture ? 'true' : undefined}
+              aria-label={cell.isFuture ? `${cell.day}, future date` : `${cell.day}, ${cell.data.completed} of ${cell.data.total} tasks completed`}
               className={`
                 aspect-square rounded-lg flex items-center justify-center relative
                 transition-all duration-200 cursor-pointer
+                focus:outline-none focus:ring-2 focus:ring-neo-400
                 ${cell.isFuture ? 'bg-calm-50 text-calm-300' : intensityColors[intensity]}
                 ${cell.isToday ? `ring-2 ring-neo-500 ring-offset-1` : ''}
                 ${isInStreak && intensity > 0 ? 'ring-2 ring-orange-400' : ''}

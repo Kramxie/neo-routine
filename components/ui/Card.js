@@ -37,8 +37,13 @@ export default function Card({
 
   // Clickable styles
   const clickableStyles = onClick
-    ? 'cursor-pointer'
+    ? 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-neo-400 focus:ring-offset-2'
     : '';
+
+  // Keyboard handler for clickable cards
+  const handleKeyDown = onClick
+    ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(e); } }
+    : undefined;
 
   return (
     <div
@@ -51,6 +56,8 @@ export default function Card({
         ${className}
       `}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      {...(onClick ? { role: 'button', tabIndex: 0 } : {})}
       {...props}
     >
       {children}
