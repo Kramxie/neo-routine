@@ -125,9 +125,9 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI || 'mongodb://localhost:27017/neo-routine' }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET || 'build-secret-key' }}
-          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}
+          MONGO_URI: ${{ secrets.MONGO_URI != '' && secrets.MONGO_URI || 'mongodb://localhost:27017/neo-routine' }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET != '' && secrets.JWT_SECRET || 'build-secret-key' }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL != '' && secrets.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}
 
   # Security Audit
   security:
