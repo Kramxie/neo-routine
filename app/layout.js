@@ -7,6 +7,13 @@ import User from '@/models/User';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://neo-routine.vercel.app';
 
+/** @see https://nextjs.org/docs/app/api-reference/functions/generate-viewport */
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#3b82f6',
+};
+
 export const metadata = {
   metadataBase: new URL(APP_URL),
   title: {
@@ -73,9 +80,6 @@ export const metadata = {
     },
   },
 };
-
-// Force dynamic rendering to avoid cookie access errors during static generation
-export const dynamic = 'force-dynamic';
 
 /**
  * Root Layout
