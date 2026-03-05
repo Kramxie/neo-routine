@@ -1,15 +1,13 @@
 // Neo Routine Service Worker
 // Handles push notifications, background sync, and offline caching
 
-const CACHE_NAME = 'neo-routine-v1';
-const STATIC_CACHE_NAME = 'neo-routine-static-v1';
+const CACHE_VERSION = 1;
+const CACHE_NAME = `neo-routine-v${CACHE_VERSION}`;
+const STATIC_CACHE_NAME = `neo-routine-static-v${CACHE_VERSION}`;
 
-// Assets to cache for offline use
+// Only pre-cache truly static assets (no dynamic/auth-protected pages)
 const STATIC_ASSETS = [
-  '/',
-  '/dashboard',
-  '/login',
-  '/neoLogo.jfif',
+  '/offline.html',
   '/manifest.json',
 ];
 
@@ -64,9 +62,9 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Serve from cache if offline
+          // Serve from cache if offline, or show offline fallback page
           return caches.match(request).then((cached) => {
-            return cached || caches.match('/dashboard');
+            return cached || caches.match('/offline.html');
           });
         })
     );
