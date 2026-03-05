@@ -10,6 +10,7 @@ export const metadata = {
     description:
       'Simple, transparent pricing for NeoRoutine. Start free, upgrade when you\'re ready. Cancel anytime.',
     url: `${APP_URL}/pricing`,
+    images: [{ url: `${APP_URL}/opengraph-image`, width: 1200, height: 630, alt: 'NeoRoutine' }],
   },
 };
 

@@ -10,6 +10,7 @@ export const metadata = {
     description:
       'Join NeoRoutine for free. No credit card required. Start building lasting habits with calm, pressure-free tracking.',
     url: `${APP_URL}/register`,
+    images: [{ url: `${APP_URL}/opengraph-image`, width: 1200, height: 630, alt: 'NeoRoutine' }],
   },
 };
 

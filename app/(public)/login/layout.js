@@ -8,6 +8,7 @@ export const metadata = {
     title: 'Sign In | NeoRoutine',
     description: 'Sign in to your NeoRoutine account and continue building your daily habits.',
     url: `${APP_URL}/login`,
+    images: [{ url: `${APP_URL}/opengraph-image`, width: 1200, height: 630, alt: 'NeoRoutine' }],
   },
 };
 

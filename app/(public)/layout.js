@@ -13,9 +13,7 @@ export const metadata = {
     default: 'NeoRoutine — Redesigning habits. One drop at a time.',
     template: '%s | NeoRoutine',
   },
-  alternates: {
-    canonical: APP_URL,
-  },
+
 };
 
 /* ------------------------------------------------------------------
@@ -66,13 +64,6 @@ const jsonLd = [
         billingIncrement: 'P1M',
       },
     ],
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      ratingCount: '10000',
-      bestRating: '5',
-      worstRating: '1',
-    },
   },
   {
     '@context': 'https://schema.org',
@@ -80,7 +71,6 @@ const jsonLd = [
     name: 'NeoRoutine',
     url: APP_URL,
     logo: `${APP_URL}/neoLogo.jfif`,
-    sameAs: [],
   },
 ];
 
