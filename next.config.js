@@ -5,6 +5,8 @@ const SERVER_INSTANCE_ID = process.env.NODE_ENV === 'production'
   ? 'production'
   : crypto.randomBytes(8).toString('hex');
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable React strict mode for better development experience
@@ -53,7 +55,7 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+              "script-src 'self' 'unsafe-inline'" + (isDev ? " 'unsafe-eval'" : '') + ' https://js.stripe.com',
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https:",
@@ -68,7 +70,7 @@ const nextConfig = {
           },
           {
             key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains',
+            value: 'max-age=63072000; includeSubDomains; preload',
           },
         ],
       },
