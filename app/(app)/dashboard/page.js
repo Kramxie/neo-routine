@@ -93,10 +93,10 @@ export default function DashboardPage() {
   // Returns a cleanup function for any scheduled celebrations
   const fetchDashboardStats = useCallback(async (isMountedRef) => {
     try {
-      const response = await fetch('/api/dashboard/stats');
+      const response = await fetch(`/api/dashboard/stats?date=${getLocalDateISO()}`);
       if (response.ok) {
         const result = await response.json();
-        if (result.success && isMountedRef.current) {
+        if (result.success && (isMountedRef ? isMountedRef.current : true)) {
           setDashboardStats(result.data);
           
           // Trigger celebrations if any milestones reached
@@ -106,11 +106,11 @@ export default function DashboardPage() {
             const celebrationKey = `celebration_shown_${first.message?.replace(/[^a-zA-Z0-9]/g, '_')}`;
             const alreadyShown = sessionStorage.getItem(celebrationKey);
             
-            if (!alreadyShown && isMountedRef.current) {
+            if (!alreadyShown && (isMountedRef ? isMountedRef.current : true)) {
               sessionStorage.setItem(celebrationKey, 'true');
               // Small delay to let UI render first
               setTimeout(() => {
-                if (isMountedRef.current) {
+                if (isMountedRef ? isMountedRef.current : true) {
                   celebrate({
                     type: first.type || 'achievement',
                     message: first.message,
@@ -276,18 +276,10 @@ export default function DashboardPage() {
   // Quote from dashboard stats
   const quote = dashboardStats?.quote || { text: 'Every drop creates ripples of progress.', author: 'Neo Routine' };
   
-  // Greeting from dashboard stats or compute locally
-  const greeting = dashboardStats?.greeting || getDefaultGreeting();
-  function getDefaultGreeting() {
-    const hour = new Date().getHours();
-    const name = user?.name?.split(' ')[0] || 'there';
-    if (hour < 12) return `Good morning, ${name}! ☀️`;
-    if (hour < 17) return `Good afternoon, ${name}! 👋`;
-    if (hour < 21) return `Good evening, ${name}! 🌙`;
-    return `Still going, ${name}? 🦉`;
-  }
+  // Greeting from dashboard stats — only compute fallback on client after mount
+  const greeting = dashboardStats?.greeting || '';
   
-  const weeklyData = todayData?.stats?.weekly?.data || todayData?.weeklyData || [];
+  const weeklyData = dashboardStats?.weeklyData || todayData?.stats?.weekly?.data || todayData?.weeklyData || [];
 
   // Debug: log computed numbers when todayData changes
   useEffect(() => {
@@ -535,11 +527,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <WeekStreak
-                data={weeklyData.map(d => ({
-                  date: new Date(Date.now() - ((6 - weeklyData.indexOf(d)) * 24 * 60 * 60 * 1000)),
-                  completed: d.percent >= 80
-                }))}
-                currentStreak={currentStreak}
+                data={weeklyData}
               />
               
               <div className="mt-4 text-center">

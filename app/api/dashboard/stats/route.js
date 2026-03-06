@@ -7,6 +7,7 @@ import CheckIn from '@/models/CheckIn';
 import Badge from '@/models/Badge';
 import Goal from '@/models/Goal';
 import { getDailyQuote as _getDailyQuote, getTimeBasedQuote, getStreakQuote } from '@/lib/quotes';
+import { getTodayInTimezone } from '@/lib/timezone';
 
 /**
  * GET /api/dashboard/stats
@@ -16,8 +17,11 @@ import { getDailyQuote as _getDailyQuote, getTimeBasedQuote, getStreakQuote } fr
  * - Motivational quote
  * - Recent badges
  * - Streak-at-risk status
+ *
+ * Query params: ?date=YYYY-MM-DD (optional, uses client's local date to
+ * avoid timezone mismatches between server clock and browser).
  */
-export async function GET() {
+export async function GET(request) {
   try {
     const authUser = await getCurrentUser();
     if (!authUser) {
@@ -31,27 +35,49 @@ export async function GET() {
 
     const userId = authUser.userId;
     
-    // Get today's date info
+    // Get today's date — prefer the client-supplied date param so stats
+    // align with the user's local calendar, not the server's TZ.
     const now = new Date();
     const hour = now.getHours();
     const pad = (n) => String(n).padStart(2, '0');
-    const todayISO = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-    
-    // Yesterday's date for streak check
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayISO = `${yesterday.getFullYear()}-${pad(yesterday.getMonth() + 1)}-${pad(yesterday.getDate())}`;
 
-    // Parallel data fetching
-    const [user, routines, todayCheckIns, _yesterdayCheckIns, badges, goals] = await Promise.all([
-      User.findById(userId).select('name email analytics preferences tier'),
+    const { searchParams } = new URL(request.url);
+    const clientDate = searchParams.get('date');
+    // Accept YYYY-MM-DD from client; fall back to user's TZ, then server clock
+    const userDoc = await User.findById(userId).select('name email analytics preferences tier');
+    const userTimezone = userDoc?.preferences?.timezone || 'UTC';
+    const todayISO = (clientDate && /^\d{4}-\d{2}-\d{2}$/.test(clientDate))
+      ? clientDate
+      : getTodayInTimezone(userTimezone);
+    
+    // Yesterday's date for streak check (relative to todayISO, not server clock)
+    const [y, m, d] = todayISO.split('-').map(Number);
+    const yesterdayDate = new Date(Date.UTC(y, m - 1, d));
+    yesterdayDate.setUTCDate(yesterdayDate.getUTCDate() - 1);
+    const yesterdayISO = `${yesterdayDate.getUTCFullYear()}-${pad(yesterdayDate.getUTCMonth() + 1)}-${pad(yesterdayDate.getUTCDate())}`;
+
+    // Parallel data fetching (user already fetched above for timezone)
+    // Build 7-day date range for weekly streak data
+    const weekDates = [];
+    for (let i = 6; i >= 0; i--) {
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      dt.setUTCDate(dt.getUTCDate() - i);
+      weekDates.push(`${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`);
+    }
+    const weekStartISO = weekDates[0];
+    const weekEndISO = weekDates[6];
+
+    const [routines, todayCheckIns, _yesterdayCheckIns, badges, goals, weekCheckIns] = await Promise.all([
       Routine.find({ userId, isArchived: false }).lean(),
       CheckIn.find({ userId, dateISO: todayISO }).lean(),
       CheckIn.find({ userId, dateISO: yesterdayISO }).lean(),
       Badge.find({ userId }).sort({ earnedAt: -1 }).limit(5).lean(),
       Goal.find({ userId, status: 'active' }).lean(),
+      CheckIn.find({ userId, dateISO: { $gte: weekStartISO, $lte: weekEndISO } }).lean(),
     ]);
 
+    // Alias for the rest of the handler
+    const user = userDoc;
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -187,6 +213,14 @@ export async function GET() {
         })),
         newBadgesCount: newBadges.length,
         celebrations,
+        weeklyData: weekDates.map(dateISO => {
+          const dayCheckIns = weekCheckIns.filter(c => c.dateISO === dateISO);
+          const uniqueTasks = new Set(dayCheckIns.map(c => c.taskId.toString()));
+          return {
+            dateISO,
+            percent: totalTasks > 0 ? Math.round((uniqueTasks.size / totalTasks) * 100) : 0,
+          };
+        }),
         timestamp: now.toISOString(),
       },
     });
