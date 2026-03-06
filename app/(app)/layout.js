@@ -16,6 +16,16 @@ export default function AppLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, _setNotifications] = useState([]);
+  const [dateString, setDateString] = useState('');
+
+  // Set date on client only to avoid hydration mismatch
+  useEffect(() => {
+    setDateString(new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+    }));
+  }, []);
 
   // Fetch current user on mount
   useEffect(() => {
@@ -318,11 +328,7 @@ export default function AppLayout({ children }) {
             </div>
 
             <span className="text-sm text-calm-500 dark:text-slate-400">
-              {new Date().toLocaleDateString('en-US', {
-                weekday: 'long',
-                month: 'short',
-                day: 'numeric',
-              })}
+              {dateString}
             </span>
           </div>
         </header>

@@ -8,10 +8,33 @@ import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
  * Visual calendar view of daily check-ins and routine completions
  */
 export default function CalendarPage() {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(null);
   const [checkIns, setCheckIns] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [today, setToday] = useState(null);
+  const [streaks, setStreaks] = useState({ current: 0, longest: 0 });
+
+  // Initialize dates on client only to avoid hydration mismatch
+  useEffect(() => {
+    const now = new Date();
+    setCurrentDate(new Date(now.getFullYear(), now.getMonth(), 1));
+    setToday(now);
+
+    // Fetch user streak data
+    fetch('/api/auth/me')
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        const analytics = data?.data?.user?.analytics;
+        if (analytics) {
+          setStreaks({
+            current: analytics.currentStreak || 0,
+            longest: analytics.longestStreak || 0,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -22,6 +45,7 @@ export default function CalendarPage() {
 
   // Fetch check-ins for current month
   useEffect(function() {
+    if (!currentDate) return;
     async function fetchCheckIns() {
       try {
         const year = currentDate.getFullYear();
@@ -44,6 +68,15 @@ export default function CalendarPage() {
     }
     fetchCheckIns();
   }, [currentDate]);
+
+  // Wait for client-side date initialization
+  if (!currentDate) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <p className="text-calm-500 dark:text-slate-400">Loading calendar...</p>
+      </div>
+    );
+  }
 
   // Get days in month
   const getDaysInMonth = (date) => {
@@ -87,7 +120,7 @@ export default function CalendarPage() {
 
   // Check if date is today
   const isToday = (day) => {
-    const today = new Date();
+    if (!today) return false;
     return (
       day === today.getDate() &&
       currentDate.getMonth() === today.getMonth() &&
@@ -97,10 +130,10 @@ export default function CalendarPage() {
 
   // Check if date is in the future
   const isFuture = (day) => {
+    if (!today) return false;
     const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date > today;
+    const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    return date > todayMidnight;
   };
 
   // Build calendar grid
@@ -266,7 +299,7 @@ export default function CalendarPage() {
                 <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z" />
               </svg>
             </div>
-            <p className="text-3xl font-bold text-calm-800 dark:text-white">0</p>
+            <p className="text-3xl font-bold text-calm-800 dark:text-white">{streaks.current}</p>
             <p className="text-sm text-calm-500 dark:text-calm-400">Current Streak</p>
           </CardContent>
         </Card>
@@ -277,7 +310,7 @@ export default function CalendarPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
             </div>
-            <p className="text-3xl font-bold text-calm-800 dark:text-white">0</p>
+            <p className="text-3xl font-bold text-calm-800 dark:text-white">{streaks.longest}</p>
             <p className="text-sm text-calm-500 dark:text-calm-400">Best Streak</p>
           </CardContent>
         </Card>

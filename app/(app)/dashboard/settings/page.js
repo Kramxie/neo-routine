@@ -156,7 +156,15 @@ function PushNotificationSection() {
     }
   }
 
-  if (typeof window !== 'undefined' && (!('Notification' in window) || !('serviceWorker' in navigator))) {
+  const [notSupported, setNotSupported] = useState(false);
+
+  useEffect(() => {
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      setNotSupported(true);
+    }
+  }, []);
+
+  if (notSupported) {
     return (
       <p className="text-sm text-calm-400 dark:text-slate-500">
         Push notifications are not supported in your browser.
