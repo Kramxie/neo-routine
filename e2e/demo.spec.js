@@ -48,8 +48,8 @@ test.describe('Dashboard Demo View', () => {
       await demoButton.click();
       await expect(page).toHaveURL(/dashboard/, { timeout: 15000 });
       
-      // Check dashboard elements
-      await expect(page.locator('text=/routine/i').first()).toBeVisible({ timeout: 10000 });
+      // Check dashboard elements — use heading locator to avoid matching the preloader's "NeoRoutine" text
+      await expect(page.locator('h3:text-matches("routine", "i")').first()).toBeVisible({ timeout: 10000 });
     } else {
       // Skip if no demo mode available
       test.skip();

@@ -31,9 +31,53 @@ export async function GET(request) {
       );
     }
 
-    await connectDB();
-
     const userId = authUser.userId;
+
+    // Demo user — return mock stats without DB lookup
+    if (userId === 'demo-user-123') {
+      const now = new Date();
+      const hour = now.getHours();
+      const pad = (n) => String(n).padStart(2, '0');
+      const _todayISO = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+      let greeting;
+      if (hour < 12) greeting = 'Good morning, Demo User! ☀️';
+      else if (hour < 17) greeting = 'Good afternoon, Demo User! 👋';
+      else if (hour < 21) greeting = 'Good evening, Demo User! 🌙';
+      else greeting = 'Still going, Demo User? 🦉';
+
+      const weekDates = [];
+      for (let i = 6; i >= 0; i--) {
+        const dt = new Date(now);
+        dt.setDate(dt.getDate() - i);
+        weekDates.push(`${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`);
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          greeting,
+          quote: { text: 'Every drop counts. Stay consistent!', author: 'NeoRoutine' },
+          user: { name: 'Demo User', tier: 'premium', preferences: { timezone: 'UTC' } },
+          stats: {
+            currentStreak: 3, longestStreak: 7, totalCheckIns: 42,
+            todayPercent: 0, completedTasks: 0, totalTasks: 5, tasksRemaining: 5, activeGoals: 0,
+          },
+          streakAtRisk: false,
+          routineProgress: [
+            { id: 'demo-routine-1', title: 'Morning Routine', color: 'neo', totalTasks: 3, completedTasks: 0, percent: 0, isComplete: false },
+            { id: 'demo-routine-2', title: 'Evening Wind Down', color: 'calm', totalTasks: 2, completedTasks: 0, percent: 0, isComplete: false },
+          ],
+          goalsProgress: [],
+          badges: [],
+          newBadgesCount: 0,
+          celebrations: [],
+          weeklyData: weekDates.map(dateISO => ({ dateISO, percent: 0 })),
+          timestamp: now.toISOString(),
+        },
+      });
+    }
+
+    await connectDB();
     
     // Get today's date — prefer the client-supplied date param so stats
     // align with the user's local calendar, not the server's TZ.
