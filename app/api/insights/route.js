@@ -4,6 +4,7 @@ import connectDB from '@/lib/db';
 import Routine from '@/models/Routine';
 import CheckIn from '@/models/CheckIn';
 import User from '@/models/User';
+import Goal from '@/models/Goal';
 import { calculateCompletionStats, generateInsights, getWeeklyMessage } from '@/lib/reminderEngine';
 import { getEffectiveTier, getInsightsDaysLimit } from '@/lib/features';
 
@@ -101,7 +102,7 @@ export async function GET(request) {
 
         return {
           id: routine._id,
-          name: routine.name,
+          name: routine.title,
           color: routine.color,
           taskCount: activeTasks.length,
           completed,
@@ -152,6 +153,35 @@ export async function GET(request) {
       await user.save();
     }
 
+    // ========== GOALS PROGRESS ==========
+    const goals = await Goal.find({
+      userId: authUser.userId,
+      status: { $in: ['active', 'completed'] },
+    }).lean();
+
+    const activeGoals = goals.filter(g => g.status === 'active').length;
+    const completedGoals = goals.filter(g => g.status === 'completed').length;
+
+    const goalsProgress = goals.map((goal) => {
+      const progress = goal.targetValue > 0
+        ? Math.min(100, Math.round((goal.currentValue / goal.targetValue) * 100))
+        : 0;
+      return {
+        id: goal._id.toString(),
+        title: goal.title,
+        category: goal.category,
+        progress,
+        currentValue: goal.currentValue || 0,
+        targetValue: goal.targetValue || 100,
+        dueDate: goal.dueDate,
+        status: goal.status,
+      };
+    });
+
+    const avgGoalProgress = goalsProgress.length > 0
+      ? Math.round(goalsProgress.reduce((acc, g) => acc + g.progress, 0) / goalsProgress.length)
+      : 0;
+
     return NextResponse.json({
       summary: {
         totalCheckIns: checkIns.length,
@@ -163,6 +193,9 @@ export async function GET(request) {
         longestStreak: stats.longestStreak,
         trend,
         trendDirection: trend > 0 ? 'up' : trend < 0 ? 'down' : 'stable',
+        activeGoals,
+        completedGoals,
+        avgGoalProgress,
       },
       weekly: {
         completionRate: weeklyStats.completionRate,
@@ -172,6 +205,7 @@ export async function GET(request) {
       insights,
       dailyData,
       routineStats,
+      goalsProgress,
       patterns: {
         bestDayOfWeek: stats.bestDayOfWeek,
         preferredTimeOfDay: stats.preferredTimeOfDay,
