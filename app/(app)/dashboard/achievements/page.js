@@ -137,13 +137,24 @@ export default function AchievementsPage() {
         const userData = userRes.ok ? await userRes.json() : null;
         const insightsData = insightsRes.ok ? await insightsRes.json() : null;
         
+        // Calculate perfect days: days where check-in count equals total active tasks
+        const totalTasks = (insightsData?.routineStats || []).reduce(
+          (sum, r) => sum + (r.totalTasks || 0), 0
+        );
+        let perfectDays = 0;
+        if (totalTasks > 0 && insightsData?.dailyData) {
+          perfectDays = insightsData.dailyData.filter(
+            (d) => d.checkIns >= totalTasks
+          ).length;
+        }
+
         // Get stats from API responses
         setStats({
           routinesCreated: insightsData?.summary?.routineCount || 0,
           totalCheckIns: userData?.data?.user?.analytics?.totalCheckIns || 0,
           currentStreak: userData?.data?.user?.analytics?.currentStreak || 0,
           longestStreak: userData?.data?.user?.analytics?.longestStreak || 0,
-          perfectDays: insightsData?.weekly?.daysWithActivity || 0,
+          perfectDays,
           earlyCheckIns: 0, // Would need to track this
         });
       } catch (err) {
