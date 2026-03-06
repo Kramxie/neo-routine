@@ -81,6 +81,9 @@ export const metadata = {
   },
 };
 
+// Root layout reads cookies for theme — must be dynamic
+export const dynamic = 'force-dynamic';
+
 /**
  * Root Layout
  * Wraps all pages with conditional navbar/footer
@@ -104,6 +107,39 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={themeClass}>
       <body className="min-h-screen flex flex-col">
+        {/* Futuristic preloader — shows on every full page load / refresh */}
+        <div id="neo-loader" aria-hidden="true">
+          <div className="neo-hex-ring">
+            <svg viewBox="0 0 100 100">
+              <polygon className="neo-hex-path-bg" points="50 3, 93 25, 93 75, 50 97, 7 75, 7 25" />
+              <polygon className="neo-hex-path" points="50 3, 93 25, 93 75, 50 97, 7 75, 7 25" />
+            </svg>
+            <div className="neo-pulse-dot" />
+          </div>
+          <div className="neo-loader-text">NeoRoutine</div>
+          <div className="neo-progress-track">
+            <div className="neo-progress-bar" />
+          </div>
+        </div>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                var d=document.getElementById('neo-loader');
+                if(!d)return;
+                function hide(){
+                  d.classList.add('neo-loader--hidden');
+                }
+                window.addEventListener('load',function(){
+                  setTimeout(hide,400);
+                });
+                setTimeout(function(){
+                  if(d)hide();
+                },6000);
+              })();
+            `,
+          }}
+        />
         <Providers>
           <LayoutWrapper>{children}</LayoutWrapper>
         </Providers>

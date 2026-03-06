@@ -479,3 +479,151 @@ html.dark select option {
   animation: scaleIn 0.3s ease-out;
 }
 
+/* =============================================
+   NEO PRELOADER — Futuristic loading screen
+   Fully namespaced under #neo-loader to avoid
+   conflicts with existing styles.
+   ============================================= */
+
+#neo-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #0a0e1a;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#neo-loader.neo-loader--hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Hexagon spinner */
+#neo-loader .neo-hex-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 32px;
+}
+
+#neo-loader .neo-hex-ring svg {
+  width: 100%;
+  height: 100%;
+  animation: neo-spin 2.4s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+}
+
+#neo-loader .neo-hex-ring svg .neo-hex-path {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 3;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  stroke-linecap: round;
+  animation: neo-dash 2.4s ease-in-out infinite;
+}
+
+#neo-loader .neo-hex-ring svg .neo-hex-path-bg {
+  fill: none;
+  stroke: rgba(56, 189, 248, 0.1);
+  stroke-width: 3;
+}
+
+/* Pulse dot in center */
+#neo-loader .neo-pulse-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: #38bdf8;
+  animation: neo-pulse-dot 1.2s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
+}
+
+/* "NeoRoutine" text */
+#neo-loader .neo-loader-text {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 16px;
+  animation: neo-text-glow 2s ease-in-out infinite;
+}
+
+/* Progress bar */
+#neo-loader .neo-progress-track {
+  width: min(200px, 60vw);
+  height: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+#neo-loader .neo-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #38bdf8, #a78bfa, #38bdf8);
+  background-size: 200% 100%;
+  border-radius: 2px;
+  animation: neo-progress 1.8s ease-in-out forwards, neo-shimmer 1.2s linear infinite;
+}
+
+/* Keyframes */
+@keyframes neo-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes neo-dash {
+  0%   { stroke-dashoffset: 300; }
+  50%  { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -300; }
+}
+
+@keyframes neo-pulse-dot {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%      { transform: scale(1.8); opacity: 0.4; }
+}
+
+@keyframes neo-text-glow {
+  0%, 100% { text-shadow: 0 0 8px rgba(56, 189, 248, 0.3); }
+  50%      { text-shadow: 0 0 20px rgba(56, 189, 248, 0.7), 0 0 40px rgba(167, 139, 250, 0.3); }
+}
+
+@keyframes neo-progress {
+  0%   { width: 0%; }
+  30%  { width: 40%; }
+  60%  { width: 70%; }
+  100% { width: 100%; }
+}
+
+@keyframes neo-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Subtle scan line overlay */
+#neo-loader::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(56, 189, 248, 0.015) 2px,
+    rgba(56, 189, 248, 0.015) 4px
+  );
+  pointer-events: none;
+}
+
