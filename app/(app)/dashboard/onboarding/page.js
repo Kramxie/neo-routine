@@ -348,7 +348,7 @@ export default function OnboardingPage() {
           body: JSON.stringify({
             name: routineName.trim(),
             tasks: validTasks.map(function(t) {
-              return { name: t.name.trim(), duration: t.duration };
+              return { label: t.name.trim() };
             }),
           }),
         });
