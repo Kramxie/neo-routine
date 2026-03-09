@@ -125,6 +125,15 @@ export default function AppLayout({ children }) {
         </svg>
       ),
     },
+    {
+      name: 'Templates',
+      href: '/dashboard/templates',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      ),
+    },
   ];
 
   // Bottom navigation items
@@ -166,7 +175,17 @@ export default function AppLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-calm-50 dark:bg-slate-900">
+    <div className="min-h-screen">
+      {/* Ambient background layers */}
+      <div className="ambient-bg" aria-hidden="true">
+        <div className="ambient-bg__gradient" />
+        <div className="ambient-bg__orb ambient-bg__orb--1" />
+        <div className="ambient-bg__orb ambient-bg__orb--2" />
+        <div className="ambient-bg__orb ambient-bg__orb--3" />
+        <div className="ambient-bg__orb ambient-bg__orb--4" />
+        <div className="ambient-bg__dots" />
+      </div>
+
       {/* Mobile sidebar backdrop */}
       {isSidebarOpen && (
         <div
@@ -179,8 +198,8 @@ export default function AppLayout({ children }) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-calm-100
-          dark:bg-slate-800 dark:border-slate-700
+          fixed top-0 left-0 z-50 h-full w-64 glass-sidebar
+          dark:border-slate-700
           transform transition-transform duration-200 ease-in-out
           lg:translate-x-0 flex flex-col
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -259,7 +278,7 @@ export default function AppLayout({ children }) {
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <header className="h-16 bg-white border-b border-calm-100 dark:bg-slate-800 dark:border-slate-700 flex items-center justify-between px-4 lg:px-8">
+        <header className="h-16 glass-header flex items-center justify-between px-4 lg:px-8 relative z-10">
           {/* Mobile menu button */}
           <button
             onClick={() => setIsSidebarOpen(true)}
@@ -299,30 +318,45 @@ export default function AppLayout({ children }) {
 
               {/* Notification dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-calm-200 dark:border-slate-700 z-50">
-                  <div className="p-4 border-b border-calm-100 dark:border-slate-700">
-                    <h3 className="font-semibold text-calm-800 dark:text-white">Notifications</h3>
+                <div className="absolute right-0 mt-2 w-80 neo-notification-panel rounded-2xl shadow-2xl z-50 overflow-hidden">
+                  {/* Futuristic header */}
+                  <div className="neo-notification-header px-4 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="neo-notification-pulse" aria-hidden="true"></span>
+                      <h3 className="font-semibold text-sm tracking-wide text-white uppercase">Notifications</h3>
+                    </div>
+                    <span className="text-[10px] font-mono text-neo-300/70">{notifications.length} new</span>
                   </div>
-                  <div className="max-h-80 overflow-y-auto">
+
+                  {/* Content area */}
+                  <div className="max-h-80 overflow-y-auto neo-notification-body">
                     {notifications.length === 0 ? (
-                      <div className="p-8 text-center text-calm-500 dark:text-slate-400">
-                        <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        <p className="text-sm">No notifications yet</p>
-                        <p className="text-xs mt-1">We&apos;ll notify you when something happens</p>
+                      <div className="p-8 text-center">
+                        <div className="neo-notification-icon-ring mx-auto mb-3">
+                          <svg className="w-8 h-8 text-neo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                          </svg>
+                        </div>
+                        <p className="text-sm font-medium text-calm-700 dark:text-slate-300">All clear</p>
+                        <p className="text-xs mt-1 text-calm-500 dark:text-slate-500">No new signals — you&apos;re on track</p>
                       </div>
                     ) : (
                       notifications.map(function(notif, idx) {
                         return (
-                          <div key={idx} className="p-4 border-b border-calm-50 dark:border-slate-700 hover:bg-calm-50 dark:hover:bg-slate-700">
-                            <p className="text-sm text-calm-800 dark:text-white">{notif.message}</p>
-                            <p className="text-xs text-calm-500 dark:text-slate-400 mt-1">{notif.time}</p>
+                          <div key={idx} className="neo-notification-item px-4 py-3 flex items-start gap-3">
+                            <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-neo-400 shrink-0 neo-notification-dot" aria-hidden="true"></span>
+                            <div className="min-w-0">
+                              <p className="text-sm text-calm-800 dark:text-slate-200 leading-snug">{notif.message}</p>
+                              <p className="text-[11px] text-calm-500 dark:text-slate-500 mt-0.5 font-mono">{notif.time}</p>
+                            </div>
                           </div>
                         );
                       })
                     )}
                   </div>
+
+                  {/* Bottom accent line */}
+                  <div className="h-0.5 neo-notification-accent" aria-hidden="true"></div>
                 </div>
               )}
             </div>
@@ -334,7 +368,7 @@ export default function AppLayout({ children }) {
         </header>
 
         {/* Page content */}
-        <main className="p-3 sm:p-4 lg:p-8 pb-20 lg:pb-8">
+        <main className="p-3 sm:p-4 lg:p-8 pb-20 lg:pb-8 relative z-[1]">
           {children}
         </main>
       </div>
