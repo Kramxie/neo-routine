@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
           <Link href="/" className="inline-block">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full overflow-hidden shadow-neo">
               <Image
-                src="/neoLogo.jfif"
+                src="/neoLogo.png"
                 alt="NeoRoutine Logo"
                 width={64}
                 height={64}

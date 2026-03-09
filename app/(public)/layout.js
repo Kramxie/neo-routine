@@ -70,7 +70,7 @@ const jsonLd = [
     '@type': 'Organization',
     name: 'NeoRoutine',
     url: APP_URL,
-    logo: `${APP_URL}/neoLogo.jfif`,
+    logo: `${APP_URL}/neoLogo.png`,
   },
 ];
 

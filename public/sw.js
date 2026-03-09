@@ -103,8 +103,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Neo Routine';
   const options = {
     body: data.body || 'Time to check in on your routine!',
-    icon: '/neoLogo.jfif',
-    badge: '/neoLogo.jfif',
+    icon: '/neoLogo.png',
+    badge: '/neoLogo.png',
     data: { url: data.url || '/dashboard' },
     requireInteraction: false,
     tag: data.tag || 'neo-routine-reminder',
