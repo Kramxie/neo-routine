@@ -57,6 +57,7 @@ export async function GET(request) {
         color: t.color,
         isPublic: t.isPublic,
         isPublished: t.isPublished,
+        isPremium: t.isPremium || false,
         shareCode: t.shareCode,
         stats: t.stats,
         createdAt: t.createdAt,
@@ -149,6 +150,7 @@ export async function POST(request) {
         ? body.tags.slice(0, 10).map((t) => sanitizeString(t, 30))
         : [],
       isPublic: Boolean(body.isPublic),
+      isPremium: Boolean(body.isPremium),
       isPublished: false, // Always start as draft
     });
 
