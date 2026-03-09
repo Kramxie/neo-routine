@@ -128,6 +128,9 @@ export async function PATCH(request, { params }) {
     if (body.isPublic !== undefined) {
       template.isPublic = Boolean(body.isPublic);
     }
+    if (body.isPremium !== undefined) {
+      template.isPremium = Boolean(body.isPremium);
+    }
     if (body.isPublished !== undefined) {
       // Can only publish if has at least one task
       if (body.isPublished && template.tasks.length === 0) {
