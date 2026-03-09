@@ -122,6 +122,11 @@ const RoutineTemplateSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // Premium template (requires Premium+ to adopt)
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
     // Usage statistics
     stats: {
       // Times this template was adopted
@@ -191,6 +196,7 @@ RoutineTemplateSchema.methods.toSafeObject = function () {
     isPublic: this.isPublic,
     isPublished: this.isPublished,
     isFeatured: this.isFeatured,
+    isPremium: this.isPremium,
     stats: this.stats,
     shareCode: this.shareCode,
     createdAt: this.createdAt,
