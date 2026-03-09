@@ -50,6 +50,9 @@ const tailwindConfig = {
         'drop': 'drop 0.6s ease-out',
         'float': 'float 3s ease-in-out infinite',
         'wave': 'wave 3s ease-in-out infinite',
+        'ambient-flow': 'ambient-flow 20s ease infinite',
+        'orb-1': 'orb-drift-1 25s ease-in-out infinite',
+        'orb-2': 'orb-drift-2 30s ease-in-out infinite',
       },
       keyframes: {
         ripple: {
