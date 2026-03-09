@@ -12,7 +12,8 @@
     "test": "node --test",
     "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
-    "check-env": "node -r dotenv/config ./scripts/check-env.js"
+    "check-env": "node -r dotenv/config ./scripts/check-env.js",
+    "seed:templates": "node scripts/seed-templates.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
