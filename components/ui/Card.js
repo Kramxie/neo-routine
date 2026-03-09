@@ -15,8 +15,8 @@ export default function Card({
 }) {
   // Variant styles
   const variants = {
-    default: 'bg-white border border-calm-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100',
-    elevated: 'bg-white shadow-neo dark:bg-slate-800 dark:shadow-none dark:border dark:border-slate-700 dark:text-slate-100',
+    default: 'neo-card-glass border border-calm-100/60 dark:border-slate-700/60 dark:text-slate-100',
+    elevated: 'neo-card-glass shadow-neo dark:shadow-none dark:border dark:border-slate-700/60 dark:text-slate-100',
     outlined: 'bg-transparent border-2 border-calm-200 dark:border-slate-600 dark:text-slate-100',
     gradient: 'bg-gradient-water border border-neo-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100',
     dark: 'bg-calm-800 text-white border border-calm-700',
