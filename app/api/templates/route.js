@@ -7,7 +7,9 @@ import { getCurrentUser } from '@/lib/auth';
 
 /**
  * GET /api/templates
- * Browse public templates
+ * Browse public templates (tier-aware)
+ * Free: 5 non-premium templates only
+ * Premium/Premium+: All templates
  */
 export async function GET(request) {
   try {
@@ -18,10 +20,34 @@ export async function GET(request) {
     const difficulty = searchParams.get('difficulty');
     const search = searchParams.get('search');
     const featured = searchParams.get('featured') === 'true';
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
+
+    // Determine user tier
+    let effectiveTier = 'free';
+    let hasCoachAccess = false;
+    try {
+      const currentUser = await getCurrentUser();
+      if (currentUser) {
+        const dbUser = await User.findById(currentUser.userId).select('tier subscription role');
+        if (dbUser) {
+          const { getEffectiveTier, hasFeature } = await import('@/lib/features');
+          effectiveTier = getEffectiveTier(dbUser);
+          hasCoachAccess = hasFeature(effectiveTier, 'coachAccess');
+        }
+      }
+    } catch {
+      // If auth fails, default to free tier view
+    }
+
+    // Free users: only non-premium, max 5
+    const maxResults = hasCoachAccess ? Math.min(parseInt(searchParams.get('limit') || '50'), 50) : 5;
 
     // Build query
     const query = { isPublic: true, isPublished: true };
+
+    // Free users can only see non-premium templates
+    if (!hasCoachAccess) {
+      query.isPremium = { $ne: true };
+    }
 
     if (category && category !== 'all') {
       query.category = category;
@@ -45,7 +71,7 @@ export async function GET(request) {
     const templates = await RoutineTemplate.find(query)
       .populate('coachId', 'name coachProfile.brandName coachProfile.avatarUrl coachProfile.isVerified')
       .sort({ isFeatured: -1, 'stats.adoptions': -1 })
-      .limit(limit)
+      .limit(maxResults)
       .lean();
 
     return NextResponse.json({
@@ -60,6 +86,7 @@ export async function GET(request) {
         color: t.color,
         tags: t.tags,
         isFeatured: t.isFeatured,
+        isPremium: t.isPremium || false,
         stats: {
           adoptions: t.stats?.adoptions || 0,
           avgRating: t.stats?.avgRating || 0,
@@ -72,6 +99,8 @@ export async function GET(request) {
         },
         shareCode: t.shareCode,
       })),
+      userTier: effectiveTier,
+      hasFullAccess: hasCoachAccess,
     });
   } catch (error) {
     console.error('Get templates error:', error);
@@ -137,8 +166,23 @@ export async function POST(request) {
     });
 
     // Import feature helper
-    const { canCreateRoutine, canAddTask, getEffectiveTier } = await import('@/lib/features');
+    const { canCreateRoutine, canAddTask, getEffectiveTier, hasFeature, getUpgradePrompt } = await import('@/lib/features');
     const effectiveTier = getEffectiveTier(dbUser);
+
+    // Check coachAccess for premium templates
+    if (template.isPremium && !hasFeature(effectiveTier, 'coachAccess')) {
+      const prompt = getUpgradePrompt('coachAccess');
+      return NextResponse.json(
+        {
+          message: prompt.description,
+          error: 'COACH_ACCESS_REQUIRED',
+          upgradeRequired: true,
+          upgradePrompt: prompt,
+        },
+        { status: 403 }
+      );
+    }
+
     const routineCheck = canCreateRoutine(effectiveTier, currentRoutineCount);
 
     if (!routineCheck.allowed) {
