@@ -20,6 +20,7 @@ export default function NewTemplatePage() {
   const [estimatedMinutes, setEstimatedMinutes] = useState(15);
   const [color, setColor] = useState('blue');
   const [isPublic, setIsPublic] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
   const [tasks, setTasks] = useState([{ label: '', description: '' }]);
 
   const categories = [
@@ -85,6 +86,7 @@ export default function NewTemplatePage() {
           estimatedMinutes,
           color,
           isPublic,
+          isPremium,
           tasks: validTasks,
         }),
       });
@@ -238,6 +240,31 @@ export default function NewTemplatePage() {
                 <span
                   className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${
                     isPublic ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-calm-100">
+              <div>
+                <p className="font-medium text-calm-700 flex items-center gap-2">
+                  Premium Template
+                  <span className="px-1.5 py-0.5 text-[10px] font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded uppercase tracking-wider">
+                    PRO
+                  </span>
+                </p>
+                <p className="text-sm text-calm-500">Only Premium+ subscribers can adopt this template</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPremium(!isPremium)}
+                className={`relative w-12 h-7 rounded-full transition-colors ${
+                  isPremium ? 'bg-amber-500' : 'bg-calm-300'
+                }`}
+              >
+                <span
+                  className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    isPremium ? 'translate-x-5' : 'translate-x-0'
                   }`}
                 />
               </button>
