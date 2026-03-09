@@ -257,7 +257,8 @@ export default function GoalsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto neo-page">
+      <div className="neo-page-corner" aria-hidden="true" />
       {/* Header */}
       <div className="mb-4 sm:mb-8 flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-0">
         <div>

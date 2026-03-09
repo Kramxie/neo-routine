@@ -219,7 +219,8 @@ export default function ProfilePage() {
   const tierBadge = getTierBadge(user?.tier || 'free');
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto neo-page">
+      <div className="neo-page-corner" aria-hidden="true" />
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-calm-800 dark:text-white mb-2">Profile</h1>

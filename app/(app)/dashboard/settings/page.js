@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import Card, { CardContent } from '@/components/ui/Card';
 
 /**
  * Settings Page
@@ -380,365 +380,491 @@ export default function SettingsPage() {
     );
   }
 
+  /* Section definitions for the nav sidebar */
+  const sections = [
+    {
+      id: 'profile',
+      label: 'Profile',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'schedule',
+      label: 'Schedule & Reminders',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'appearance',
+      label: 'Appearance & Notifications',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+        </svg>
+      ),
+    },
+    {
+      id: 'subscription',
+      label: 'Subscription',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
-    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
-      <div>
+    <div className="max-w-5xl mx-auto neo-page">
+      <div className="neo-page-corner" aria-hidden="true" />
+      {/* Header */}
+      <div className="mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-calm-800 dark:text-slate-100">Settings</h1>
-        <p className="text-calm-500 dark:text-slate-400 mt-1 text-sm sm:text-base">Customize your Neo Routine experience</p>
+        <p className="text-calm-500 dark:text-slate-400 mt-1 text-sm sm:text-base">Customize your NeoRoutine experience</p>
       </div>
 
       {/* Success/Error Messages */}
       {saved && (
-        <div className="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 text-sm">
+        <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 text-sm flex items-center gap-2">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
           Settings saved successfully
         </div>
       )}
       {error && (
-        <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-300 text-sm">
+        <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-300 text-sm">
           {error}
         </div>
       )}
 
-      {/* Profile Section */}
-      <Card variant="elevated">
-        <CardHeader>
-          <CardTitle>Profile</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-calm-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              disabled
-              className="w-full px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-calm-50 dark:bg-slate-700 text-calm-500 dark:text-slate-400 cursor-not-allowed"
-            />
-            <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">Email cannot be changed</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Reminders Section */}
-      <Card variant="elevated">
-        <CardHeader>
-          <CardTitle>Reminders</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Reminder Time */}
-          <div>
-            <label htmlFor="reminderTime" className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
-              Daily Reminder Time
-            </label>
-            <input
-              type="time"
-              id="reminderTime"
-              value={reminderTime}
-              onChange={(e) => setReminderTime(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-calm-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
-            />
-          </div>
-
-          {/* Timezone */}
-          <div>
-            <label htmlFor="timezone" className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
-              Timezone
-            </label>
-            <select
-              id="timezone"
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-calm-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
+      {/* Mobile: horizontal scrollable section pills */}
+      <nav className="lg:hidden mb-6 -mx-3 px-3 overflow-x-auto scrollbar-hide" aria-label="Settings sections">
+        <div className="flex gap-2 pb-1">
+          {sections.map((s) => (
+            <a
+              key={s.id}
+              href={`#${s.id}`}
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-calm-200 dark:border-slate-600 text-calm-600 dark:text-slate-300 hover:bg-neo-50 dark:hover:bg-slate-700 hover:border-neo-300 dark:hover:border-neo-700 transition-colors"
             >
-              {timezones.map((tz) => (
-                <option key={tz.value} value={tz.value}>
-                  {tz.label}
-                </option>
-              ))}
-            </select>
-          </div>
+              {s.icon}
+              {s.label}
+            </a>
+          ))}
+        </div>
+      </nav>
 
-          {/* Reminder Frequency */}
-          <div>
-            <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
-              Reminder Intensity
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2">
-              {[
-                { value: 'off', label: 'Off', desc: 'No reminders' },
-                { value: 'gentle', label: 'Gentle', desc: 'Minimal nudges' },
-                { value: 'normal', label: 'Normal', desc: 'Balanced' },
-                { value: 'frequent', label: 'Frequent', desc: 'Stay on track' },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setReminderFrequency(option.value)}
-                  className={`
-                    p-3 rounded-lg border text-left transition-all
-                    ${reminderFrequency === option.value
-                      ? 'border-neo-500 bg-neo-50 dark:bg-neo-900/30 ring-2 ring-neo-200 dark:ring-neo-800'
-                      : 'border-calm-200 dark:border-slate-600 hover:border-calm-300 dark:hover:border-slate-500'
-                    }
-                  `}
-                >
-                  <p className="font-medium text-calm-800 dark:text-slate-100 text-sm">{option.label}</p>
-                  <p className="text-xs text-calm-500 dark:text-slate-400">{option.desc}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Active Days */}
-          <div>
-            <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
-              Active Days
-            </label>
-            <p className="text-xs text-calm-500 dark:text-slate-400 mb-3">
-              Which days would you like to track routines?
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {daysOfWeek.map((day) => (
-                <button
-                  key={day.bit}
-                  type="button"
-                  onClick={() => toggleDay(day.bit)}
-                  className={`
-                    w-9 h-9 sm:w-10 sm:h-10 rounded-full text-xs sm:text-sm font-medium transition-all
-                    ${isDayActive(day.bit)
-                      ? 'bg-neo-500 text-white'
-                      : 'bg-calm-100 dark:bg-slate-700 text-calm-500 dark:text-slate-400 hover:bg-calm-200 dark:hover:bg-slate-600'
-                    }
-                  `}
-                  title={day.full}
-                >
-                  {day.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Appearance Section */}
-      <Card variant="elevated">
-        <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Theme */}
-          <div>
-            <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-3">
-              Theme
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                {
-                  value: 'light',
-                  label: 'Light',
-                  preview: 'bg-white border border-calm-200',
-                  icon: (
-                    <svg className="w-5 h-5 mx-auto text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                  ),
-                },
-                {
-                  value: 'dark',
-                  label: 'Dark',
-                  preview: 'bg-slate-800 border border-slate-600',
-                  icon: (
-                    <svg className="w-5 h-5 mx-auto text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                  ),
-                },
-                {
-                  value: 'auto',
-                  label: 'Auto',
-                  preview: 'bg-gradient-to-r from-white to-slate-700 border border-calm-200',
-                  icon: (
-                    <svg className="w-5 h-5 mx-auto text-calm-400 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  ),
-                },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => handleThemeChange(option.value)}
-                  className={`p-3 rounded-xl border text-center transition-all ${
-                    theme === option.value
-                      ? 'border-neo-500 bg-neo-50 dark:bg-neo-900/30 ring-2 ring-neo-200 dark:ring-neo-800'
-                      : 'border-calm-200 dark:border-slate-600 hover:border-calm-300 dark:hover:border-slate-500'
-                  }`}
-                >
-                  <div className={`w-full h-7 rounded-md mb-2 ${option.preview}`} />
-                  {option.icon}
-                  <p className="text-xs font-medium text-calm-700 dark:text-slate-200 mt-1.5">{option.label}</p>
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-calm-400 dark:text-slate-500 mt-2">
-              Changes apply instantly. Auto follows your system preference.
-            </p>
-          </div>
-
-          {/* Celebrations Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-calm-700 dark:text-slate-200">Celebration Animations</p>
-              <p className="text-sm text-calm-500 dark:text-slate-400">Show animations when completing tasks</p>
-            </div>
-            <Toggle checked={celebrations} onChange={setCelebrations} />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Notifications Section */}
-      <Card variant="elevated">
-        <CardHeader>
-          <CardTitle>Notifications</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Weekly Digest Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-calm-700 dark:text-slate-200">Weekly Summary Email</p>
-              <p className="text-sm text-calm-500 dark:text-slate-400">Receive a weekly progress summary</p>
-            </div>
-            <Toggle checked={weeklyDigest} onChange={setWeeklyDigest} />
-          </div>
-
-          <hr className="border-calm-100 dark:border-slate-700" />
-
-          {/* Push Notifications */}
-          <PushNotificationSection />
-        </CardContent>
-      </Card>
-
-      {/* Subscription Section */}
-      <Card variant="elevated">
-        <CardHeader>
-          <CardTitle>Subscription</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Current Plan */}
-          <div className="flex items-center justify-between p-4 rounded-lg bg-neo-50 dark:bg-neo-900/30 border border-neo-100 dark:border-neo-800">
-            <div>
-              <p className="text-sm text-calm-500 dark:text-slate-400">Current Plan</p>
-              <p className="text-xl font-bold text-calm-800 dark:text-slate-100 capitalize">
-                {currentTier.replace('_', ' ')}
-              </p>
-              {subscription?.status === 'active' && subscription?.currentPeriodEnd && (
-                <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">
-                  Renews {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
-                </p>
-              )}
-              {subscription?.cancelAtPeriodEnd && (
-                <p className="text-xs text-orange-500 dark:text-orange-400 mt-1">
-                  Cancels at end of billing period
-                </p>
-              )}
-            </div>
-            <div className="text-center">
-              <svg className="w-12 h-12 text-neo-500 mx-auto" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C12 2 6 8.5 6 13.5C6 17.09 8.69 20 12 20C15.31 20 18 17.09 18 13.5C18 8.5 12 2 12 2Z" />
-              </svg>
-            </div>
-          </div>
-
-          {/* Usage Limits */}
-          {limits && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg bg-calm-50 dark:bg-slate-700/50 border border-calm-100 dark:border-slate-600">
-                <p className="text-xs text-calm-500 dark:text-slate-400 mb-1">Routines</p>
-                <p className="text-lg font-semibold text-calm-700 dark:text-slate-200">
-                  {limits.routines === Infinity ? 'Unlimited' : `Up to ${limits.routines}`}
-                </p>
-              </div>
-              <div className="p-3 rounded-lg bg-calm-50 dark:bg-slate-700/50 border border-calm-100 dark:border-slate-600">
-                <p className="text-xs text-calm-500 dark:text-slate-400 mb-1">Tasks per Routine</p>
-                <p className="text-lg font-semibold text-calm-700 dark:text-slate-200">
-                  {limits.tasksPerRoutine === Infinity ? 'Unlimited' : `Up to ${limits.tasksPerRoutine}`}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Upgrade CTA */}
-          {currentTier === 'free' && (
-            <Link
-              href="/dashboard/upgrade"
-              className="block w-full py-3 px-4 text-center rounded-lg bg-neo-500 text-white font-medium hover:bg-neo-600 transition-colors"
-            >
-              Upgrade to Premium
-            </Link>
-          )}
-
-          {/* Manage Subscription Button (for paid users) */}
-          {currentTier !== 'free' && subscription?.status === 'active' && (
-            <div className="flex gap-3">
-              {currentTier !== 'premium_plus' && (
-                <Link
-                  href="/dashboard/upgrade"
-                  className="flex-1 py-3 px-4 text-center rounded-lg border border-neo-200 text-neo-600 font-medium hover:bg-neo-50 transition-colors"
-                >
-                  Upgrade to Premium+
-                </Link>
-              )}
-              <button
-                onClick={handleManageSubscription}
-                disabled={managingSubscription}
-                className="flex-1 py-3 px-4 rounded-lg bg-calm-100 dark:bg-slate-700 text-calm-700 dark:text-slate-200 font-medium hover:bg-calm-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50"
+      {/* 2-column layout: sidebar nav + content */}
+      <div className="flex gap-8">
+        {/* Desktop sticky section nav */}
+        <nav className="hidden lg:block w-56 flex-shrink-0" aria-label="Settings sections">
+          <div className="sticky top-24 space-y-1">
+            {sections.map((s) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className="flex items-center gap-3 px-4 py-3 rounded-neo text-calm-600 dark:text-slate-300 hover:bg-neo-50 dark:hover:bg-slate-700 hover:text-neo-600 dark:hover:text-neo-300 transition-colors group"
               >
-                {managingSubscription ? 'Loading...' : 'Manage Subscription'}
-              </button>
-            </div>
-          )}
+                <span className="text-calm-400 dark:text-slate-500 group-hover:text-neo-500 transition-colors">{s.icon}</span>
+                <span className="font-medium text-sm">{s.label}</span>
+              </a>
+            ))}
+          </div>
+        </nav>
 
-          {currentTier === 'premium_plus' && (
-            <div className="space-y-3">
-              <p className="text-center text-calm-500 dark:text-slate-400 text-sm">
-                You are on our highest tier - enjoy unlimited access!
-              </p>
-              {subscription?.status === 'active' && (
-                <button
-                  onClick={handleManageSubscription}
-                  disabled={managingSubscription}
-                  className="w-full py-3 px-4 rounded-lg bg-calm-100 dark:bg-slate-700 text-calm-700 dark:text-slate-200 font-medium hover:bg-calm-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50"
-                >
-                  {managingSubscription ? 'Loading...' : 'Manage Subscription'}
-                </button>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        {/* Main content */}
+        <div className="flex-1 min-w-0 space-y-6 pb-24">
 
-      {/* Save Button */}
-      <div className="flex justify-end gap-3 pt-4">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-3 rounded-xl bg-neo-500 text-white font-medium hover:bg-neo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {saving ? 'Saving...' : 'Save Changes'}
-        </button>
+          {/* ── PROFILE ── */}
+          <section id="profile" className="scroll-mt-24">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-neo-50 dark:bg-neo-900/30 text-neo-500">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-calm-800 dark:text-slate-100">Profile</h2>
+                <p className="text-xs text-calm-400 dark:text-slate-500">Your name and account info</p>
+              </div>
+            </div>
+            <Card variant="elevated">
+              <CardContent className="space-y-4 pt-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-calm-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    disabled
+                    className="w-full px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-calm-50 dark:bg-slate-700 text-calm-500 dark:text-slate-400 cursor-not-allowed"
+                  />
+                  <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">Email cannot be changed</p>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* ── SCHEDULE & REMINDERS ── */}
+          <section id="schedule" className="scroll-mt-24">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-500">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-calm-800 dark:text-slate-100">Schedule & Reminders</h2>
+                <p className="text-xs text-calm-400 dark:text-slate-500">When and how often we nudge you</p>
+              </div>
+            </div>
+            <Card variant="elevated">
+              <CardContent className="space-y-6 pt-6">
+                {/* Reminder Time & Timezone side-by-side on desktop */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="reminderTime" className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
+                      Daily Reminder Time
+                    </label>
+                    <input
+                      type="time"
+                      id="reminderTime"
+                      value={reminderTime}
+                      onChange={(e) => setReminderTime(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-calm-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="timezone" className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
+                      Timezone
+                    </label>
+                    <select
+                      id="timezone"
+                      value={timezone}
+                      onChange={(e) => setTimezone(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-calm-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-calm-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-neo-400 focus:border-transparent"
+                    >
+                      {timezones.map((tz) => (
+                        <option key={tz.value} value={tz.value}>
+                          {tz.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Reminder Frequency */}
+                <div>
+                  <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
+                    Reminder Intensity
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {[
+                      { value: 'off', label: 'Off', desc: 'No reminders' },
+                      { value: 'gentle', label: 'Gentle', desc: 'Minimal nudges' },
+                      { value: 'normal', label: 'Normal', desc: 'Balanced' },
+                      { value: 'frequent', label: 'Frequent', desc: 'Stay on track' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setReminderFrequency(option.value)}
+                        className={`
+                          p-3 rounded-lg border text-left transition-all
+                          ${reminderFrequency === option.value
+                            ? 'border-neo-500 bg-neo-50 dark:bg-neo-900/30 ring-2 ring-neo-200 dark:ring-neo-800'
+                            : 'border-calm-200 dark:border-slate-600 hover:border-calm-300 dark:hover:border-slate-500'
+                          }
+                        `}
+                      >
+                        <p className="font-medium text-calm-800 dark:text-slate-100 text-sm">{option.label}</p>
+                        <p className="text-xs text-calm-500 dark:text-slate-400">{option.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Active Days */}
+                <div>
+                  <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-2">
+                    Active Days
+                  </label>
+                  <p className="text-xs text-calm-500 dark:text-slate-400 mb-3">
+                    Which days would you like to track routines?
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {daysOfWeek.map((day) => (
+                      <button
+                        key={day.bit}
+                        type="button"
+                        onClick={() => toggleDay(day.bit)}
+                        className={`
+                          w-9 h-9 sm:w-10 sm:h-10 rounded-full text-xs sm:text-sm font-medium transition-all
+                          ${isDayActive(day.bit)
+                            ? 'bg-neo-500 text-white'
+                            : 'bg-calm-100 dark:bg-slate-700 text-calm-500 dark:text-slate-400 hover:bg-calm-200 dark:hover:bg-slate-600'
+                          }
+                        `}
+                        title={day.full}
+                      >
+                        {day.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* ── APPEARANCE & NOTIFICATIONS ── */}
+          <section id="appearance" className="scroll-mt-24">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-500">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-calm-800 dark:text-slate-100">Appearance & Notifications</h2>
+                <p className="text-xs text-calm-400 dark:text-slate-500">Theme, animations, and alert preferences</p>
+              </div>
+            </div>
+            <Card variant="elevated">
+              <CardContent className="space-y-6 pt-6">
+                {/* Theme */}
+                <div>
+                  <label className="block text-sm font-medium text-calm-700 dark:text-slate-300 mb-3">
+                    Theme
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      {
+                        value: 'light',
+                        label: 'Light',
+                        preview: 'bg-white border border-calm-200',
+                        icon: (
+                          <svg className="w-5 h-5 mx-auto text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                          </svg>
+                        ),
+                      },
+                      {
+                        value: 'dark',
+                        label: 'Dark',
+                        preview: 'bg-slate-800 border border-slate-600',
+                        icon: (
+                          <svg className="w-5 h-5 mx-auto text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                          </svg>
+                        ),
+                      },
+                      {
+                        value: 'auto',
+                        label: 'Auto',
+                        preview: 'bg-gradient-to-r from-white to-slate-700 border border-calm-200',
+                        icon: (
+                          <svg className="w-5 h-5 mx-auto text-calm-400 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                        ),
+                      },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => handleThemeChange(option.value)}
+                        className={`p-3 rounded-xl border text-center transition-all ${
+                          theme === option.value
+                            ? 'border-neo-500 bg-neo-50 dark:bg-neo-900/30 ring-2 ring-neo-200 dark:ring-neo-800'
+                            : 'border-calm-200 dark:border-slate-600 hover:border-calm-300 dark:hover:border-slate-500'
+                        }`}
+                      >
+                        <div className={`w-full h-7 rounded-md mb-2 ${option.preview}`} />
+                        {option.icon}
+                        <p className="text-xs font-medium text-calm-700 dark:text-slate-200 mt-1.5">{option.label}</p>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-calm-400 dark:text-slate-500 mt-2">
+                    Changes apply instantly. Auto follows your system preference.
+                  </p>
+                </div>
+
+                {/* Celebrations Toggle */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-calm-700 dark:text-slate-200">Celebration Animations</p>
+                    <p className="text-sm text-calm-500 dark:text-slate-400">Show animations when completing tasks</p>
+                  </div>
+                  <Toggle checked={celebrations} onChange={setCelebrations} />
+                </div>
+
+                <hr className="border-calm-100 dark:border-slate-700" />
+
+                {/* Weekly Digest Toggle */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-calm-700 dark:text-slate-200">Weekly Summary Email</p>
+                    <p className="text-sm text-calm-500 dark:text-slate-400">Receive a weekly progress summary</p>
+                  </div>
+                  <Toggle checked={weeklyDigest} onChange={setWeeklyDigest} />
+                </div>
+
+                <hr className="border-calm-100 dark:border-slate-700" />
+
+                {/* Push Notifications */}
+                <PushNotificationSection />
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* ── SUBSCRIPTION ── */}
+          <section id="subscription" className="scroll-mt-24">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-calm-800 dark:text-slate-100">Subscription</h2>
+                <p className="text-xs text-calm-400 dark:text-slate-500">Plan, usage limits, and billing</p>
+              </div>
+            </div>
+            <Card variant="elevated">
+              <CardContent className="space-y-4 pt-6">
+                {/* Current Plan */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-neo-50 dark:bg-neo-900/30 border border-neo-100 dark:border-neo-800">
+                  <div>
+                    <p className="text-sm text-calm-500 dark:text-slate-400">Current Plan</p>
+                    <p className="text-xl font-bold text-calm-800 dark:text-slate-100 capitalize">
+                      {currentTier.replace('_', ' ')}
+                    </p>
+                    {subscription?.status === 'active' && subscription?.currentPeriodEnd && (
+                      <p className="text-xs text-calm-400 dark:text-slate-500 mt-1">
+                        Renews {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                      </p>
+                    )}
+                    {subscription?.cancelAtPeriodEnd && (
+                      <p className="text-xs text-orange-500 dark:text-orange-400 mt-1">
+                        Cancels at end of billing period
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-center">
+                    <svg className="w-12 h-12 text-neo-500 mx-auto" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C12 2 6 8.5 6 13.5C6 17.09 8.69 20 12 20C15.31 20 18 17.09 18 13.5C18 8.5 12 2 12 2Z" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Usage Limits */}
+                {limits && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 rounded-lg bg-calm-50 dark:bg-slate-700/50 border border-calm-100 dark:border-slate-600">
+                      <p className="text-xs text-calm-500 dark:text-slate-400 mb-1">Routines</p>
+                      <p className="text-lg font-semibold text-calm-700 dark:text-slate-200">
+                        {limits.routines === Infinity ? 'Unlimited' : `Up to ${limits.routines}`}
+                      </p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-calm-50 dark:bg-slate-700/50 border border-calm-100 dark:border-slate-600">
+                      <p className="text-xs text-calm-500 dark:text-slate-400 mb-1">Tasks per Routine</p>
+                      <p className="text-lg font-semibold text-calm-700 dark:text-slate-200">
+                        {limits.tasksPerRoutine === Infinity ? 'Unlimited' : `Up to ${limits.tasksPerRoutine}`}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upgrade CTA */}
+                {currentTier === 'free' && (
+                  <Link
+                    href="/dashboard/upgrade"
+                    className="block w-full py-3 px-4 text-center rounded-lg bg-neo-500 text-white font-medium hover:bg-neo-600 transition-colors"
+                  >
+                    Upgrade to Premium
+                  </Link>
+                )}
+
+                {/* Manage Subscription Button (for paid users) */}
+                {currentTier !== 'free' && subscription?.status === 'active' && (
+                  <div className="flex gap-3">
+                    {currentTier !== 'premium_plus' && (
+                      <Link
+                        href="/dashboard/upgrade"
+                        className="flex-1 py-3 px-4 text-center rounded-lg border border-neo-200 text-neo-600 font-medium hover:bg-neo-50 transition-colors"
+                      >
+                        Upgrade to Premium+
+                      </Link>
+                    )}
+                    <button
+                      onClick={handleManageSubscription}
+                      disabled={managingSubscription}
+                      className="flex-1 py-3 px-4 rounded-lg bg-calm-100 dark:bg-slate-700 text-calm-700 dark:text-slate-200 font-medium hover:bg-calm-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50"
+                    >
+                      {managingSubscription ? 'Loading...' : 'Manage Subscription'}
+                    </button>
+                  </div>
+                )}
+
+                {currentTier === 'premium_plus' && (
+                  <div className="space-y-3">
+                    <p className="text-center text-calm-500 dark:text-slate-400 text-sm">
+                      You are on our highest tier - enjoy unlimited access!
+                    </p>
+                    {subscription?.status === 'active' && (
+                      <button
+                        onClick={handleManageSubscription}
+                        disabled={managingSubscription}
+                        className="w-full py-3 px-4 rounded-lg bg-calm-100 dark:bg-slate-700 text-calm-700 dark:text-slate-200 font-medium hover:bg-calm-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50"
+                      >
+                        {managingSubscription ? 'Loading...' : 'Manage Subscription'}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </section>
+        </div>
+      </div>
+
+      {/* Sticky save bar */}
+      <div className="fixed bottom-0 left-0 lg:left-64 right-0 z-30 p-4 glass-header">
+        <div className="max-w-5xl mx-auto flex items-center justify-end gap-3">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-6 py-2.5 rounded-xl bg-neo-500 text-white font-medium hover:bg-neo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-neo"
+          >
+            {saving ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Saving...
+              </span>
+            ) : 'Save Changes'}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -171,7 +171,8 @@ export default function RoutinesPage() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 neo-page">
+      <div className="neo-page-corner" aria-hidden="true" />
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
         <div>

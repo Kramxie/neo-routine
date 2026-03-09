@@ -316,7 +316,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 neo-page">
+      <div className="neo-page-corner" aria-hidden="true" />
       {/* Confetti Celebration */}
       {celebration && (
         <Confetti

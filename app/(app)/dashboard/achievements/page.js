@@ -237,7 +237,8 @@ export default function AchievementsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 neo-page">
+      <div className="neo-page-corner" aria-hidden="true" />
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
