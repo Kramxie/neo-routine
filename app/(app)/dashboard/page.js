@@ -22,6 +22,7 @@ import { useToast } from '@/components/ui/Toast';
  */
 
 export default function DashboardPage() {
+  const toast = useToast();
   const [routines, setRoutines] = useState([]);
   const [todayData, setTodayData] = useState(null);
   const [dashboardStats, setDashboardStats] = useState(null);
