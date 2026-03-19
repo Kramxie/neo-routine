@@ -24,15 +24,23 @@ export async function GET(request) {
     // Determine user tier
     let effectiveTier = 'free';
     let hasCoachAccess = false;
+    let adoptedTemplateCount = 0;
+    let templateAdoptionLimit = 1;
     try {
       const currentUser = await getCurrentUser();
       if (currentUser) {
         const dbUser = await User.findById(currentUser.userId).select('tier subscription role');
         if (dbUser) {
-          const { getEffectiveTier, hasFeature } = await import('@/lib/features');
+          const { getEffectiveTier, hasFeature, getLimit } = await import('@/lib/features');
           effectiveTier = getEffectiveTier(dbUser);
           hasCoachAccess = hasFeature(effectiveTier, 'coachAccess');
+          templateAdoptionLimit = getLimit(effectiveTier, 'maxTemplateAdoptions');
         }
+
+        adoptedTemplateCount = await Routine.countDocuments({
+          userId: currentUser.userId,
+          sourceTemplate: { $exists: true, $ne: null },
+        });
       }
     } catch {
       // If auth fails, default to free tier view
@@ -81,6 +89,7 @@ export async function GET(request) {
         description: t.description,
         category: t.category,
         taskCount: t.tasks?.length || 0,
+        taskPreview: (t.tasks || []).slice(0, 5).map((task) => task.label),
         difficulty: t.difficulty,
         estimatedMinutes: t.estimatedMinutes,
         color: t.color,
@@ -101,6 +110,10 @@ export async function GET(request) {
       })),
       userTier: effectiveTier,
       hasFullAccess: hasCoachAccess,
+      templateAdoptions: {
+        current: adoptedTemplateCount,
+        limit: templateAdoptionLimit,
+      },
     });
   } catch (error) {
     console.error('Get templates error:', error);
@@ -166,8 +179,30 @@ export async function POST(request) {
     });
 
     // Import feature helper
-    const { canCreateRoutine, canAddTask, getEffectiveTier, hasFeature, getUpgradePrompt } = await import('@/lib/features');
+    const { canCreateRoutine, canAddTask, canAdoptTemplate, getEffectiveTier, hasFeature, getUpgradePrompt } = await import('@/lib/features');
     const effectiveTier = getEffectiveTier(dbUser);
+
+    // Free users can only adopt one template-created routine.
+    const adoptedTemplateCount = await Routine.countDocuments({
+      userId: user.userId,
+      sourceTemplate: { $exists: true, $ne: null },
+    });
+
+    const templateAdoptionCheck = canAdoptTemplate(effectiveTier, adoptedTemplateCount);
+    if (!templateAdoptionCheck.allowed) {
+      const prompt = getUpgradePrompt('templateAdoptions');
+      return NextResponse.json(
+        {
+          message: prompt.description,
+          error: 'TEMPLATE_ADOPTION_LIMIT_REACHED',
+          upgradeRequired: true,
+          upgradePrompt: prompt,
+          current: adoptedTemplateCount,
+          limit: templateAdoptionCheck.limit,
+        },
+        { status: 403 }
+      );
+    }
 
     // Check coachAccess for premium templates
     if (template.isPremium && !hasFeature(effectiveTier, 'coachAccess')) {
@@ -178,6 +213,8 @@ export async function POST(request) {
           error: 'COACH_ACCESS_REQUIRED',
           upgradeRequired: true,
           upgradePrompt: prompt,
+          current: adoptedTemplateCount,
+          limit: templateAdoptionCheck.limit,
         },
         { status: 403 }
       );

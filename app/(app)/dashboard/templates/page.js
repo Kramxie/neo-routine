@@ -49,7 +49,34 @@ export default function TemplateMarketplacePage() {
   const [search, setSearch] = useState('');
   const [message, setMessage] = useState(null);
   const [hasFullAccess, setHasFullAccess] = useState(true);
-  const [userTier, setUserTier] = useState('free');
+  const [, setUserTier] = useState('free');
+  const [templateAdoptionStatus, setTemplateAdoptionStatus] = useState({
+    current: 0,
+    limit: 1,
+  });
+  const [previewTemplate, setPreviewTemplate] = useState(null);
+  const [templateUpgradePrompt, setTemplateUpgradePrompt] = useState({
+    show: false,
+    title: '',
+    message: '',
+    cta: 'Upgrade to Premium',
+    current: 0,
+    limit: 1,
+  });
+  const [templateUpgradeVisible, setTemplateUpgradeVisible] = useState(false);
+
+  useEffect(() => {
+    if (!templateUpgradePrompt.show) {
+      setTemplateUpgradeVisible(false);
+      return;
+    }
+
+    setTemplateUpgradeVisible(false);
+    const frame = requestAnimationFrame(() => {
+      setTemplateUpgradeVisible(true);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [templateUpgradePrompt.show]);
 
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
@@ -65,6 +92,10 @@ export default function TemplateMarketplacePage() {
         setTemplates(data.templates || []);
         setHasFullAccess(data.hasFullAccess ?? true);
         setUserTier(data.userTier || 'free');
+        setTemplateAdoptionStatus({
+          current: Number.isFinite(data.templateAdoptions?.current) ? data.templateAdoptions.current : 0,
+          limit: Number.isFinite(data.templateAdoptions?.limit) ? data.templateAdoptions.limit : 1,
+        });
       }
     } catch (err) {
       console.error('Error fetching templates:', err);
@@ -93,10 +124,13 @@ export default function TemplateMarketplacePage() {
 
       if (!res.ok) {
         if (data.upgradeRequired) {
-          setMessage({
-            type: 'upgrade',
-            text: data.message,
-            prompt: data.upgradePrompt,
+          setTemplateUpgradePrompt({
+            show: true,
+            title: data.upgradePrompt?.title || 'Upgrade to Continue',
+            message: data.message || data.upgradePrompt?.description || 'Upgrade to keep using templates.',
+            cta: data.upgradePrompt?.cta || 'View Plans',
+            current: Number.isFinite(data.current) ? data.current : 0,
+            limit: Number.isFinite(data.limit) ? data.limit : 1,
           });
         } else {
           setMessage({ type: 'error', text: data.message });
@@ -115,6 +149,15 @@ export default function TemplateMarketplacePage() {
     }
   };
 
+  const closeTemplateUpgradePrompt = () => {
+    setTemplateUpgradeVisible(false);
+    setTemplateUpgradePrompt((prev) => ({ ...prev, show: false }));
+  };
+
+  const closePreview = () => {
+    setPreviewTemplate(null);
+  };
+
   return (
     <div className="neo-page space-y-6">
       <div className="neo-page-corner" />
@@ -128,6 +171,34 @@ export default function TemplateMarketplacePage() {
           Browse professionally crafted routines from certified coaches
         </p>
       </div>
+
+      {!loading && !hasFullAccess && templateAdoptionStatus.current >= templateAdoptionStatus.limit && (
+        <div className="rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 dark:border-rose-800/60 dark:bg-rose-950/30">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-300 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-rose-800 dark:text-rose-200">
+                  You already used your 1 free template adoption.
+                </p>
+                <p className="text-xs sm:text-sm text-rose-700 dark:text-rose-300/85 mt-0.5">
+                  Upgrade to Premium to adopt more templates anytime.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/dashboard/upgrade"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold hover:from-rose-600 hover:to-orange-600 transition-colors"
+            >
+              Upgrade to Premium
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Message Banner */}
       {message && (
@@ -371,38 +442,181 @@ export default function TemplateMarketplacePage() {
                   )}
                 </div>
 
-                {/* Adopt button */}
-                <button
-                  onClick={() => handleAdopt(template)}
-                  disabled={adopting === template.id}
-                  className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
-                    template.isPremium
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600'
-                      : 'bg-neo-500 text-white hover:bg-neo-600'
-                  }`}
-                >
-                  {adopting === template.id ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      Adopting...
-                    </span>
-                  ) : template.isPremium ? (
-                    <span className="flex items-center justify-center gap-1.5">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                      Adopt Premium Template
-                    </span>
-                  ) : (
-                    'Adopt Template'
-                  )}
-                </button>
+                {/* Actions */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setPreviewTemplate(template)}
+                    className="py-2.5 rounded-lg text-sm font-medium border border-calm-200 dark:border-slate-600 text-calm-700 dark:text-slate-200 hover:bg-calm-50 dark:hover:bg-slate-700 transition-colors"
+                  >
+                    Preview
+                  </button>
+                  <button
+                    onClick={() => handleAdopt(template)}
+                    disabled={adopting === template.id}
+                    className={`py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
+                      template.isPremium
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600'
+                        : 'bg-neo-500 text-white hover:bg-neo-600'
+                    }`}
+                  >
+                    {adopting === template.id ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Adopting...
+                      </span>
+                    ) : template.isPremium ? (
+                      <span className="flex items-center justify-center gap-1.5">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                        Adopt Premium
+                      </span>
+                    ) : (
+                      'Adopt'
+                    )}
+                  </button>
+                </div>
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+
+      {previewTemplate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <button
+            type="button"
+            aria-label="Close template preview"
+            className="absolute inset-0 bg-calm-900/50 backdrop-blur-[1px]"
+            onClick={closePreview}
+          />
+          <div className="relative z-10 w-full max-w-lg rounded-2xl border border-calm-200 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-calm-800 dark:text-slate-100">{previewTemplate.title}</h3>
+                <p className="text-sm text-calm-500 dark:text-slate-400 mt-1">{previewTemplate.description || 'No description provided'}</p>
+              </div>
+              <button
+                type="button"
+                onClick={closePreview}
+                className="text-calm-400 hover:text-calm-600 dark:text-slate-500 dark:hover:text-slate-300"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mt-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-calm-500 dark:text-slate-400">Preview Tasks</p>
+              <ul className="mt-2 space-y-2">
+                {(previewTemplate.taskPreview || []).length > 0 ? (
+                  (previewTemplate.taskPreview || []).map((taskLabel, index) => (
+                    <li
+                      key={`${previewTemplate.id}-task-preview-${index}`}
+                      className="text-sm text-calm-700 dark:text-slate-200 bg-calm-50 dark:bg-slate-800 rounded-lg px-3 py-2"
+                    >
+                      {taskLabel}
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-sm text-calm-500 dark:text-slate-400">No task preview available</li>
+                )}
+              </ul>
+              {previewTemplate.taskCount > (previewTemplate.taskPreview || []).length && (
+                <p className="mt-2 text-xs text-calm-500 dark:text-slate-400">
+                  +{previewTemplate.taskCount - (previewTemplate.taskPreview || []).length} more tasks
+                </p>
+              )}
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={closePreview}
+                className="py-2.5 rounded-lg border border-calm-200 dark:border-slate-600 text-calm-700 dark:text-slate-200 hover:bg-calm-50 dark:hover:bg-slate-800 text-sm font-medium"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const chosenTemplate = previewTemplate;
+                  closePreview();
+                  if (chosenTemplate) {
+                    handleAdopt(chosenTemplate);
+                  }
+                }}
+                className="py-2.5 rounded-lg bg-neo-500 text-white hover:bg-neo-600 text-sm font-medium"
+              >
+                Adopt This Template
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {templateUpgradePrompt.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <button
+            type="button"
+            aria-label="Close template upgrade prompt"
+            className={`absolute inset-0 bg-calm-900/50 backdrop-blur-[1px] transition-opacity duration-200 ${
+              templateUpgradeVisible ? 'opacity-100' : 'opacity-0'
+            }`}
+            onClick={closeTemplateUpgradePrompt}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            className={`relative z-10 w-full max-w-md rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl transition-all duration-250 ease-out dark:border-amber-700/60 dark:bg-slate-900 ${
+              templateUpgradeVisible
+                ? 'opacity-100 translate-y-0 scale-100'
+                : 'opacity-0 translate-y-2 scale-[0.985]'
+            }`}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-calm-800 dark:text-slate-100">{templateUpgradePrompt.title}</h3>
+                {Number.isFinite(templateUpgradePrompt.limit) && templateUpgradePrompt.limit > 0 && (
+                  <p className="text-xs text-calm-500 dark:text-slate-400 mt-0.5">
+                    {templateUpgradePrompt.current} / {templateUpgradePrompt.limit} template adoptions used
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={closeTemplateUpgradePrompt}
+                className="text-calm-400 hover:text-calm-600 dark:text-slate-500 dark:hover:text-slate-300"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <p className="mt-3 text-sm text-calm-600 dark:text-slate-300">{templateUpgradePrompt.message}</p>
+
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => router.push('/dashboard/upgrade')}
+                className="py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold hover:from-amber-600 hover:to-orange-600"
+              >
+                {templateUpgradePrompt.cta}
+              </button>
+              <button
+                type="button"
+                onClick={closeTemplateUpgradePrompt}
+                className="py-2.5 rounded-lg border border-calm-200 dark:border-slate-600 text-calm-700 dark:text-slate-200 text-sm font-medium hover:bg-calm-50 dark:hover:bg-slate-800"
+              >
+                Maybe Later
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
