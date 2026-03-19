@@ -131,6 +131,15 @@ export default function PricingPage() {
   };
 
   const plans = getPlans();
+  const yearlySavingsBadge = (() => {
+    const savingsValues = [
+      prices?.premium_yearly?.savings,
+      prices?.premium_plus_yearly?.savings,
+    ].filter((value) => typeof value === 'number' && Number.isFinite(value));
+
+    if (savingsValues.length === 0) return null;
+    return `Save up to ${Math.max(...savingsValues)}%`;
+  })();
 
   return (
     <div className="min-h-screen bg-calm-50 dark:bg-calm-900">
@@ -167,9 +176,11 @@ export default function PricingPage() {
               }
             >
               Yearly
-              <span className="bg-green-100 text-green-700 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full">
-                Save 33%
-              </span>
+              {yearlySavingsBadge && (
+                <span className="bg-green-100 text-green-700 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full">
+                  {yearlySavingsBadge}
+                </span>
+              )}
             </button>
           </div>
         </div>

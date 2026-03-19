@@ -209,6 +209,22 @@ export default function UpgradePage() {
     return savings > 0 ? `Save ${savings}%` : null;
   };
 
+  const yearlySavingsBadge = (() => {
+    const tiers = ['premium', 'premium_plus'];
+    const savingsValues = tiers
+      .map((tier) => {
+        const planData = plans[tier];
+        if (!planData || !planData.monthly || !planData.yearly) return null;
+        const monthlyCost = planData.monthly * 12;
+        const savings = Math.round(((monthlyCost - planData.yearly) / monthlyCost) * 100);
+        return Number.isFinite(savings) && savings > 0 ? savings : null;
+      })
+      .filter((value) => typeof value === 'number');
+
+    if (savingsValues.length === 0) return null;
+    return `Save up to ${Math.max(...savingsValues)}%`;
+  })();
+
   const getPlanIcon = (plan) => {
     switch (plan) {
       case 'free':
@@ -325,9 +341,11 @@ export default function UpgradePage() {
               }`}
             >
               Yearly
-              <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                Save 20%
-              </span>
+              {yearlySavingsBadge && (
+                <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                  {yearlySavingsBadge}
+                </span>
+              )}
             </button>
           </div>
         </div>
