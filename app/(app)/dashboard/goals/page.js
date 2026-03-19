@@ -3,22 +3,16 @@
 import { useState, useEffect } from 'react';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import {
+  GOAL_CATEGORIES,
+  DEFAULT_GOAL_CATEGORY_ID,
+  normalizeGoalCategory,
+} from '@/lib/goalCategories';
 
 /**
  * Goals Page
  * Set and track personal goals linked to routines
  */
-
-const GOAL_CATEGORIES = [
-  { id: 'health', name: 'Health & Fitness', icon: '💪', color: 'bg-green-500' },
-  { id: 'productivity', name: 'Productivity', icon: '⚡', color: 'bg-blue-500' },
-  { id: 'learning', name: 'Learning', icon: '📚', color: 'bg-purple-500' },
-  { id: 'mindfulness', name: 'Mindfulness', icon: '🧘', color: 'bg-teal-500' },
-  { id: 'social', name: 'Social', icon: '👥', color: 'bg-orange-500' },
-  { id: 'creative', name: 'Creative', icon: '🎨', color: 'bg-pink-500' },
-  { id: 'finance', name: 'Finance', icon: '💰', color: 'bg-yellow-500' },
-  { id: 'other', name: 'Other', icon: '✨', color: 'bg-gray-500' },
-];
 
 const _GOAL_TIMEFRAMES = [
   { id: 'weekly', name: 'Weekly', days: 7 },
@@ -37,7 +31,7 @@ export default function GoalsPage() {
   const [newGoal, setNewGoal] = useState({
     title: '',
     description: '',
-    category: 'health',
+    category: DEFAULT_GOAL_CATEGORY_ID,
     timeframe: 'monthly',
     targetValue: 100,
     currentValue: 0,
@@ -208,7 +202,7 @@ export default function GoalsPage() {
     setNewGoal({
       title: '',
       description: '',
-      category: 'health',
+      category: DEFAULT_GOAL_CATEGORY_ID,
       timeframe: 'monthly',
       targetValue: 100,
       currentValue: 0,
@@ -225,7 +219,7 @@ export default function GoalsPage() {
     setNewGoal({
       title: goal.title,
       description: goal.description || '',
-      category: goal.category || 'health',
+      category: normalizeGoalCategory(goal.category),
       timeframe: goal.timeframe || 'monthly',
       targetValue: goal.targetValue || 100,
       currentValue: goal.currentValue || 0,
@@ -439,7 +433,8 @@ export default function GoalsPage() {
       {goals.length > 0 && (
         <div className="space-y-4">
           {goals.map((goal) => {
-          const category = GOAL_CATEGORIES.find(c => c.id === goal.category) || GOAL_CATEGORIES[7];
+          const normalizedCategory = normalizeGoalCategory(goal.category);
+          const category = GOAL_CATEGORIES.find(c => c.id === normalizedCategory) || GOAL_CATEGORIES[0];
           const progress = calculateProgress(goal);
           const daysRemaining = getDaysRemaining(goal.dueDate);
           const isCompleted = progress >= 100;

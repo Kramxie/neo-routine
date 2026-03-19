@@ -3,6 +3,11 @@ import mongoose from 'mongoose';
 import connectDB from '@/lib/db';
 import Goal from '@/models/Goal';
 import { getCurrentUser } from '@/lib/auth';
+import {
+  GOAL_CATEGORY_IDS,
+  isLegacyGoalCategory,
+  normalizeGoalCategory,
+} from '@/lib/goalCategories';
 
 /**
  * GET /api/user/goals/[id]
@@ -130,7 +135,18 @@ export async function PUT(request, { params }) {
     // Update fields
     if (title !== undefined) goal.title = title.trim();
     if (description !== undefined) goal.description = description.trim();
-    if (category !== undefined) goal.category = category;
+    if (category !== undefined) {
+      if (!GOAL_CATEGORY_IDS.includes(category) && !isLegacyGoalCategory(category)) {
+        return NextResponse.json(
+          { message: 'Invalid goal category' },
+          { status: 400 }
+        );
+      }
+      goal.category = normalizeGoalCategory(category);
+    } else {
+      // Auto-migrate legacy values (ex: other) during normal updates.
+      goal.category = normalizeGoalCategory(goal.category);
+    }
     if (timeframe !== undefined) goal.timeframe = timeframe;
     if (targetValue !== undefined) goal.targetValue = targetValue;
     if (currentValue !== undefined) goal.currentValue = currentValue;

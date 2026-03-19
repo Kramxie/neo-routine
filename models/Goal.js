@@ -1,4 +1,9 @@
 import mongoose from 'mongoose';
+import {
+  DEFAULT_GOAL_CATEGORY_ID,
+  GOAL_CATEGORY_IDS,
+  normalizeGoalCategory,
+} from '../lib/goalCategories.js';
 
 /**
  * Goal Model
@@ -27,8 +32,8 @@ const GoalSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ['health', 'productivity', 'learning', 'mindfulness', 'social', 'creative', 'finance', 'other'],
-      default: 'other',
+      enum: GOAL_CATEGORY_IDS,
+      default: DEFAULT_GOAL_CATEGORY_ID,
     },
     timeframe: {
       type: String,
@@ -99,6 +104,11 @@ GoalSchema.virtual('daysRemaining').get(function () {
 // Enable virtuals in JSON output
 GoalSchema.set('toJSON', { virtuals: true });
 GoalSchema.set('toObject', { virtuals: true });
+
+GoalSchema.pre('validate', function (next) {
+  this.category = normalizeGoalCategory(this.category);
+  next();
+});
 
 // Pre-save hook to auto-complete goals
 GoalSchema.pre('save', function (next) {

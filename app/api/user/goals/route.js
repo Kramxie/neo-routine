@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Goal from '@/models/Goal';
 import { getCurrentUser } from '@/lib/auth';
+import {
+  DEFAULT_GOAL_CATEGORY_ID,
+  GOAL_CATEGORY_IDS,
+  isLegacyGoalCategory,
+  normalizeGoalCategory,
+} from '@/lib/goalCategories';
 
 /**
  * GET /api/user/goals
@@ -100,6 +106,14 @@ export async function POST(request) {
     // Parse request body
     const body = await request.json();
     const { title, description, category, timeframe, targetValue, currentValue, dueDate, linkedRoutineId } = body;
+    const normalizedCategory = normalizeGoalCategory(category);
+
+    if (category !== undefined && !GOAL_CATEGORY_IDS.includes(category) && !isLegacyGoalCategory(category)) {
+      return NextResponse.json(
+        { message: 'Invalid goal category' },
+        { status: 400 }
+      );
+    }
 
     // Validate required fields
     if (!title || !title.trim()) {
@@ -114,7 +128,7 @@ export async function POST(request) {
       userId: user.userId,
       title: title.trim(),
       description: description?.trim() || '',
-      category: category || 'other',
+      category: category === undefined ? DEFAULT_GOAL_CATEGORY_ID : normalizedCategory,
       timeframe: timeframe || 'monthly',
       targetValue: targetValue || 100,
       currentValue: currentValue || 0,
