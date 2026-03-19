@@ -28,6 +28,14 @@ export default function NewRoutinePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [taskLimit, setTaskLimit] = useState(5); // default to free tier limit
+  const [upgradePrompt, setUpgradePrompt] = useState({
+    show: false,
+    title: 'Routine Limit Reached',
+    message: '',
+    limit: 3,
+    current: 3,
+  });
+  const [upgradePromptVisible, setUpgradePromptVisible] = useState(false);
 
   // Fetch user's tier limits on mount
   useEffect(() => {
@@ -41,6 +49,26 @@ export default function NewRoutinePage() {
       })
       .catch(() => {}); // fail silently — API enforces the real limit
   }, []);
+
+  // Animate upgrade modal entrance for a smoother premium feel.
+  useEffect(() => {
+    if (!upgradePrompt.show) {
+      setUpgradePromptVisible(false);
+      return;
+    }
+
+    setUpgradePromptVisible(false);
+    const rafId = requestAnimationFrame(() => {
+      setUpgradePromptVisible(true);
+    });
+
+    return () => cancelAnimationFrame(rafId);
+  }, [upgradePrompt.show]);
+
+  const closeUpgradePrompt = () => {
+    setUpgradePromptVisible(false);
+    setUpgradePrompt((prev) => ({ ...prev, show: false }));
+  };
 
   // Add new task input (respects tier task limit)
   const addTask = () => {
@@ -64,6 +92,7 @@ export default function NewRoutinePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    closeUpgradePrompt();
     setLoading(true);
 
     // Filter out empty tasks
@@ -97,6 +126,16 @@ export default function NewRoutinePage() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 403 && data.error === 'ROUTINE_LIMIT_REACHED') {
+          setUpgradePrompt({
+            show: true,
+            title: 'Routine Limit Reached',
+            message: data.message || 'You have reached your routine limit for your current plan.',
+            limit: data.data?.limit ?? 3,
+            current: data.data?.current ?? 3,
+          });
+          return;
+        }
         throw new Error(data.message || data.error || 'Failed to create routine');
       }
 
@@ -273,6 +312,57 @@ export default function NewRoutinePage() {
           </form>
         </CardContent>
       </Card>
+
+      {upgradePrompt.show && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close upgrade prompt"
+            className={`absolute inset-0 bg-calm-900/45 transition-opacity duration-200 ${
+              upgradePromptVisible ? 'opacity-100' : 'opacity-0'
+            }`}
+            onClick={closeUpgradePrompt}
+          />
+          <div
+            className={`relative w-full max-w-md rounded-2xl border border-calm-200 bg-white p-6 shadow-2xl transition-all duration-200 ${
+              upgradePromptVisible
+                ? 'translate-y-0 scale-100 opacity-100'
+                : 'translate-y-2 scale-95 opacity-0'
+            }`}
+          >
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-calm-800">{upgradePrompt.title}</h3>
+                <p className="text-xs text-calm-500">{upgradePrompt.current} / {upgradePrompt.limit} routines used</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-calm-600">{upgradePrompt.message}</p>
+
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => router.push('/dashboard/upgrade')}
+                className="flex-1 rounded-xl bg-neo-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neo-600"
+              >
+                Upgrade to Premium
+              </button>
+              <button
+                type="button"
+                onClick={closeUpgradePrompt}
+                className="flex-1 rounded-xl border border-calm-200 px-4 py-2.5 text-sm font-medium text-calm-600 transition-colors hover:bg-calm-50"
+              >
+                Maybe Later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
